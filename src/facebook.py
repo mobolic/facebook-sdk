@@ -111,30 +111,40 @@ class GraphAPI(object):
         Most write operations require extended permissions. For example,
         publishing wall posts requires the "publish_stream" permission. See
         http://developers.facebook.com/docs/authentication/ for details about
-        extended permissions. Fo
+        extended permissions.
         """
         assert self.access_token, "Write operations require an access token"
         self.request(parent_object + "/" + connection_name, post_args=data)
 
-    def delete_object(self, id):
-        """Deletes the object with the given ID from the graph."""
-        self.request(id, post_args={"method": "delete"})
-
-    def put_wall_post(self, message, profile_id="me"):
+    def put_wall_post(self, message, attachment={}, profile_id="me"):
         """Writes a wall post to the given profile's wall.
 
         We default to writing to the authenticated user's wall if no
         profile_id is specified.
+
+        attachment adds a structured attachment to the status message being
+        posted to the Wall. It should be a dictionary of the form:
+
+            {"name": "Link name"
+             "link": "http://www.example.com/",
+             "caption": "{*actor*} posted a new review",
+             "description": "This is a longer description of the attachment",
+             "picture": "http://www.example.com/thumbnail.jpg"}
+
         """
-        graph.put_object(profile_id, "feed", message=message)
+        self.put_object(profile_id, "feed", message=message, **attachment)
 
-    def put_comment(self, post_id, message):
+    def put_comment(self, object_id, message):
         """Writes the given comment on the given post."""
-        graph.put_object(post_id, "comments", message=message)
+        self.put_object(object_id, "comments", message=message)
 
-    def put_like(self, post_id):
+    def put_like(self, object_id):
         """Likes the given post."""
-        graph.put_object(post_id, "likes")
+        self.put_object(object_id, "likes")
+
+    def delete_object(self, id):
+        """Deletes the object with the given ID from the graph."""
+        self.request(id, post_args={"method": "delete"})
 
     def request(self, path, args=None, post_args=None):
         """Fetches the given path in the Graph API.
