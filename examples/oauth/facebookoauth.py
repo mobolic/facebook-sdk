@@ -36,6 +36,7 @@ import Cookie
 import email.utils
 import hashlib
 import hmac
+import logging
 import os.path
 import time
 import urllib
