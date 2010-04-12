@@ -87,6 +87,15 @@ class GraphAPI(object):
         """Fetchs the given object from the graph."""
         return self.request(id, args)
 
+    def get_objects(self, ids, **args):
+        """Fetchs all of the given object from the graph.
+
+        We return a map from ID to object. If any of the IDs are invalid,
+        we raise an exception.
+        """
+        args["ids"] = ",".join(ids)
+        return self.request("", args)
+
     def get_connections(self, id, connection_name, **args):
         """Fetchs the connections for given object."""
         return self.request(id + "/" + connection_name, args)
