@@ -7,13 +7,13 @@
     {% block head %}{% endblock %}
   </head>
   <body>
-    <div id="promo">This application is a demo of the <a href="http://developers.facebook.com/docs/api">Facebook Graph API</a>, the core part of the <a href="http://developers.facebook.com/">Facebook Platform</a>. <a href="http://github.com/facebook/python-sdk/blob/master/examples/client/facebookclient.py">See source code &raquo;</a></div>
+    <div id="promo">This application is a demo of the <a href="http://developers.facebook.com/docs/api">Facebook Graph API</a>, the core part of the <a href="http://developers.facebook.com/">Facebook Platform</a>. <a href="http://github.com/facebook/python-sdk/blob/master/examples/newsfeed/facebookclient.py">See source code &raquo;</a></div>
     <div id="body">{% block body %}{% endblock %}</div>
     <div id="fb-root"></div>
     <script>
       window.fbAsyncInit = function() {
         FB.init({appId: '{{ facebook_app_id }}', status: true, cookie: true, xfbml: true});
-        FB.Event.subscribe('auth.statusChange', function(response) {
+        FB.Event.subscribe('{% if current_user %}auth.logout{% else %}auth.login{% endif %}', function(response) {
           window.location.reload();
         });
       };

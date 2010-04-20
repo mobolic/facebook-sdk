@@ -27,7 +27,7 @@ usage of this module might look like this:
 
     user = facebook.get_user_from_cookie(self.request.cookies, key, secret)
     if user:
-        graph = facebook.GraphAPI(user["oauth_access_token"])
+        graph = facebook.GraphAPI(user["access_token"])
         profile = graph.get_object("me")
         friends = graph.get_connections("me", "friends")
 
@@ -193,7 +193,7 @@ def get_user_from_cookie(cookies, app_id, app_secret):
     cookie values.
 
     If the user is logged in via Facebook, we return a dictionary with the
-    keys "uid" and "oauth_access_token". The former is the user's Facebook ID,
+    keys "uid" and "access_token". The former is the user's Facebook ID,
     and the latter can be used to make authenticated requests to the Graph API.
     If the user is not logged in, we return None.
 

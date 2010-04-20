@@ -48,18 +48,19 @@ class BaseHandler(tornado.web.RequestHandler):
         user = self.db.get(
             "SELECT * FROM users WHERE id = %s", cookie["uid"])
         if not user:
-            graph = facebook.GraphAPI(cookie["oauth_access_token"])
+            # TODO: Make this fetch async rather than blocking
+            graph = facebook.GraphAPI(cookie["access_token"])
             profile = graph.get_object("me")
             self.db.execute(
                 "REPLACE INTO users (id, name, profile_url, access_token) "
                 "VALUES (%s,%s,%s,%s)", profile["id"], profile["name"],
-                profile["profile_url"], cookie["oauth_access_token"])
+                profile["profile_url"], cookie["access_token"])
             user = self.db.get(
                 "SELECT * FROM users WHERE id = %s", profile["id"])
-        elif user.access_token != cookie["oauth_access_token"]:
+        elif user.access_token != cookie["access_token"]:
             self.db.execute(
                 "UPDATE users SET access_token = %s WHERE id = %s",
-                cookie["oauth_access_token"], user.id)
+                cookie["access_token"], user.id)
         return user
 
     @property

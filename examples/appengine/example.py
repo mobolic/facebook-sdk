@@ -57,16 +57,16 @@ class BaseHandler(webapp.RequestHandler):
                 # a round-trip to Facebook on every request
                 user = User.get_by_key_name(cookie["uid"])
                 if not user:
-                    graph = facebook.GraphAPI(cookie["oauth_access_token"])
+                    graph = facebook.GraphAPI(cookie["access_token"])
                     profile = graph.get_object("me")
                     user = User(key_name=str(profile["id"]),
                                 id=str(profile["id"]),
                                 name=profile["name"],
                                 profile_url=profile["profile_url"],
-                                access_token=cookie["oauth_access_token"])
+                                access_token=cookie["access_token"])
                     user.put()
-                elif user.access_token != cookie["oauth_access_token"]:
-                    user.access_token = cookie["oauth_access_token"]
+                elif user.access_token != cookie["access_token"]:
+                    user.access_token = cookie["access_token"]
                     user.put()
                 self._current_user = user
         return self._current_user

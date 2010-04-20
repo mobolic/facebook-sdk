@@ -17,11 +17,10 @@
       window.fbAsyncInit = function() {
         FB.init({appId: '{{ options.facebook_app_id }}', status: true,
                  cookie: true, xfbml: true});
-        FB.Event.subscribe('auth.statusChange', function(response) {
+        FB.Event.subscribe('{% if current_user %}auth.logout{% else %}auth.login{% endif %}', function(response) {
           window.location.reload();
         });
       };
-
       (function() {
         var e = document.createElement('script');
         e.type = 'text/javascript';

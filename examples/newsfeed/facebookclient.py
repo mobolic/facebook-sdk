@@ -60,16 +60,16 @@ class BaseHandler(webapp.RequestHandler):
                 # a round-trip to Facebook on every request
                 user = User.get_by_key_name(cookie["uid"])
                 if not user:
-                    graph = facebook.GraphAPI(cookie["oauth_access_token"])
+                    graph = facebook.GraphAPI(cookie["access_token"])
                     profile = graph.get_object("me")
                     user = User(key_name=str(profile["id"]),
                                 id=str(profile["id"]),
                                 name=profile["name"],
                                 profile_url=profile["profile_url"],
-                                access_token=cookie["oauth_access_token"])
+                                access_token=cookie["access_token"])
                     user.put()
-                elif user.access_token != cookie["oauth_access_token"]:
-                    user.access_token = cookie["oauth_access_token"]
+                elif user.access_token != cookie["access_token"]:
+                    user.access_token = cookie["access_token"]
                     user.put()
                 self._current_user = user
         return self._current_user
@@ -97,10 +97,16 @@ class HomeHandler(BaseHandler):
         if not self.current_user:
             self.render("index.html")
             return
-        news_feed = self.graph.get_connections("me", "home")
+        try:
+            news_feed = self.graph.get_connections("me", "home")
+        except facebook.GraphAPIError:
+            self.render("index.html")
+            return
+        except:
+            news_feed = {"data": []}
         for post in news_feed["data"]:
             post["created_time"] = datetime.datetime.strptime(
-                post["created_time"], "%Y-%m-%dT%H:%M:%S-0700") + \
+                post["created_time"], "%Y-%m-%dT%H:%M:%S+0000") + \
                 datetime.timedelta(hours=7)
         self.render("home.html", news_feed=news_feed)
 
