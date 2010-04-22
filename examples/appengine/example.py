@@ -62,7 +62,7 @@ class BaseHandler(webapp.RequestHandler):
                     user = User(key_name=str(profile["id"]),
                                 id=str(profile["id"]),
                                 name=profile["name"],
-                                profile_url=profile["profile_url"],
+                                profile_url=profile["link"],
                                 access_token=cookie["access_token"])
                     user.put()
                 elif user.access_token != cookie["access_token"]:

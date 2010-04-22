@@ -54,7 +54,7 @@ class BaseHandler(tornado.web.RequestHandler):
             self.db.execute(
                 "REPLACE INTO users (id, name, profile_url, access_token) "
                 "VALUES (%s,%s,%s,%s)", profile["id"], profile["name"],
-                profile["profile_url"], cookie["access_token"])
+                profile["link"], cookie["access_token"])
             user = self.db.get(
                 "SELECT * FROM users WHERE id = %s", profile["id"])
         elif user.access_token != cookie["access_token"]:

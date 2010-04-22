@@ -96,7 +96,7 @@ class LoginHandler(BaseHandler):
                 urllib.urlencode(dict(access_token=access_token))))
             user = User(key_name=str(profile["id"]), id=str(profile["id"]),
                         name=profile["name"], access_token=access_token,
-                        profile_url=profile["profile_url"])
+                        profile_url=profile["link"])
             user.put()
             set_cookie(self.response, "fb_user", str(profile["id"]),
                        expires=time.time() + 30 * 86400)
