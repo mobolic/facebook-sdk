@@ -80,7 +80,7 @@ class HomeHandler(BaseHandler):
 class LoginHandler(BaseHandler):
     def get(self):
         verification_code = self.request.get("code")
-        args = dict(client_id=FACEBOOK_APP_ID, callback=self.request.path_url)
+        args = dict(client_id=FACEBOOK_APP_ID, redirect_uri=self.request.path_url)
         if self.request.get("code"):
             args["client_secret"] = FACEBOOK_APP_SECRET
             args["code"] = self.request.get("code")
