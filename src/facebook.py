@@ -207,7 +207,8 @@ def get_user_from_cookie(cookies, app_id, app_secret):
     payload = "".join(k + "=" + args[k] for k in sorted(args.keys())
                       if k != "sig")
     sig = hashlib.md5(payload + app_secret).hexdigest()
-    if sig == args.get("sig") and time.time() < int(args["expires"]):
+    expires = int(args["expires"])
+    if sig == args.get("sig") and (expires is 0 or time.time() < expires):
         return args
     else:
         return None
