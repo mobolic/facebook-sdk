@@ -40,16 +40,13 @@ import urllib
 
 # Find a JSON parser
 try:
-    import json
-    _parse_json = lambda s: json.loads(s)
+    import simplejson as json
 except ImportError:
     try:
-        import simplejson
-        _parse_json = lambda s: simplejson.loads(s)
+        from django.utils import simplejson as json
     except ImportError:
-        # For Google AppEngine
-        from django.utils import simplejson
-        _parse_json = lambda s: simplejson.loads(s)
+        import json
+_parse_json = lambda s: json.loads(s)
 
 
 class GraphAPI(object):
@@ -171,12 +168,17 @@ class GraphAPI(object):
         file = urllib.urlopen("https://graph.facebook.com/" + path + "?" +
                               urllib.urlencode(args), post_data)
         try:
-            response = _parse_json(file.read())
+            data = file.read()
         finally:
             file.close()
-        if response.get("error"):
-            raise GraphAPIError(response["error"]["code"],
-                                response["error"]["message"])
+        try:
+            response = _parse_json(data)
+            if response.get("error"):
+                raise GraphAPIError(response["error"]["code"],
+                                    response["error"]["message"])
+        except ValueError:
+            response = data
+            
         return response
 
 
