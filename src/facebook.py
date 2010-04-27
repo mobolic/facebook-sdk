@@ -175,15 +175,15 @@ class GraphAPI(object):
         finally:
             file.close()
         if response.get("error"):
-            raise GraphAPIError(response["error"]["code"],
+            raise GraphAPIError(response["error"]["type"],
                                 response["error"]["message"])
         return response
 
 
 class GraphAPIError(Exception):
-    def __init__(self, code, message):
+    def __init__(self, type, message):
         Exception.__init__(self, message)
-        self.code = code
+        self.type = type
 
 
 def get_user_from_cookie(cookies, app_id, app_secret):
