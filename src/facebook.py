@@ -123,7 +123,7 @@ class GraphAPI(object):
         extended permissions.
         """
         assert self.access_token, "Write operations require an access token"
-        self.request(parent_object + "/" + connection_name, post_args=data)
+        return self.request(parent_object + "/" + connection_name, post_args=data)
 
     def put_wall_post(self, message, attachment={}, profile_id="me"):
         """Writes a wall post to the given profile's wall.
@@ -141,15 +141,15 @@ class GraphAPI(object):
              "picture": "http://www.example.com/thumbnail.jpg"}
 
         """
-        self.put_object(profile_id, "feed", message=message, **attachment)
+        return self.put_object(profile_id, "feed", message=message, **attachment)
 
     def put_comment(self, object_id, message):
         """Writes the given comment on the given post."""
-        self.put_object(object_id, "comments", message=message)
+        return self.put_object(object_id, "comments", message=message)
 
     def put_like(self, object_id):
         """Likes the given post."""
-        self.put_object(object_id, "likes")
+        return self.put_object(object_id, "likes")
 
     def delete_object(self, id):
         """Deletes the object with the given ID from the graph."""
