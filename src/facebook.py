@@ -46,7 +46,7 @@ except ImportError:
         from django.utils import simplejson as json
     except ImportError:
         import json
-_parse_json = lambda s: json.loads(s)
+_parse_json = json.loads
 
 
 class GraphAPI(object):
