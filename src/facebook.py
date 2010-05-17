@@ -168,7 +168,7 @@ class GraphAPI(object):
             else:
                 args["access_token"] = self.access_token
         post_data = None if post_args is None else urllib.urlencode(post_args)
-        file = urllib.urlopen("https://graph.facebook.com/" + path + "?" +
+        file = urllib.urlopen("https://graph.facebook.com/" + path + "?" + 
                               urllib.urlencode(args), post_data)
         try:
             response = _parse_json(file.read())
@@ -179,12 +179,70 @@ class GraphAPI(object):
                                 response["error"]["message"])
         return response
 
-
 class GraphAPIError(Exception):
     def __init__(self, type, message):
         Exception.__init__(self, message)
         self.type = type
 
+class FQLAPI(object):
+    """
+    A client for the Facebook FQL API.
+    
+    See http://developers.facebook.com/docs/reference/fql/ for complete documentation
+    for the API.
+
+    The Graph API is made up of the objects in Facebook (e.g., people, pages,
+    events, photos) and the connections between them (e.g., friends,
+    photo tags, and event RSVPs). This client provides access to those
+    primitive types in an advanced way. For example, given an OAuth access
+    token, this will fetch the profile of the active user and list the user's
+    friend's profile pictures.
+
+        graph = facebook.GraphAPI(access_token)
+        user = graph.get_object("me")
+        fql = facebook.FQLAPI(access_token)
+        friends = fql.query("SELECT pic_small FROM profile where id in (SELECT uid2 from friend where uid1 = " + user["id"] + ")")
+        
+
+    You can see a list of all of the objects and connections supported
+    by the API at http://developers.facebook.com/docs/reference/fql/.
+
+    You can obtain an access token via OAuth or by using the Facebook
+    JavaScript SDK. See http://developers.facebook.com/docs/authentication/
+    for details.
+
+    If you are using the JavaScript SDK, you can use the
+    get_user_from_cookie() method below to get the OAuth access token
+    for the active user from the cookie saved by the SDK.
+    """
+    
+    def __init__(self, access_token):
+        self.access_token = access_token
+    
+    def query(self, query):
+        """ Performs a FQL query on Facebook. Just a wrapper around the `request`
+        method below. """ 
+        return self.request(query)
+    
+    def request(self, query):
+        """ Performs the given query on Facebook or raises an `FQLAPIError` """
+
+        file = urllib.urlopen('https://api.facebook.com/method/fql.query?access_token=%s&format=json&query=%s' % (
+            urllib.quote_plus(self.access_token), urllib.quote_plus(query)))
+        try:
+            response = _parse_json(file.read())
+        finally:
+            file.close()        
+        
+        if isinstance(response, dict) and response.get('error_code'):
+            raise FQLAPIError(response['error_code'], response['error_msg'])
+
+        return response
+    
+class FQLAPIError(Exception):
+    def __init__(self, type, message):
+        Exception.__init__(self, message)
+        self.type = type
 
 def get_user_from_cookie(cookies, app_id, app_secret):
     """Parses the cookie set by the official Facebook JavaScript SDK.
