@@ -153,7 +153,7 @@ class GraphAPI(object):
 
     def delete_object(self, id):
         """Deletes the object with the given ID from the graph."""
-        self.request(id, post_args={"method": "delete"})
+        return self.request(id, post_args={"method": "delete"})
 
     def request(self, path, args=None, post_args=None):
         """Fetches the given path in the Graph API.
