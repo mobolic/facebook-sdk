@@ -39,17 +39,17 @@ import time
 import urllib
 
 # Find a JSON parser
+# try:
+#     import json
+#     _parse_json = lambda s: json.loads(s)
+# except ImportError:
 try:
-    import json
-    _parse_json = lambda s: json.loads(s)
+    import simplejson
+    _parse_json = lambda s: simplejson.loads(s)
 except ImportError:
-    try:
-        import simplejson
-        _parse_json = lambda s: simplejson.loads(s)
-    except ImportError:
-        # For Google AppEngine
-        from django.utils import simplejson
-        _parse_json = lambda s: simplejson.loads(s)
+    # For Google AppEngine
+    from django.utils import simplejson
+    _parse_json = lambda s: simplejson.loads(s)
 
 
 class GraphAPI(object):
