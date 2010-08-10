@@ -174,7 +174,7 @@ class GraphAPI(object):
             response = _parse_json(file.read())
         finally:
             file.close()
-        if response.get("error"):
+        if isinstance(response, dict) and response.get("error"):
             raise GraphAPIError(response["error"]["type"],
                                 response["error"]["message"])
         return response
