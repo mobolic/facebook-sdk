@@ -168,7 +168,7 @@ class GraphAPI(object):
             else:
                 args["access_token"] = self.access_token
         post_data = None if post_args is None else urllib.urlencode(post_args)
-        file = urllib.urlopen("https://graph.facebook.com/" + path + "?" + 
+        file = urllib.urlopen("https://graph.facebook.com/" + path + "?" +
                               urllib.urlencode(args), post_data)
         try:
             response = _parse_json(file.read())
@@ -187,7 +187,7 @@ class GraphAPIError(Exception):
 class FQLAPI(object):
     """
     A client for the Facebook FQL API.
-    
+
     See http://developers.facebook.com/docs/reference/fql/ for complete documentation
     for the API.
 
@@ -202,7 +202,7 @@ class FQLAPI(object):
         user = graph.get_object("me")
         fql = facebook.FQLAPI(access_token)
         friends = fql.query("SELECT pic_small FROM profile where id in (SELECT uid2 from friend where uid1 = " + user["id"] + ")")
-        
+
 
     You can see a list of all of the objects and connections supported
     by the API at http://developers.facebook.com/docs/reference/fql/.
@@ -215,15 +215,15 @@ class FQLAPI(object):
     get_user_from_cookie() method below to get the OAuth access token
     for the active user from the cookie saved by the SDK.
     """
-    
+
     def __init__(self, access_token):
         self.access_token = access_token
-    
+
     def query(self, query):
         """ Performs a FQL query on Facebook. Just a wrapper around the `request`
-        method below. """ 
+        method below. """
         return self.request(query)
-    
+
     def request(self, query):
         """ Performs the given query on Facebook or raises an `FQLAPIError` """
 
@@ -232,13 +232,13 @@ class FQLAPI(object):
         try:
             response = _parse_json(file.read())
         finally:
-            file.close()        
-        
+            file.close()
+
         if isinstance(response, dict) and response.get('error_code'):
             raise FQLAPIError(response['error_code'], response['error_msg'])
 
         return response
-    
+
 class FQLAPIError(Exception):
     def __init__(self, type, message):
         Exception.__init__(self, message)
