@@ -37,6 +37,9 @@ import cgi
 import hashlib
 import time
 import urllib
+import random
+import mimetypes
+import httplib
 
 # Find a JSON parser
 # try:
@@ -80,6 +83,7 @@ class GraphAPI(object):
     get_user_from_cookie() method below to get the OAuth access token
     for the active user from the cookie saved by the SDK.
     """
+
     def __init__(self, access_token=None):
         self.access_token = access_token
 
@@ -179,10 +183,73 @@ class GraphAPI(object):
                                 response["error"]["message"])
         return response
 
+    def multipart_request(self, path, args=None, post_args=None, files=None):
+        """Request a given path in the Graph API with multipart support.
+
+        If post_args or files is given, we send a POST multipart request.
+
+        files is a dict of {'filename.ext', 'value'} of files to upload.
+        """
+        def __encode_multipart_data(post_args, files):
+            boundary = ''.join(random.choice('abcdefghijklmnopqrstuvwxyz' \
+                'ABCDEFGHIJKLMNOPQRSTUVWXYZ') for ii in range(31))
+
+            def get_content_type(filename):
+                return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
+
+            def encode_field(field_name, value):
+                return ('--' + boundary,
+                        'Content-Disposition: form-data; name="%s"' % field_name,
+                        '', str(value))
+
+            def encode_file(filename, value):
+                return ('--' + boundary,
+                        'Content-Disposition: form-data; filename="%s"' % (filename, ),
+                        'Content-Type: %s' % get_content_type(filename),
+                        '', value)
+
+            lines = []
+            for (field_name, value) in post_args.items():
+                lines.extend(encode_field(field_name, value))
+            for (filename, value) in files.items():
+                lines.extend(encode_file(filename, value))
+            lines.extend(('--%s--' % boundary, ''))
+            body = '\r\n'.join(lines)
+
+            headers = {'content-type': 'multipart/form-data; boundary=' + boundary,
+                       'content-length': str(len(body))}
+
+            return body, headers
+
+        if not args: args = {}
+        if self.access_token:
+            if post_args is not None:
+                post_args["access_token"] = self.access_token
+            else:
+                args["access_token"] = self.access_token
+
+        path = path + "?" + urllib.urlencode(args)
+        connection = httplib.HTTPSConnection("graph.facebook.com")
+        method = "POST" if post_args or files else "GET"
+        connection.request(method, path,
+                            *__encode_multipart_data(post_args, files))
+        http_response = connection.getresponse()
+        try:
+            response = _parse_json(http_response.read())
+        finally:
+            http_response.close()
+            connection.close()
+        if isinstance(response, dict) and response.get("error"):
+            raise GraphAPIError(response["error"]["type"],
+                                response["error"]["message"])
+        return response
+
+
 class GraphAPIError(Exception):
     def __init__(self, type, message):
         Exception.__init__(self, message)
         self.type = type
+
 
 class FQLAPI(object):
     """
@@ -239,10 +306,12 @@ class FQLAPI(object):
 
         return response
 
+
 class FQLAPIError(Exception):
     def __init__(self, type, message):
         Exception.__init__(self, message)
         self.type = type
+
 
 def get_user_from_cookie(cookies, app_id, app_secret):
     """Parses the cookie set by the official Facebook JavaScript SDK.
