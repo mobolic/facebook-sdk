@@ -174,7 +174,7 @@ class GraphAPI(object):
         try:
             response = _parse_json(data)
             if response.get("error"):
-                raise GraphAPIError(response["error"]["code"],
+                raise GraphAPIError(response["error"].get("code", 1),
                                     response["error"]["message"])
         except ValueError:
             response = data
