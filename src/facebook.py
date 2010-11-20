@@ -37,6 +37,8 @@ import cgi
 import hashlib
 import time
 import urllib
+import base64
+import hmac
 
 # Find a JSON parser
 try:
@@ -257,3 +259,32 @@ def get_user_from_cookie(cookies, app_id, app_secret):
         return args
     else:
         return None
+
+def base64_url_decode(value):
+    padding_factor = (4 - len(value) % 4) % 4
+    value += u'=' * padding_factor 
+    return base64.b64decode(unicode(value).translate(dict(zip(map(ord, u'-_'), u'+/'))))
+
+def parse_signed_request(signed_request, secret):
+    """
+    test = 'vlXgu64BQGFSQrY0ZcJBZASMvYvTHu9GQ0YM9rjPSso.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsIjAiOiJwYXlsb2FkIn0'
+    data = parse_signed_request(test, 'secret')
+    data == {'0':'payload', 'algorithm':'HMAC-SHA256'}
+    """
+
+    l = signed_request.split('.', 2)
+    encoded_sig = l[0]
+    payload = l[1]
+
+    sig = base64_url_decode(encoded_sig)
+    data = json.loads(base64_url_decode(payload))
+
+    if data.get('algorithm').upper() != 'HMAC-SHA256':
+        return None
+    else:
+        expected_sig = hmac.new(secret, msg=payload, digestmod=hashlib.sha256).digest()
+
+    if sig != expected_sig:
+        return None
+    else:
+        return data
