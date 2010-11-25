@@ -27,3 +27,11 @@ profile of the logged in user with:
         friends = graph.get_connections("me", "friends")
 
 You can see a full AppEngine example application in examples/appengine.
+
+Reporting Issues
+--------
+
+If you have bugs or other issues, file them [here][issues].
+
+[issues]: http://bugs.developers.facebook.net/enter_bug.cgi?product=SDKs
+
