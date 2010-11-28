@@ -191,6 +191,39 @@ class GraphAPI(object):
                                 response["error"]["message"])
         return response
 
+    def api_request(self, path, args=None, post_args=None):
+        """Fetches the given path in the Graph API.
+
+        We translate args to a valid query string. If post_args is given,
+        we send a POST request to the given path with the given arguments.
+        """
+        if not args: args = {}
+        if self.access_token:
+            if post_args is not None:
+                post_args["access_token"] = self.access_token
+            else:
+                args["access_token"] = self.access_token
+        if self.api_key:
+            if post_args is not None:
+                post_args["api_key"] = self.api_key
+            else:
+                args["api_key"] = self.api_key
+        if post_args is not None:
+            post_args["format"] = "json-strings"
+        else:
+            args["format"] = "json-strings"
+        post_data = None if post_args is None else urllib.urlencode(post_args)
+        file = urllib.urlopen("https://api.facebook.com/method/" + path + "?" +
+                              urllib.urlencode(args), post_data)
+        try:
+            response = _parse_json(file.read())
+        finally:
+            file.close()
+        if response.get("error"):
+            raise GraphAPIError(response["error"]["type"],
+                                response["error"]["message"])
+        return response
+
 
 class GraphAPIError(Exception):
     def __init__(self, type, message):
