@@ -169,14 +169,19 @@ class GraphAPI(object):
                 args["access_token"] = self.access_token
         post_data = None if post_args is None else urllib.urlencode(post_args)
         file = urllib.urlopen("https://graph.facebook.com/" + path + "?" +
-                              urllib.urlencode(args), post_data)        
+                              urllib.urlencode(args), post_data)
+                              
         try:
             fileInfo = file.info()
             if fileInfo.maintype == 'text':
                 response = _parse_json(file.read())
             elif fileInfo.maintype == 'image':
                 mimetype = fileInfo['content-type']
-                response = {"data":file.read(), "mime-type":mimetype}                
+                response = {
+                    "data": file.read(),
+                    "mime-type": mimetype,
+                    "url": file.url,
+                }
             else:
                 raise GraphAPIError('Response Error', 'Maintype was not text or image')
         finally:
