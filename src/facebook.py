@@ -153,22 +153,23 @@ class GraphAPI(object):
         self.request(id, post_args={"method": "delete"})
 
     def put_photo(self, source, album_id=None, message=""):
-        """
-        Uploads an image using multipart/form-data
+        """Uploads an image using multipart/form-data
+        album_id=None posts to /me/photos which uses or creates and uses 
+        an album for your application.
         """
         object_id = album_id or "me"
         #it would have been nice to reuse self.request; but multipart is messy in urllib
-        content_type, body = self._encode_multipart_form((
-            ('message',message),
-            ('access_token',self.access_token),
-            ('source',source),
-        ))
+        content_type, body = self._encode_multipart_form({
+            'message':message,
+            'access_token':self.access_token,
+            'source':source,
+        })
         req = urllib2.Request("https://graph.facebook.com/%s/photos" % object_id, data=body)
         req.add_header('Content-Type', content_type)
         try:
             data = urllib2.urlopen(req).read()
         except urllib2.HTTPError as e:
-            data = e.read() # Facebook sends OAuth errors as 400, and urllib2 throws an exception
+            data = e.read() # Facebook sends OAuth errors as 400, and urllib2 throws an exception, we want a GraphAPIError
         try:
             response = _parse_json(data)
             if response.get("error"):
@@ -179,20 +180,21 @@ class GraphAPI(object):
             
         return response
 
-    # stolen from: http://code.activestate.com/recipes/146306/
+    # based on: http://code.activestate.com/recipes/146306/
     def _encode_multipart_form(self, fields):
-        """
-        fields is a sequence of (name, value) elements for regular form fields.
-        files is a sequence of (name, filename, value) elements for data to be uploaded as files
+        """Fields are a dict of form name-> value
+        For files, value should be a file object.
+        Other file-like objects might work and a fake name will be chosen.
         Return (content_type, body) ready for httplib.HTTP instance
         """
         BOUNDARY = '----------ThIs_Is_tHe_bouNdaRY_$'
         CRLF = '\r\n'
         L = []
-        for (key, value) in fields:
+        for (key, value) in fields.items():
             L.append('--' + BOUNDARY)
-            if isinstance(value, file): #TODO: make this work for file-like objects
-                L.append('Content-Disposition: form-data; name="%s"; filename="%s"' % (key, value.name))
+            if hasattr(value, 'read') and callable(value.read): 
+                filename = getattr(value,'name','%s.jpg' % key)
+                L.append('Content-Disposition: form-data; name="%s"; filename="%s"' % (key, filename))
                 L.append('Content-Type: image/jpeg')
                 value = value.read()
             else:
