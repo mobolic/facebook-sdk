@@ -36,7 +36,7 @@ usage of this module might look like this:
 import cgi
 import hashlib
 import time
-import urllib
+import urllib, urllib2
 
 # Find a JSON parser
 try:
@@ -151,6 +151,59 @@ class GraphAPI(object):
     def delete_object(self, id):
         """Deletes the object with the given ID from the graph."""
         self.request(id, post_args={"method": "delete"})
+
+    def put_photo(self, source, album_id=None, message=""):
+        """
+        Uploads an image using multipart/form-data
+        """
+        object_id = album_id or "me"
+        #it would have been nice to reuse self.request; but multipart is messy in urllib
+        content_type, body = self._encode_multipart_form((
+            ('message',message),
+            ('access_token',self.access_token),
+            ('source',source),
+        ))
+        req = urllib2.Request("https://graph.facebook.com/%s/photos" % object_id, data=body)
+        req.add_header('Content-Type', content_type)
+        try:
+            data = urllib2.urlopen(req).read()
+        except urllib2.HTTPError as e:
+            data = e.read() # Facebook sends OAuth errors as 400, and urllib2 throws an exception
+        try:
+            response = _parse_json(data)
+            if response.get("error"):
+                raise GraphAPIError(response["error"].get("code", 1),
+                                    response["error"]["message"])
+        except ValueError:
+            response = data
+            
+        return response
+
+    # stolen from: http://code.activestate.com/recipes/146306/
+    def _encode_multipart_form(self, fields):
+        """
+        fields is a sequence of (name, value) elements for regular form fields.
+        files is a sequence of (name, filename, value) elements for data to be uploaded as files
+        Return (content_type, body) ready for httplib.HTTP instance
+        """
+        BOUNDARY = '----------ThIs_Is_tHe_bouNdaRY_$'
+        CRLF = '\r\n'
+        L = []
+        for (key, value) in fields:
+            L.append('--' + BOUNDARY)
+            if isinstance(value, file): #TODO: make this work for file-like objects
+                L.append('Content-Disposition: form-data; name="%s"; filename="%s"' % (key, value.name))
+                L.append('Content-Type: image/jpeg')
+                value = value.read()
+            else:
+                L.append('Content-Disposition: form-data; name="%s"' % key)
+            L.append('')
+            L.append(value)
+        L.append('--' + BOUNDARY + '--')
+        L.append('')
+        body = CRLF.join(L)
+        content_type = 'multipart/form-data; boundary=%s' % BOUNDARY
+        return content_type, body
 
     def request(self, path, args=None, post_args=None):
         """Fetches the given path in the Graph API.
