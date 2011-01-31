@@ -181,6 +181,11 @@ class GraphAPI(object):
 
     def fql(self, query, args=None, post_args=None):
         """FQL query.
+        Two reasons to have this method:
+        1. Graph api does not expose some info fields of a user, e.g.
+            a user's networks/affiliations, we have to fall back to old api.
+        2. FQL is a strong tool.
+        Example query: "SELECT affiliations FROM user WHERE uid = me()"
         """
         if not args: args = {}
         if self.access_token:
