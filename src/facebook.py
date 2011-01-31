@@ -179,6 +179,29 @@ class GraphAPI(object):
                                 response["error"]["message"])
         return response
 
+    def fql(self, query, args=None, post_args=None):
+        """FQL query.
+        """
+        if not args: args = {}
+        if self.access_token:
+            if post_args is not None:
+                post_args["access_token"] = self.access_token
+            else:
+                args["access_token"] = self.access_token
+        post_data = None if post_args is None else urllib.urlencode(post_args)
+
+        file = urllib.urlopen("https://api.facebook.com/method/fql.query?query=" +
+                              urllib.urlencode(query) + "&" +
+                              urllib.urlencode(args), post_data)
+        try:
+            response = _parse_json(file.read())
+        finally:
+            file.close()
+        if response.get("error"):
+            raise GraphAPIError(response["error"]["type"],
+                                response["error"]["message"])
+        return response
+
 
 class GraphAPIError(Exception):
     def __init__(self, type, message):
