@@ -196,15 +196,20 @@ class GraphAPI(object):
         post_data = None if post_args is None else urllib.urlencode(post_args)
 
         args["query"] = query
+        args["format"]="json"
         file = urllib.urlopen("https://api.facebook.com/method/fql.query?" +
                               urllib.urlencode(args), post_data)
         try:
-            response = _parse_json(file.read())
+            content  = file.read()
+            response = _parse_json(content)
+            #Return a list if success, return a dictionary if failed
+            if type(response) is dict and "error_code" in response:
+                raise GraphAPIError(response["error_code"],response["error_msg"])
+        except Exception, e:
+            raise e
         finally:
             file.close()
-        if response.get("error"):
-            raise GraphAPIError(response["error"]["type"],
-                                response["error"]["message"])
+              
         return response
 
 
