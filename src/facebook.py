@@ -34,9 +34,11 @@ usage of this module might look like this:
 """
 
 import cgi
-import hashlib
 import time
 import urllib
+import hashlib
+import hmac
+import base64
 
 # Find a JSON parser
 try:
@@ -225,3 +227,28 @@ def get_user_from_cookie(cookies, app_id, app_secret):
         return args
     else:
         return None
+
+def parse_signed_request(signed_request, app_secret):
+    """Return dictionary with signed request data."""
+    try:
+      l = signed_request.split('.', 2)
+      encoded_sig = str(l[0])
+      payload = str(l[1])
+    except IndexError:
+      raise ValueError("'signed_request' malformed")
+    
+    sig = base64.urlsafe_b64decode(encoded_sig + "=" * ((4 - len(encoded_sig) % 4) % 4))
+    data = base64.urlsafe_b64decode(payload + "=" * ((4 - len(payload) % 4) % 4))
+
+    data = _parse_json(data)
+
+    if data.get('algorithm').upper() != 'HMAC-SHA256':
+      raise ValueError("'signed_request' is using an unknown algorithm")
+    else:
+      expected_sig = hmac.new(app_secret, msg=payload, digestmod=hashlib.sha256).digest()
+
+    if sig != expected_sig:
+      raise ValueError("'signed_request' signature mismatch")
+    else:
+      return data
+  
