@@ -36,6 +36,7 @@ usage of this module might look like this:
 import cgi
 import time
 import urllib
+import urllib2
 import hashlib
 import hmac
 import base64
@@ -170,7 +171,7 @@ class GraphAPI(object):
             else:
                 args["access_token"] = self.access_token
         post_data = None if post_args is None else urllib.urlencode(post_args)
-        file = urllib.urlopen("https://graph.facebook.com/" + path + "?" +
+        file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" +
                               urllib.urlencode(args), post_data)
         try:
             response = _parse_json(file.read())
@@ -187,10 +188,15 @@ class GraphAPIError(Exception):
         Exception.__init__(self, message)
         self.type = type
 
-def fql( query ):
+def fql( query, facebookToken = None ):
     """Runs the specified query against the Facebook FQL API.
     """
-    file = urllib.urlopen( 'https://api.facebook.com/method/fql.query?' + urllib.urlencode( { 'query': query, 'format': 'JSON' } ) )
+    args = { 'query': query, 'format': 'JSON' }
+    
+    if facebookToken:
+        args[ 'access_token' ] = facebookToken
+        
+    file = urllib2.urlopen( 'https://api.facebook.com/method/fql.query?' + urllib.urlencode( args ) )
     try:
         response = _parse_json(file.read())
     finally:
