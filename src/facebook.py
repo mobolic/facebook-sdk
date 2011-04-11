@@ -34,11 +34,12 @@ usage of this module might look like this:
 """
 
 import cgi
-import hashlib
 import time
 import urllib
-import base64
+import urllib2
+import hashlib
 import hmac
+import base64
 
 # Find a JSON parser
 try:
@@ -170,7 +171,7 @@ class GraphAPI(object):
             else:
                 args["access_token"] = self.access_token
         post_data = None if post_args is None else urllib.urlencode(post_args)
-        file = urllib.urlopen("https://graph.facebook.com/" + path + "?" +
+        file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" +
                               urllib.urlencode(args), post_data)
                               
         try:
@@ -225,12 +226,30 @@ class GraphAPI(object):
             raise GraphAPIError(response["error"]["type"],
                                 response["error"]["message"])
         return response
-
+        
 
 class GraphAPIError(Exception):
     def __init__(self, type, message):
         Exception.__init__(self, message)
         self.type = type
+
+def fql( query, facebookToken = None ):
+    """Runs the specified query against the Facebook FQL API.
+    """
+    args = { 'query': query, 'format': 'JSON' }
+    
+    if facebookToken:
+        args[ 'access_token' ] = facebookToken
+        
+    file = urllib2.urlopen( 'https://api.facebook.com/method/fql.query?' + urllib.urlencode( args ) )
+    try:
+        response = _parse_json(file.read())
+    finally:
+        file.close()
+    if isinstance( response, dict ) and response.has_key( 'error_msg' ):
+        raise Exception( response[ 'error_msg' ] )
+
+    return response
 
 
 def get_user_from_cookie(cookies, app_id, app_secret):
@@ -260,31 +279,27 @@ def get_user_from_cookie(cookies, app_id, app_secret):
     else:
         return None
 
-def base64_url_decode(value):
-    padding_factor = (4 - len(value) % 4) % 4
-    value += u'=' * padding_factor 
-    return base64.b64decode(unicode(value).translate(dict(zip(map(ord, u'-_'), u'+/'))))
+def parse_signed_request(signed_request, app_secret):
+    """Return dictionary with signed request data."""
+    try:
+      l = signed_request.split('.', 2)
+      encoded_sig = str(l[0])
+      payload = str(l[1])
+    except IndexError:
+      raise ValueError("'signed_request' malformed")
+    
+    sig = base64.urlsafe_b64decode(encoded_sig + "=" * ((4 - len(encoded_sig) % 4) % 4))
+    data = base64.urlsafe_b64decode(payload + "=" * ((4 - len(payload) % 4) % 4))
 
-def parse_signed_request(signed_request, secret):
-    """
-    test = 'vlXgu64BQGFSQrY0ZcJBZASMvYvTHu9GQ0YM9rjPSso.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsIjAiOiJwYXlsb2FkIn0'
-    data = parse_signed_request(test, 'secret')
-    data == {'0':'payload', 'algorithm':'HMAC-SHA256'}
-    """
-
-    l = signed_request.split('.', 2)
-    encoded_sig = l[0]
-    payload = l[1]
-
-    sig = base64_url_decode(encoded_sig)
-    data = json.loads(base64_url_decode(payload))
+    data = _parse_json(data)
 
     if data.get('algorithm').upper() != 'HMAC-SHA256':
-        return None
+      raise ValueError("'signed_request' is using an unknown algorithm")
     else:
-        expected_sig = hmac.new(secret, msg=payload, digestmod=hashlib.sha256).digest()
+      expected_sig = hmac.new(app_secret, msg=payload, digestmod=hashlib.sha256).digest()
 
     if sig != expected_sig:
-        return None
+      raise ValueError("'signed_request' signature mismatch")
     else:
-        return data
+      return data
+  
