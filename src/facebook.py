@@ -35,7 +35,7 @@ usage of this module might look like this:
 
 import cgi
 import time
-import urllib
+import urllib, urllib2
 import urllib2
 import hashlib
 import hmac
@@ -43,16 +43,13 @@ import base64
 
 # Find a JSON parser
 try:
-    import json
-    _parse_json = lambda s: json.loads(s)
+    import simplejson as json
 except ImportError:
     try:
-        import simplejson
-        _parse_json = lambda s: simplejson.loads(s)
+        from django.utils import simplejson as json
     except ImportError:
-        # For Google AppEngine
-        from django.utils import simplejson
-        _parse_json = lambda s: simplejson.loads(s)
+        import json
+_parse_json = json.loads
 
 
 class GraphAPI(object):
@@ -157,6 +154,58 @@ class GraphAPI(object):
     def delete_object(self, id):
         """Deletes the object with the given ID from the graph."""
         self.request(id, post_args={"method": "delete"})
+
+    def put_photo(self, album_id=None, **kwargs):
+        """Uploads an image using multipart/form-data
+        album_id=None posts to /me/photos which uses or creates and uses 
+        an album for your application.
+        """
+        object_id = album_id or "me"
+        #it would have been nice to reuse self.request; but multipart is messy in urllib
+        kwargs['access_token'] = self.access_token
+        content_type, body = self._encode_multipart_form(kwargs)
+        req = urllib2.Request("https://graph.facebook.com/%s/photos" % object_id, data=body)
+        req.add_header('Content-Type', content_type)
+        try:
+            data = urllib2.urlopen(req).read()
+        except urllib2.HTTPError as e:
+            data = e.read() # Facebook sends OAuth errors as 400, and urllib2 throws an exception, we want a GraphAPIError
+        try:
+            response = _parse_json(data)
+            if response.get("error"):
+                raise GraphAPIError(response["error"].get("code", 1),
+                                    response["error"]["message"])
+        except ValueError:
+            response = data
+            
+        return response
+
+    # based on: http://code.activestate.com/recipes/146306/
+    def _encode_multipart_form(self, fields):
+        """Fields are a dict of form name-> value
+        For files, value should be a file object.
+        Other file-like objects might work and a fake name will be chosen.
+        Return (content_type, body) ready for httplib.HTTP instance
+        """
+        BOUNDARY = '----------ThIs_Is_tHe_bouNdaRY_$'
+        CRLF = '\r\n'
+        L = []
+        for (key, value) in fields.items():
+            L.append('--' + BOUNDARY)
+            if hasattr(value, 'read') and callable(value.read): 
+                filename = getattr(value,'name','%s.jpg' % key)
+                L.append('Content-Disposition: form-data; name="%s"; filename="%s"' % (key, filename))
+                L.append('Content-Type: image/jpeg')
+                value = value.read()
+            else:
+                L.append('Content-Disposition: form-data; name="%s"' % key)
+            L.append('')
+            L.append(value)
+        L.append('--' + BOUNDARY + '--')
+        L.append('')
+        body = CRLF.join(L)
+        content_type = 'multipart/form-data; boundary=%s' % BOUNDARY
+        return content_type, body
 
     def request(self, path, args=None, post_args=None):
         """Fetches the given path in the Graph API.
