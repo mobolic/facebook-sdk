@@ -228,6 +228,40 @@ class GraphAPI(object):
         return response
         
 
+    def fql(self, query, args=None, post_args=None):
+        """FQL query.
+        Two reasons to have this method:
+        1. Graph api does not expose some info fields of a user, e.g.
+            a user's networks/affiliations, we have to fall back to old api.
+        2. FQL is a strong tool.
+        Example query: "SELECT affiliations FROM user WHERE uid = me()"
+        """
+        if not args: args = {}
+        if self.access_token:
+            if post_args is not None:
+                post_args["access_token"] = self.access_token
+            else:
+                args["access_token"] = self.access_token
+        post_data = None if post_args is None else urllib.urlencode(post_args)
+
+        args["query"] = query
+        args["format"]="json"
+        file = urllib.urlopen("https://api.facebook.com/method/fql.query?" +
+                              urllib.urlencode(args), post_data)
+        try:
+            content  = file.read()
+            response = _parse_json(content)
+            #Return a list if success, return a dictionary if failed
+            if type(response) is dict and "error_code" in response:
+                raise GraphAPIError(response["error_code"],response["error_msg"])
+        except Exception, e:
+            raise e
+        finally:
+            file.close()
+              
+        return response
+
+
 class GraphAPIError(Exception):
     def __init__(self, type, message):
         Exception.__init__(self, message)
@@ -282,11 +316,11 @@ def get_user_from_cookie(cookies, app_id, app_secret):
 def parse_signed_request(signed_request, app_secret):
     """Return dictionary with signed request data."""
     try:
-      l = signed_request.split('.', 2)
-      encoded_sig = str(l[0])
-      payload = str(l[1])
+        l = signed_request.split('.', 2)
+        encoded_sig = str(l[0])
+        payload = str(l[1])
     except IndexError:
-      raise ValueError("'signed_request' malformed")
+        raise ValueError("'signed_request' malformed")
     
     sig = base64.urlsafe_b64decode(encoded_sig + "=" * ((4 - len(encoded_sig) % 4) % 4))
     data = base64.urlsafe_b64decode(payload + "=" * ((4 - len(payload) % 4) % 4))
@@ -294,12 +328,17 @@ def parse_signed_request(signed_request, app_secret):
     data = _parse_json(data)
 
     if data.get('algorithm').upper() != 'HMAC-SHA256':
-      raise ValueError("'signed_request' is using an unknown algorithm")
+        raise ValueError("'signed_request' is using an unknown algorithm")
     else:
-      expected_sig = hmac.new(app_secret, msg=payload, digestmod=hashlib.sha256).digest()
+        expected_sig = hmac.new(app_secret, msg=payload, digestmod=hashlib.sha256).digest()
 
     if sig != expected_sig:
-      raise ValueError("'signed_request' signature mismatch")
+        raise ValueError("'signed_request' signature mismatch")
     else:
-      return data
+        return data
   
+def auth_url(app_id, canvas_url, perms = None):
+    url = "https://www.facebook.com/dialog/oauth?client_id=%s&redirect_uri=%s" % (app_id, canvas_url)
+    if perms:
+        url += "scope=%s" % (",".join(perms))
+    return url
