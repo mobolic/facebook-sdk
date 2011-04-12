@@ -229,16 +229,13 @@ class GraphAPI(object):
             else:
                 args["access_token"] = self.access_token
         post_data = None if post_args is None else urllib.urlencode(post_args)
-        print "https://graph.facebook.com/" + path + "?" + urllib.urlencode(args)
         file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" +
                               urllib.urlencode(args), post_data)
                               
         try:
             fileInfo = file.info()
             if fileInfo.maintype == 'text':
-                data = file.read()
-                print data
-                response = _parse_json(data)
+                response = _parse_json(file.read())
             elif fileInfo.maintype == 'image':
                 mimetype = fileInfo['content-type']
                 response = {
@@ -384,3 +381,4 @@ def auth_url(app_id, canvas_url, perms = None):
     if perms:
         url += "scope=%s" % (",".join(perms))
     return url
+
