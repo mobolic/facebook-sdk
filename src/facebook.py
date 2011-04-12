@@ -158,6 +158,10 @@ class GraphAPI(object):
     def put_photo(self, album_id=None, **kwargs):
         """Uploads an image using multipart/form-data
         album_id=None posts to /me/photos which uses or creates and uses 
+        
+        These can be passed as kwargs
+        source=The file-like object to read from. When using open make sure you open("filename", "rb")
+        message=Caption of the photo
         an album for your application.
         """
         object_id = album_id or "me"
