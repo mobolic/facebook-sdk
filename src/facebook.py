@@ -155,7 +155,7 @@ class GraphAPI(object):
         """Deletes the object with the given ID from the graph."""
         self.request(id, post_args={"method": "delete"})
 
-    def put_photo(self, album_id=None, **kwargs):
+    def put_photo(self, image_path, message=None, album_id=None, **kwargs):
         """Uploads an image using multipart/form-data
         album_id=None posts to /me/photos which uses or creates and uses 
         
@@ -166,8 +166,14 @@ class GraphAPI(object):
         """
         object_id = album_id or "me"
         #it would have been nice to reuse self.request; but multipart is messy in urllib
-        kwargs['access_token'] = self.access_token
-        content_type, body = self._encode_multipart_form(kwargs)
+        print image_path
+        post_args = {
+				  'access_token': self.access_token,
+				  'source': open(str(image_path), 'r'),
+				  'message': message
+        }
+        post_args.update(kwargs)
+        content_type, body = self._encode_multipart_form(post_args)
         req = urllib2.Request("https://graph.facebook.com/%s/photos" % object_id, data=body)
         req.add_header('Content-Type', content_type)
         try:
