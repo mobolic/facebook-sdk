@@ -35,7 +35,7 @@ usage of this module might look like this:
 
 import cgi
 import time
-import urllib, urllib2
+import urllib
 import urllib2
 import hashlib
 import hmac
@@ -229,13 +229,16 @@ class GraphAPI(object):
             else:
                 args["access_token"] = self.access_token
         post_data = None if post_args is None else urllib.urlencode(post_args)
+        print "https://graph.facebook.com/" + path + "?" + urllib.urlencode(args)
         file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" +
                               urllib.urlencode(args), post_data)
                               
         try:
             fileInfo = file.info()
             if fileInfo.maintype == 'text':
-                response = _parse_json(file.read())
+                data = file.read()
+                print data
+                response = _parse_json(data)
             elif fileInfo.maintype == 'image':
                 mimetype = fileInfo['content-type']
                 response = {
