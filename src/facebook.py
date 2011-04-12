@@ -322,25 +322,6 @@ class GraphAPIError(Exception):
         Exception.__init__(self, message)
         self.type = type
 
-def fql( query, facebookToken = None ):
-    """Runs the specified query against the Facebook FQL API.
-    """
-    args = { 'query': query, 'format': 'JSON' }
-    
-    if facebookToken:
-        args[ 'access_token' ] = facebookToken
-        
-    file = urllib2.urlopen( 'https://api.facebook.com/method/fql.query?' + urllib.urlencode( args ) )
-    try:
-        response = _parse_json(file.read())
-    finally:
-        file.close()
-    if isinstance( response, dict ) and response.has_key( 'error_msg' ):
-        raise Exception( response[ 'error_msg' ] )
-
-    return response
-
-
 def get_user_from_cookie(cookies, app_id, app_secret):
     """Parses the cookie set by the official Facebook JavaScript SDK.
 
