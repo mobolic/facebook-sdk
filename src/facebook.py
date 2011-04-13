@@ -382,3 +382,24 @@ def auth_url(app_id, canvas_url, perms = None):
         url += "scope=%s" % (",".join(perms))
     return url
 
+def get_app_access_token(application_id, application_secret):
+    """
+    Get the access_token for the app that can be used for insights and creating test users
+    application_id = retrieved from the developer page
+    application_secret = retrieved from the developer page
+    returns the application access_token
+    """
+    # Get an app access token
+    args = {'grant_type':'client_credentials',
+            'client_id':application_id,
+            'client_secret':application_secret}
+    
+    file = urllib2.urlopen("https://graph.facebook.com/oauth/access_token?" +
+                              urllib.urlencode(args))
+              
+    try:
+        result = file.read().split("=")[1]
+    finally:
+        file.close()
+              
+    return result
