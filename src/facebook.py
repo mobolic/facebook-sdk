@@ -304,7 +304,7 @@ class GraphAPI(object):
 
         args["query"] = query
         args["format"]="json"
-        file = urllib.urlopen("https://api.facebook.com/method/fql.query?" +
+        file = urllib2.urlopen("https://api.facebook.com/method/fql.query?" +
                               urllib.urlencode(args), post_data)
         try:
             content  = file.read()
