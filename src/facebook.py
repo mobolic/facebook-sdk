@@ -200,6 +200,8 @@ class GraphAPI(object):
         CRLF = '\r\n'
         L = []
         for (key, value) in fields.items():
+            if not value:
+                continue
             L.append('--' + BOUNDARY)
             if hasattr(value, 'read') and callable(value.read): 
                 filename = getattr(value,'name','%s.jpg' % key)
