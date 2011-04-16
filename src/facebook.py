@@ -40,6 +40,7 @@ import urllib2
 import hashlib
 import hmac
 import base64
+import logging
 
 # Find a JSON parser
 try:
@@ -200,6 +201,7 @@ class GraphAPI(object):
         CRLF = '\r\n'
         L = []
         for (key, value) in fields.items():
+            logging.debug("Encoding %s, (%s)%s" % (key, type(value), value))
             if not value:
                 continue
             L.append('--' + BOUNDARY)
@@ -208,9 +210,13 @@ class GraphAPI(object):
                 L.append('Content-Disposition: form-data; name="%s"; filename="%s"' % (key, filename))
                 L.append('Content-Type: image/jpeg')
                 value = value.read()
+                logging.debug(type(value))
             else:
                 L.append('Content-Disposition: form-data; name="%s"' % key)
             L.append('')
+            if isinstance(value, unicode):
+                logging.debug("Convert to ascii")
+                value = value.encode('ascii')
             L.append(value)
         L.append('--' + BOUNDARY + '--')
         L.append('')

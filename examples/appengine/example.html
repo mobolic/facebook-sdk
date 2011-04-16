@@ -5,7 +5,7 @@
     <title>Facebook Example</title>
   </head>
   <body>
-    <fb:login-button autologoutlink="true"></fb:login-button>
+    <fb:login-button autologoutlink="true" perms="publish_stream"></fb:login-button>
 
     {% if current_user %}
       <p><a href="{{ current_user.profile_url }}"><img src="http://graph.facebook.com/{{ current_user.id }}/picture?type=square"/></a></p>
@@ -13,6 +13,16 @@
     {% endif %}
 
     <div id="fb-root"></div>
+    
+    {% if current_user %}
+	    <div>
+	    Upload photo test: 
+		   <form method="post">
+		   Enter URL to URLFecth from:<input type="text" name="url"/>
+		   <input type="submit"/>
+		   </form>
+	    </div>
+    {% endif %}
     <script>
       window.fbAsyncInit = function() {
         FB.init({appId: '{{ facebook_app_id }}', status: true, cookie: true,
