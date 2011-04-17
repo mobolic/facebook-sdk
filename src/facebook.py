@@ -255,7 +255,7 @@ class GraphAPI(object):
                 raise GraphAPIError('Response Error', 'Maintype was not text or image')
         finally:
             file.close()
-        if response and response.get("error"):
+        if response and isinstance(response, dict) and response.get("error"):
             raise GraphAPIError(response["error"]["type"],
                                 response["error"]["message"])
         return response
