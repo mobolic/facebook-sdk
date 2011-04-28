@@ -17,7 +17,7 @@
       window.fbAsyncInit = function() {
         FB.init({appId: '{{ options.facebook_app_id }}', status: true,
                  cookie: true, xfbml: true});
-        FB.Event.subscribe('{% if current_user %}auth.logout{% else %}auth.login{% endif %}', function(response) {
+        FB.Event.subscribe('{% if current_user %}auth.logout{% else %}auth.login{% end %}', function(response) {
           window.location.reload();
         });
       };
