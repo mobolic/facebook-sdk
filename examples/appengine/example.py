@@ -22,12 +22,14 @@ FACEBOOK_APP_SECRET = "your app secret"
 import facebook
 import os.path
 import wsgiref.handlers
+import logging
+import urllib2
 
 from google.appengine.ext import db
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 from google.appengine.ext.webapp import template
-
+from google.appengine.api.urlfetch import fetch
 
 class User(db.Model):
     id = db.StringProperty(required=True)
@@ -79,8 +81,14 @@ class HomeHandler(BaseHandler):
                     facebook_app_id=FACEBOOK_APP_ID)
         self.response.out.write(template.render(path, args))
 
+    def post(self):
+        url=self.request.get('url')
+        file = urllib2.urlopen(url)
+        graph = facebook.GraphAPI(self.current_user.access_token)
+        graph.put_photo(file, "Test Image")
 
 def main():
+    logging.getLogger().setLevel(logging.DEBUG)
     util.run_wsgi_app(webapp.WSGIApplication([(r"/", HomeHandler)]))
 
 
