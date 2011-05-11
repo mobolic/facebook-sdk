@@ -385,10 +385,11 @@ def parse_signed_request(signed_request, app_secret):
         return data
   
 def auth_url(app_id, canvas_url, perms = None):
-    url = "https://www.facebook.com/dialog/oauth?client_id=%s&redirect_uri=%s" % (app_id, canvas_url)
+    url = "https://www.facebook.com/dialog/oauth?"
+    kvps = {'client_id': app_id, 'redirect_uri': canvas_url}
     if perms:
-        url += "scope=%s" % (",".join(perms))
-    return url
+        kvps['scope'] = ",".join(perms)
+    return url + urllib.urlencode(kvps)
 
 def get_app_access_token(application_id, application_secret):
     """
