@@ -381,7 +381,7 @@ def parse_signed_request(signed_request, app_secret):
         return False # raise ValueError('signed_request had corrupted payload')
 
     data = _parse_json(data)
-    if data.get('algorithm').upper() != 'HMAC-SHA256':
+    if data.get('algorithm', '').upper() != 'HMAC-SHA256':
         return False # raise ValueError('signed_request used unknown algorithm')
 
     expected_sig = hmac.new(app_secret, msg=payload, digestmod=hashlib.sha256).digest()
