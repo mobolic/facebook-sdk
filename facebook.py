@@ -361,28 +361,34 @@ def get_user_from_cookie(cookies, app_id, app_secret):
         return None
 
 def parse_signed_request(signed_request, app_secret):
-    """Return dictionary with signed request data."""
+    """ Return dictionary with signed request data.
+
+    We return a dictionary containing the information in the signed_request. This will
+    include a user_id if the user has authorised your application, as well as any
+    information requested in the scope.
+
+    If the signed_request is malformed or corrupted, False is returned.
+    """
     try:
         l = signed_request.split('.', 2)
         encoded_sig = str(l[0])
         payload = str(l[1])
+        sig = base64.urlsafe_b64decode(encoded_sig + "=" * ((4 - len(encoded_sig) % 4) % 4))
+        data = base64.urlsafe_b64decode(payload + "=" * ((4 - len(payload) % 4) % 4))
     except IndexError:
-        raise ValueError("'signed_request' malformed")
-
-    sig = base64.urlsafe_b64decode(encoded_sig + "=" * ((4 - len(encoded_sig) % 4) % 4))
-    data = base64.urlsafe_b64decode(payload + "=" * ((4 - len(payload) % 4) % 4))
+        return False # raise ValueError('signed_request malformed')
+    except TypeError:
+        return False # raise ValueError('signed_request had corrupted payload')
 
     data = _parse_json(data)
-
     if data.get('algorithm').upper() != 'HMAC-SHA256':
-        raise ValueError("'signed_request' is using an unknown algorithm")
-    else:
-        expected_sig = hmac.new(app_secret, msg=payload, digestmod=hashlib.sha256).digest()
+        return False # raise ValueError('signed_request used unknown algorithm')
 
+    expected_sig = hmac.new(app_secret, msg=payload, digestmod=hashlib.sha256).digest()
     if sig != expected_sig:
-        raise ValueError("'signed_request' signature mismatch")
-    else:
-        return data
+        return False # raise ValueError('signed_request had signature mismatch')
+
+    return data
 
 def auth_url(app_id, canvas_url, perms = None):
     url = "https://www.facebook.com/dialog/oauth?"
