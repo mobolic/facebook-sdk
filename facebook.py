@@ -334,6 +334,7 @@ class GraphAPIError(Exception):
         Exception.__init__(self, message)
         self.type = type
 
+
 def get_user_from_cookie(cookies, app_id, app_secret):
     """Parses the cookie set by the official Facebook JavaScript SDK.
 
@@ -360,6 +361,7 @@ def get_user_from_cookie(cookies, app_id, app_secret):
         return args
     else:
         return None
+
 
 def parse_signed_request(signed_request, app_secret):
     """ Return dictionary with signed request data.
@@ -391,12 +393,14 @@ def parse_signed_request(signed_request, app_secret):
 
     return data
 
+
 def auth_url(app_id, canvas_url, perms = None):
     url = "https://www.facebook.com/dialog/oauth?"
     kvps = {'client_id': app_id, 'redirect_uri': canvas_url}
     if perms:
         kvps['scope'] = ",".join(perms)
     return url + urllib.urlencode(kvps)
+
 
 def get_app_access_token(application_id, application_secret):
     """
