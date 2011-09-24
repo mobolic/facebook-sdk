@@ -37,6 +37,7 @@ import cgi
 import time
 import urllib
 import urllib2
+import urlparse
 import hashlib
 import hmac
 import base64
@@ -414,6 +415,31 @@ def get_app_access_token(application_id, application_secret):
 
     try:
         result = file.read().split("=")[1]
+    finally:
+        file.close()
+
+    return result
+
+
+def get_user_access_token(code, application_id, application_secret):
+    """
+    Get the access_token for the user to take actions via GraphAPI
+    code = a part of the result from parse_signed_request()
+    application_id = retrieved from the developer page
+    application_secret = retrieved from the developer page
+    returns the application access_token
+    """
+    # Get an app access token
+    args = {'code':code,
+            'client_id':application_id,
+            'client_secret':application_secret}
+
+    file = urllib2.urlopen("https://graph.facebook.com/oauth/access_token?" + "client_id=%(client_id)s&client_secret=%(client_secret)s&redirect_uri=&code=%(code)s" % args)
+
+    try:
+        result = urlparse.parse_qs(file.read(), True)
+        result['access_token'] = 'access_token' in result and result['access_token'][0] or ''
+        result['expires'] = 'expires' in result and result['expires'][0] or ''
     finally:
         file.close()
 
