@@ -42,6 +42,7 @@ import logging
 import mimetypes
 import time
 import urllib
+import urllib2
 import random
 
 # Find a JSON parser
@@ -388,7 +389,7 @@ def get_user_access_token(signed_request, client_id, client_secret):
     if not code:
         return None
 
-    u = urllib.urlopen(
+    u = urllib2.urlopen(
         'https://graph.facebook.com/oauth/access_token',
         data=urllib.urlencode({
             'client_id': client_id,
