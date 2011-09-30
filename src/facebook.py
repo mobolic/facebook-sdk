@@ -389,14 +389,14 @@ def get_user_access_token(signed_request, client_id, client_secret):
     if not code:
         return None
 
-    u = urllib2.urlopen(
-        'https://graph.facebook.com/oauth/access_token',
-        data=urllib.urlencode({
-            'client_id': client_id,
-            'client_secret': client_secret,
-            'code': code,
-            'redirect_uri': '',
-        })
+    u = urllib2.urlopen('https://graph.facebook.com/oauth/access_token?%s' % (
+            urllib.urlencode({
+                'client_id': client_id,
+                'client_secret': client_secret,
+                'code': code,
+                'redirect_uri': '',
+            })
+        )
     )
     response = u.read()
     data = cgi.parse_qs(response)
