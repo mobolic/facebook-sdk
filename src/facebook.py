@@ -161,7 +161,7 @@ class GraphAPI(object):
         """
         files = {}
         if 'picture' in data:
-            file = urllib.urlopen(data['picture'])
+            file = urllib2.urlopen(data['picture'])
             try:
                 files['picture'] = file.read()
             finally:
@@ -195,7 +195,7 @@ class GraphAPI(object):
             else:
                 args["access_token"] = self.access_token
         post_data = None if post_args is None else urllib.urlencode(post_args)
-        file = urllib.urlopen("https://graph.facebook.com/" + path + "?" +
+        file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" +
                               urllib.urlencode(args), post_data)
         try:
             response = _parse_json(file.read())
@@ -317,7 +317,7 @@ class FQLAPI(object):
     def request(self, query):
         """ Performs the given query on Facebook or raises an `FQLAPIError` """
 
-        file = urllib.urlopen('https://api.facebook.com/method/fql.query?access_token=%s&format=json&query=%s' % (
+        file = urllib2.urlopen('https://api.facebook.com/method/fql.query?access_token=%s&format=json&query=%s' % (
             urllib.quote_plus(self.access_token), urllib.quote_plus(query)))
         try:
             response = _parse_json(file.read())
