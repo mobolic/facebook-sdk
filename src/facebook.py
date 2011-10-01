@@ -150,12 +150,10 @@ class GraphAPI(object):
         """
         files = {}
         if 'picture' in data:
-            file = urllib.urlopen(data['picture'])
-            try:
+            with urllib.urlopen(data['picture']) as file:
                 files['picture'] = file.read()
-            finally:
-                del data['picture']
-                file.close()
+            del data['picture']
+
         path = "me/events" if not id else str(id)
         return self.multipart_request(path, post_args=data, files=files)
 
@@ -297,12 +295,12 @@ class GraphAPI(object):
         else:
             args["format"] = "json-strings"
         post_data = None if post_args is None else urllib.urlencode(post_args)
-        file = urllib.urlopen("https://api.facebook.com/method/" + path + "?" +
-                              urllib.urlencode(args), post_data)
-        try:
+
+        encoded_args = urllib.urlencode(args)
+        request = urllib2.Request("https://api.facebook.com/method/{0}?{1}".format(path,encoded_args), data=post_data)
+        
+        with urllib2.urlopen(request) as file:
             response = json.loads(file.read())
-        finally:
-            file.close()
 
         if isinstance(response, dict) and response.get("error"):
             raise GraphAPIError(response["error"]["type"],
