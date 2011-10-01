@@ -290,11 +290,6 @@ class GraphAPI(object):
                 post_args["access_token"] = self.access_token
             else:
                 args["access_token"] = self.access_token
-        if self.api_key:
-            if post_args is not None:
-                post_args["api_key"] = self.api_key
-            else:
-                args["api_key"] = self.api_key
         if post_args is not None:
             post_args["format"] = "json-strings"
         else:
