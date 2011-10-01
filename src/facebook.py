@@ -120,7 +120,7 @@ class GraphAPI(object):
         assert self.access_token, "Write operations require an access token"
         return self.request(parent_object + "/" + connection_name, post_args=data)
 
-    def put_wall_post(self, message, attachment={}, profile_id="me"):
+    def put_wall_post(self, message, attachment=None, profile_id="me"):
         """Writes a wall post to the given profile's wall.
 
         We default to writing to the authenticated user's wall if no
@@ -136,6 +136,8 @@ class GraphAPI(object):
              "picture": "http://www.example.com/thumbnail.jpg"}
 
         """
+        if not attachment:
+            attachment = {}
         return self.put_object(profile_id, "feed", message=message, **attachment)
 
     def put_event(self, id=None, **data):
