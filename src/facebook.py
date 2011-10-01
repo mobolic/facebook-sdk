@@ -44,7 +44,7 @@ import json
 import urllib2
 import base64
 import logging
-import cgi
+import urlparse
 
 class GraphAPI(object):
     """A client for the Facebook Graph API.
@@ -536,7 +536,7 @@ def get_user_access_token(signed_request, client_id, client_secret):
     )
 
     response = u.read()
-    data = cgi.parse_qs(response)
+    data = urlparse.parse_qs(response)
     try:
         return data['access_token'][-1]
     except KeyError:
