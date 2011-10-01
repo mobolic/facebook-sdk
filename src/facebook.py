@@ -35,6 +35,7 @@ usage of this module might look like this:
 
 import hashlib
 import hmac
+import string
 import time
 import urllib
 import random
@@ -315,8 +316,7 @@ class GraphAPI(object):
         files is a dict of {'filename.ext', 'value'} of files to upload.
         """
         def __encode_multipart_data(post_args, files):
-            boundary = ''.join(random.choice('abcdefghijklmnopqrstuvwxyz' \
-                'ABCDEFGHIJKLMNOPQRSTUVWXYZ') for ii in range(31))
+            boundary = ''.join(random.choice(string.ascii_letters) for i in xrange(31))
 
             def get_content_type(filename):
                 return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
