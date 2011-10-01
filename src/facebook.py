@@ -36,7 +36,6 @@ usage of this module might look like this:
 import hashlib
 import hmac
 import string
-import time
 import urllib
 import random
 import mimetypes
@@ -45,7 +44,7 @@ import json
 import urllib2
 import base64
 import logging
-import urlparse
+import cgi
 
 class GraphAPI(object):
     """A client for the Facebook Graph API.
@@ -300,7 +299,7 @@ class GraphAPI(object):
         post_data = None if post_args is None else urllib.urlencode(post_args)
 
         encoded_args = urllib.urlencode(args)
-        grap_api = "https://api.facebook.com/method/{0}?{1}"
+        graph_api = "https://api.facebook.com/method/{0}?{1}"
         request = urllib2.Request(graph_api.format(path,encoded_args), data=post_data)
         
         with urllib2.urlopen(request) as file:
@@ -454,7 +453,7 @@ class FQLAPI(object):
     def request(self, query):
         """ Performs the given query on Facebook or raises an `FQLAPIError` """
 
-        file = urllib.urlopen('https://api.facebook.com/method/fql.query?access_token=%s&format=json&query=%s' % (
+        file = urllib2.urlopen('https://api.facebook.com/method/fql.query?access_token=%s&format=json&query=%s' % (
             urllib.quote_plus(self.access_token), urllib.quote_plus(query)))
         try:
             response = json.loads(file.read())
@@ -473,6 +472,76 @@ class FQLAPIError(Exception):
         self.type = type
 
 
+def base64_url_decode(inp):
+    padding_factor = (4 - len(inp) % 4) % 4
+    inp += "="*padding_factor
+    return base64.b64decode(unicode(inp).translate(dict(zip(map(ord, u'-_'), u'+/'))))
+
+
+def parse_signed_request(signed_request, secret):
+    """Parses a signed_request and validates the signature.
+
+    See https://developers.facebook.com/docs/authentication/signed_request/
+
+    Based on http://sunilarora.org/parsing-signedrequest-parameter-in-python-bas
+    """
+    if not signed_request: return None
+
+    logger = logging.getLogger('facebook')
+    try:
+        encoded_sig, payload = signed_request.split('.', 1)
+    except ValueError:
+        logger.error("Not a valid signed_request.")
+        return None
+
+    sig = base64_url_decode(encoded_sig)
+    data = json.loads(base64_url_decode(payload))
+
+    if data.get('algorithm').upper() != 'HMAC-SHA256':
+        logger.error("Unknown algorithm. Expected HMAC-SHA256")
+        return None
+    else:
+        expected_sig = hmac.new(secret, msg=payload, digestmod=hashlib.sha256).digest()
+
+    if sig == expected_sig:
+        return data
+    else:
+        logger.error("Bad Signed JSON signature!")
+        return None
+
+def get_user_access_token(signed_request, client_id, client_secret):
+    """Return access_token from signed_request or using code via Oauth 2.0.
+
+    See:
+    - https://developers.facebook.com/docs/authentication/
+    - https://developers.facebook.com/docs/authentication/signed_request/
+    - https://github.com/facebook/php-sdk/blob/master/src/base_facebook.php
+
+    """
+    if signed_request.get('oauth_token', False):
+        return signed_request['oauth_token']
+
+    code = signed_request.get('code')
+    if not code:
+        return None
+
+    u = urllib2.urlopen(
+        'https://graph.facebook.com/oauth/access_token',
+        data=urllib.urlencode({
+            'client_id': client_id,
+            'client_secret': client_secret,
+            'code': code,
+            'redirect_uri': '',
+        })
+    )
+
+    response = u.read()
+    data = cgi.parse_qs(response)
+    try:
+        return data['access_token'][-1]
+    except KeyError:
+        return None
+
 def get_user_from_cookie(cookies, app_id, app_secret):
     """Parses the cookie set by the official Facebook JavaScript SDK.
 
@@ -488,73 +557,6 @@ def get_user_from_cookie(cookies, app_id, app_secret):
     http://github.com/facebook/connect-js/. Read more about Facebook
     authentication at http://developers.facebook.com/docs/authentication/.
     """
-    cookie = cookies.get("fbs_" + app_id, "")
-    if not cookie: return None
-    args = dict((k, v[-1]) for k, v in urlparse.parse_qs(cookie.strip('"')).items())
-    payload = "".join(k + "=" + args[k] for k in sorted(args.keys())
-                      if k != "sig")
-    sig = hashlib.md5(payload + app_secret).hexdigest()
-    expires = int(args["expires"])
-    if sig == args.get("sig") and (expires == 0 or time.time() < expires):
-        return args
-    else:
-        return None
-
-def parse_signed_request(signed_request, app_secret):
-    """ Return dictionary with signed request data.
-
-    We return a dictionary containing the information in the signed_request. This will
-    include a user_id if the user has authorised your application, as well as any
-    information requested in the scope.
-
-    If the signed_request is malformed or corrupted, False is returned.
-    """
-    try:
-        l = signed_request.split('.', 2)
-        encoded_sig = str(l[0])
-        payload = str(l[1])
-        sig = base64.urlsafe_b64decode(encoded_sig + "=" * ((4 - len(encoded_sig) % 4) % 4))
-        data = base64.urlsafe_b64decode(payload + "=" * ((4 - len(payload) % 4) % 4))
-    except IndexError:
-        return False # raise ValueError('signed_request malformed')
-    except TypeError:
-        return False # raise ValueError('signed_request had corrupted payload')
-
-    data = json.loads(data)
-    if data.get('algorithm', '').upper() != 'HMAC-SHA256':
-        return False # raise ValueError('signed_request used unknown algorithm')
-
-    expected_sig = hmac.new(app_secret, msg=payload, digestmod=hashlib.sha256).digest()
-    if sig != expected_sig:
-        return False # raise ValueError('signed_request had signature mismatch')
-
-    return data
-
-def auth_url(app_id, canvas_url, perms = None):
-    url = "https://www.facebook.com/dialog/oauth?"
-    kvps = {'client_id': app_id, 'redirect_uri': canvas_url}
-    if perms:
-        kvps['scope'] = ",".join(perms)
-    return url + urllib.urlencode(kvps)
-
-def get_app_access_token(application_id, application_secret):
-    """
-    Get the access_token for the app that can be used for insights and creating test users
-    application_id = retrieved from the developer page
-    application_secret = retrieved from the developer page
-    returns the application access_token
-    """
-    # Get an app access token
-    args = {'grant_type':'client_credentials',
-            'client_id':application_id,
-            'client_secret':application_secret}
-
-    file = urllib2.urlopen("https://graph.facebook.com/oauth/access_token?" +
-                              urllib.urlencode(args))
-
-    try:
-        result = file.read().split("=")[1]
-    finally:
-        file.close()
-
-    return result
+    signed_request = cookies.get("fbsr_%s" % (app_id, ), "")
+    if not signed_request: return None
+    return parse_signed_request(signed_request, app_secret)
