@@ -33,25 +33,18 @@ usage of this module might look like this:
 
 """
 
-import cgi
-import time
-import urllib
-import urllib2
 import hashlib
 import hmac
+import time
+import urllib
+import random
+import mimetypes
+import httplib
+import json
+import urllib2
 import base64
 import logging
-
-# Find a JSON parser
-try:
-    import simplejson as json
-except ImportError:
-    try:
-        from django.utils import simplejson as json
-    except ImportError:
-        import json
-_parse_json = json.loads
-
+import urlparse
 
 class GraphAPI(object):
     """A client for the Facebook Graph API.
@@ -81,6 +74,7 @@ class GraphAPI(object):
     get_user_from_cookie() method below to get the OAuth access token
     for the active user from the cookie saved by the SDK.
     """
+
     def __init__(self, access_token=None):
         self.access_token = access_token
 
@@ -144,6 +138,25 @@ class GraphAPI(object):
         """
         return self.put_object(profile_id, "feed", message=message, **attachment)
 
+    def put_event(self, id=None, **data):
+        """Creates an event with a picture.
+
+        We accept the params as per http://developers.facebook.com/docs/reference/api/event
+        However, we also accept a picture param, which should point to a URL for
+        the event image.
+
+        """
+        files = {}
+        if 'picture' in data:
+            file = urllib.urlopen(data['picture'])
+            try:
+                files['picture'] = file.read()
+            finally:
+                del data['picture']
+                file.close()
+        path = "me/events" if not id else str(id)
+        return self.multipart_request(path, post_args=data, files=files)
+
     def put_comment(self, object_id, message):
         """Writes the given comment on the given post."""
         return self.put_object(object_id, "comments", message=message)
@@ -154,7 +167,7 @@ class GraphAPI(object):
 
     def delete_object(self, id):
         """Deletes the object with the given ID from the graph."""
-        self.request(id, post_args={"method": "delete"})
+        return self.request(id, post_args={"method": "delete"})
 
     def put_photo(self, image, message=None, album_id=None, **kwargs):
         """Uploads an image using multipart/form-data
@@ -181,7 +194,7 @@ class GraphAPI(object):
         except urllib2.HTTPError, e:
             data = e.read() # Facebook sends OAuth errors as 400, and urllib2 throws an exception, we want a GraphAPIError
         try:
-            response = _parse_json(data)
+            response = json.loads(data)
             if response and response.get("error"):
                 raise GraphAPIError(response["error"].get("code", 1),
                                     response["error"]["message"])
@@ -241,14 +254,14 @@ class GraphAPI(object):
             file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" +
                                   urllib.urlencode(args), post_data)
         except urllib2.HTTPError, e:
-            response = _parse_json( e.read() )
+            response = json.loads( e.read() )
             raise GraphAPIError(response["error"]["type"],
                     response["error"]["message"])
 
         try:
             fileInfo = file.info()
             if fileInfo.maintype == 'text':
-                response = _parse_json(file.read())
+                response = json.loads(file.read())
             elif fileInfo.maintype == 'image':
                 mimetype = fileInfo['content-type']
                 response = {
@@ -290,10 +303,72 @@ class GraphAPI(object):
         file = urllib.urlopen("https://api.facebook.com/method/" + path + "?" +
                               urllib.urlencode(args), post_data)
         try:
-            response = _parse_json(file.read())
+            response = json.loads(file.read())
         finally:
             file.close()
-        if response and response.get("error"):
+
+        if isinstance(response, dict) and response.get("error"):
+            raise GraphAPIError(response["error"]["type"],
+                                response["error"]["message"])
+        return response
+
+    def multipart_request(self, path, args=None, post_args=None, files=None):
+        """Request a given path in the Graph API with multipart support.
+
+        If post_args or files is given, we send a POST multipart request.
+
+        files is a dict of {'filename.ext', 'value'} of files to upload.
+        """
+        def __encode_multipart_data(post_args, files):
+            boundary = ''.join(random.choice('abcdefghijklmnopqrstuvwxyz' \
+                'ABCDEFGHIJKLMNOPQRSTUVWXYZ') for ii in range(31))
+
+            def get_content_type(filename):
+                return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
+
+            def encode_field(field_name, value):
+                return ('--' + boundary,
+                        'Content-Disposition: form-data; name="%s"' % field_name,
+                        '', str(value))
+
+            def encode_file(filename, value):
+                return ('--' + boundary,
+                        'Content-Disposition: form-data; filename="%s"' % (filename, ),
+                        'Content-Type: %s' % get_content_type(filename),
+                        '', value)
+
+            lines = []
+            for (field_name, value) in post_args.items():
+                lines.extend(encode_field(field_name, value))
+            for (filename, value) in files.items():
+                lines.extend(encode_file(filename, value))
+            lines.extend(('--%s--' % boundary, ''))
+            body = '\r\n'.join(lines)
+
+            headers = {'content-type': 'multipart/form-data; boundary=' + boundary,
+                       'content-length': str(len(body))}
+
+            return body, headers
+
+        if not args: args = {}
+        if self.access_token:
+            if post_args is not None:
+                post_args["access_token"] = self.access_token
+            else:
+                args["access_token"] = self.access_token
+
+        path = path + "?" + urllib.urlencode(args)
+        connection = httplib.HTTPSConnection("graph.facebook.com")
+        method = "POST" if post_args or files else "GET"
+        connection.request(method, path,
+                            *__encode_multipart_data(post_args, files))
+        http_response = connection.getresponse()
+        try:
+            response = json.loads(http_response.read())
+        finally:
+            http_response.close()
+            connection.close()
+        if isinstance(response, dict) and response.get("error"):
             raise GraphAPIError(response["error"]["type"],
                                 response["error"]["message"])
         return response
@@ -321,7 +396,7 @@ class GraphAPI(object):
                               urllib.urlencode(args), post_data)
         try:
             content  = file.read()
-            response = _parse_json(content)
+            response = json.loads(content)
             #Return a list if success, return a dictionary if failed
             if type(response) is dict and "error_code" in response:
                 raise GraphAPIError(response["error_code"],response["error_msg"])
@@ -337,6 +412,68 @@ class GraphAPIError(Exception):
     def __init__(self, type, message):
         Exception.__init__(self, message)
         self.type = type
+
+class FQLAPI(object):
+    """
+    A client for the Facebook FQL API.
+
+    See http://developers.facebook.com/docs/reference/fql/ for complete documentation
+    for the API.
+
+    The Graph API is made up of the objects in Facebook (e.g., people, pages,
+    events, photos) and the connections between them (e.g., friends,
+    photo tags, and event RSVPs). This client provides access to those
+    primitive types in an advanced way. For example, given an OAuth access
+    token, this will fetch the profile of the active user and list the user's
+    friend's profile pictures.
+
+        graph = facebook.GraphAPI(access_token)
+        user = graph.get_object("me")
+        fql = facebook.FQLAPI(access_token)
+        friends = fql.query("SELECT pic_small FROM profile where id in (SELECT uid2 from friend where uid1 = " + user["id"] + ")")
+
+
+    You can see a list of all of the objects and connections supported
+    by the API at http://developers.facebook.com/docs/reference/fql/.
+
+    You can obtain an access token via OAuth or by using the Facebook
+    JavaScript SDK. See http://developers.facebook.com/docs/authentication/
+    for details.
+
+    If you are using the JavaScript SDK, you can use the
+    get_user_from_cookie() method below to get the OAuth access token
+    for the active user from the cookie saved by the SDK.
+    """
+
+    def __init__(self, access_token):
+        self.access_token = access_token
+
+    def query(self, query):
+        """ Performs a FQL query on Facebook. Just a wrapper around the `request`
+        method below. """
+        return self.request(query)
+
+    def request(self, query):
+        """ Performs the given query on Facebook or raises an `FQLAPIError` """
+
+        file = urllib.urlopen('https://api.facebook.com/method/fql.query?access_token=%s&format=json&query=%s' % (
+            urllib.quote_plus(self.access_token), urllib.quote_plus(query)))
+        try:
+            response = json.loads(file.read())
+        finally:
+            file.close()
+
+        if isinstance(response, dict) and response.get('error_code'):
+            raise FQLAPIError(response['error_code'], response['error_msg'])
+
+        return response
+
+
+class FQLAPIError(Exception):
+    def __init__(self, type, message):
+        Exception.__init__(self, message)
+        self.type = type
+
 
 def get_user_from_cookie(cookies, app_id, app_secret):
     """Parses the cookie set by the official Facebook JavaScript SDK.
@@ -355,7 +492,7 @@ def get_user_from_cookie(cookies, app_id, app_secret):
     """
     cookie = cookies.get("fbs_" + app_id, "")
     if not cookie: return None
-    args = dict((k, v[-1]) for k, v in cgi.parse_qs(cookie.strip('"')).items())
+    args = dict((k, v[-1]) for k, v in urlparse.parse_qs(cookie.strip('"')).items())
     payload = "".join(k + "=" + args[k] for k in sorted(args.keys())
                       if k != "sig")
     sig = hashlib.md5(payload + app_secret).hexdigest()
@@ -385,7 +522,7 @@ def parse_signed_request(signed_request, app_secret):
     except TypeError:
         return False # raise ValueError('signed_request had corrupted payload')
 
-    data = _parse_json(data)
+    data = json.loads(data)
     if data.get('algorithm', '').upper() != 'HMAC-SHA256':
         return False # raise ValueError('signed_request used unknown algorithm')
 
