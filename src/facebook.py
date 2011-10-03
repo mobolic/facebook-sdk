@@ -250,9 +250,9 @@ class GraphAPI(object):
             else:
                 args["access_token"] = self.access_token
         post_data = None if post_args is None else urllib.urlencode(post_args)
-        graph_api = "https://api.facebook.com/method/{0}?{1}"
+        graph_api = "https://graph.facebook.com/{0}?{1}"
         request = urllib2.Request(graph_api.format(path, urllib.urlencode(args)), data=post_data)
-        
+
         try:
             file = urllib2.urlopen(request)
         except urllib2.HTTPError, e:
@@ -263,7 +263,11 @@ class GraphAPI(object):
         try:
             fileInfo = file.info()
             if fileInfo.maintype == 'text':
-                response = json.loads(file.read())
+                response = file.read()
+                try:
+                    response = json.loads(response)
+                except ValueError:
+                    return response
             elif fileInfo.maintype == 'image':
                 mimetype = fileInfo['content-type']
                 response = {
@@ -275,6 +279,7 @@ class GraphAPI(object):
                 raise GraphAPIError('Response Error', 'Maintype was not text or image')
         finally:
             file.close()
+            
         if response and isinstance(response, dict) and response.get("error"):
             raise GraphAPIError(response["error"]["type"],
                                 response["error"]["message"])
@@ -525,15 +530,21 @@ def get_user_access_token(signed_request, client_id, client_secret):
     if not code:
         return None
 
-    u = urllib2.urlopen(
-        'https://graph.facebook.com/oauth/access_token',
-        data=urllib.urlencode({
-            'client_id': client_id,
-            'client_secret': client_secret,
-            'code': code,
-            'redirect_uri': '',
-        })
-    )
+    try:
+        u = urllib2.urlopen(
+            'https://graph.facebook.com/oauth/access_token',
+            data=urllib.urlencode({
+                'client_id': client_id,
+                'client_secret': client_secret,
+                'code': code,
+                'redirect_uri': '',
+            })
+        )
+    except urllib2.HTTPError, e:
+        response = json.load(e)
+        if isinstance(response, dict) and 'error' in response:
+            raise GraphAPIError(response['error']['type'], response['error']['message'])
+        return response
 
     response = u.read()
     data = urlparse.parse_qs(response)
