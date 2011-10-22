@@ -14,7 +14,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""A barebones AppEngine application that uses Facebook for login."""
+"""
+A barebones AppEngine application that uses Facebook for login.
+Make sure you add a copy of facebook.py (from python-sdk/src/) into this
+directory so it can be imported.
+"""
 
 FACEBOOK_APP_ID = "your app id"
 FACEBOOK_APP_SECRET = "your app secret"
