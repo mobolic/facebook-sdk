@@ -176,9 +176,9 @@ class GraphAPI(object):
         object_id = album_id or "me"
         #it would have been nice to reuse self.request; but multipart is messy in urllib
         post_args = {
-				  'access_token': self.access_token,
-				  'source': image,
-				  'message': message
+            'access_token': self.access_token,
+            'source': image,
+            'message': message
         }
         post_args.update(kwargs)
         content_type, body = self._encode_multipart_form(post_args)
@@ -343,11 +343,11 @@ class GraphAPI(object):
             'client_id': client_id,
             'client_secret': client_secret,
             'grant_type': 'client_credentials',
-            }
+        }
         file = urllib.urlopen(
             "https://graph.facebook.com/oauth/access_token?" +
                 urllib.urlencode(args)
-            )
+        )
         try:
             access_token = file.read()
             if access_token and access_token.startswith('access_token='):
