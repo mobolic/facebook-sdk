@@ -247,9 +247,14 @@ class GraphAPI(object):
             else:
                 args["access_token"] = self.access_token
         post_data = None if post_args is None else urllib.urlencode(post_args)
-        file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" +
-                              urllib.urlencode(args), post_data)
-
+        try:
+            file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" +
+                                  urllib.urlencode(args), post_data)
+        except urllib2.HTTPError, e:
+            # Facebook will somethimes return HTTP errors with valid JSON
+            # content in the body.  We'll check for this below and raise this
+            # exception later if we don't get a nice error message.
+            file = e
         try:
             fileInfo = file.info()
             if fileInfo.maintype == 'text':
@@ -268,6 +273,8 @@ class GraphAPI(object):
         if response and isinstance(response, dict) and response.get("error"):
             raise GraphAPIError(response["error"]["type"],
                                 response["error"]["message"])
+        elif isinstance(file, urllib2.HTTPError):
+            raise file
         return response
 
     def api_request(self, path, args=None, post_args=None):
