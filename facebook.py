@@ -80,9 +80,19 @@ class GraphAPI(object):
     If you are using the JavaScript SDK, you can use the
     get_user_from_cookie() method below to get the OAuth access token
     for the active user from the cookie saved by the SDK.
+
+    Alternatively, you can connect to the Graph API using your App ID and
+    Secret (both provided by Facebook on your app's developer page):
+
+       graph = facebook.GraphAPI(client_id = '12345', client_secret = "0ch2d738d...")
+       page = graph.get_object("cocacola")
+
     """
-    def __init__(self, access_token=None):
-        self.access_token = access_token
+    def __init__(self, access_token=None, client_id=None, client_secret=None):
+        if client_id and client_secret:
+            self.access_token = self._get_client_token(client_id, client_secret)
+        else:
+            self.access_token = access_token
 
     def get_object(self, id, **args):
         """Fetchs the given object from the graph."""
@@ -327,6 +337,26 @@ class GraphAPI(object):
 
         return response
 
+    def _get_client_token(self, client_id, client_secret):
+        """Fetches an access_token based on an App's ID and secret"""
+        args = {
+            'client_id': client_id,
+            'client_secret': client_secret,
+            'grant_type': 'client_credentials',
+            }
+        file = urllib.urlopen(
+            "https://graph.facebook.com/oauth/access_token?" +
+                urllib.urlencode(args)
+            )
+        try:
+            access_token = file.read()
+            if access_token and access_token.startswith('access_token='):
+                access_token = urllib.unquote(access_token[13:])
+            else:
+                access_token = None
+        finally:
+            file.close()
+        return access_token
 
 class GraphAPIError(Exception):
     def __init__(self, type, message):
