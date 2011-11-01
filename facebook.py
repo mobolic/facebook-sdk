@@ -35,12 +35,13 @@ usage of this module might look like this:
 
 import cgi
 import time
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 import hashlib
 import hmac
 import base64
 import logging
+import collections
 
 # Find a JSON parser
 try:
@@ -172,13 +173,13 @@ class GraphAPI(object):
         }
         post_args.update(kwargs)
         content_type, body = self._encode_multipart_form(post_args)
-        req = urllib2.Request("https://graph.facebook.com/%s/photos" % object_id, data=body)
+        req = urllib.request.Request("https://graph.facebook.com/%s/photos" % object_id, data=body)
         req.add_header('Content-Type', content_type)
         try:
-            data = urllib2.urlopen(req).read()
+            data = urllib.request.urlopen(req).read()
         #For Python 3 use this:
         #except urllib2.HTTPError as e:
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             data = e.read() # Facebook sends OAuth errors as 400, and urllib2 throws an exception, we want a GraphAPIError
         try:
             response = _parse_json(data)
@@ -200,12 +201,12 @@ class GraphAPI(object):
         BOUNDARY = '----------ThIs_Is_tHe_bouNdaRY_$'
         CRLF = '\r\n'
         L = []
-        for (key, value) in fields.items():
+        for (key, value) in list(fields.items()):
             logging.debug("Encoding %s, (%s)%s" % (key, type(value), value))
             if not value:
                 continue
             L.append('--' + BOUNDARY)
-            if hasattr(value, 'read') and callable(value.read):
+            if hasattr(value, 'read') and isinstance(value.read, collections.Callable):
                 filename = getattr(value,'name','%s.jpg' % key)
                 L.append('Content-Disposition: form-data; name="%s"; filename="%s"' % (key, filename))
                 L.append('Content-Type: image/jpeg')
@@ -214,7 +215,7 @@ class GraphAPI(object):
             else:
                 L.append('Content-Disposition: form-data; name="%s"' % key)
             L.append('')
-            if isinstance(value, unicode):
+            if isinstance(value, str):
                 logging.debug("Convert to ascii")
                 value = value.encode('ascii')
             L.append(value)
@@ -236,15 +237,15 @@ class GraphAPI(object):
                 post_args["access_token"] = self.access_token
             else:
                 args["access_token"] = self.access_token
-        post_data = None if post_args is None else urllib.urlencode(post_args)
-        file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" +
-                              urllib.urlencode(args), post_data)
+        post_data = None if post_args is None else urllib.parse.urlencode(post_args)
+        file = urllib.request.urlopen("https://graph.facebook.com/" + path + "?" +
+                              urllib.parse.urlencode(args), post_data)
 
         try:
             fileInfo = file.info()
-            if fileInfo.maintype == 'text':
-                response = _parse_json(file.read())
-            elif fileInfo.maintype == 'image':
+            if fileInfo.get_content_maintype() == 'text':
+                response = _parse_json(file.read().decode('utf8'))
+            elif fileInfo.get_content_maintype() == 'image':
                 mimetype = fileInfo['content-type']
                 response = {
                     "data": file.read(),
@@ -281,9 +282,9 @@ class GraphAPI(object):
             post_args["format"] = "json-strings"
         else:
             args["format"] = "json-strings"
-        post_data = None if post_args is None else urllib.urlencode(post_args)
-        file = urllib.urlopen("https://api.facebook.com/method/" + path + "?" +
-                              urllib.urlencode(args), post_data)
+        post_data = None if post_args is None else urllib.parse.urlencode(post_args)
+        file = urllib.request.urlopen("https://api.facebook.com/method/" + path + "?" +
+                              urllib.parse.urlencode(args), post_data)
         try:
             response = _parse_json(file.read())
         finally:
@@ -308,19 +309,19 @@ class GraphAPI(object):
                 post_args["access_token"] = self.access_token
             else:
                 args["access_token"] = self.access_token
-        post_data = None if post_args is None else urllib.urlencode(post_args)
+        post_data = None if post_args is None else urllib.parse.urlencode(post_args)
 
         args["query"] = query
         args["format"]="json"
-        file = urllib2.urlopen("https://api.facebook.com/method/fql.query?" +
-                              urllib.urlencode(args), post_data)
+        file = urllib.request.urlopen("https://api.facebook.com/method/fql.query?" +
+                              urllib.parse.urlencode(args), post_data)
         try:
             content  = file.read()
             response = _parse_json(content)
             #Return a list if success, return a dictionary if failed
             if type(response) is dict and "error_code" in response:
                 raise GraphAPIError(response["error_code"],response["error_msg"])
-        except Exception, e:
+        except Exception as e:
             raise e
         finally:
             file.close()
@@ -350,7 +351,7 @@ def get_user_from_cookie(cookies, app_id, app_secret):
     """
     cookie = cookies.get("fbs_" + app_id, "")
     if not cookie: return None
-    args = dict((k, v[-1]) for k, v in cgi.parse_qs(cookie.strip('"')).items())
+    args = dict((k, v[-1]) for k, v in list(cgi.parse_qs(cookie.strip('"')).items()))
     payload = "".join(k + "=" + args[k] for k in sorted(args.keys())
                       if k != "sig")
     sig = hashlib.md5(payload + app_secret).hexdigest()
@@ -395,7 +396,7 @@ def auth_url(app_id, canvas_url, perms = None):
     kvps = {'client_id': app_id, 'redirect_uri': canvas_url}
     if perms:
         kvps['scope'] = ",".join(perms)
-    return url + urllib.urlencode(kvps)
+    return url + urllib.parse.urlencode(kvps)
 
 def get_app_access_token(application_id, application_secret):
     """
@@ -409,8 +410,8 @@ def get_app_access_token(application_id, application_secret):
             'client_id':application_id,
             'client_secret':application_secret}
 
-    file = urllib2.urlopen("https://graph.facebook.com/oauth/access_token?" +
-                              urllib.urlencode(args))
+    file = urllib.request.urlopen("https://graph.facebook.com/oauth/access_token?" +
+                              urllib.parse.urlencode(args))
 
     try:
         result = file.read().split("=")[1]
