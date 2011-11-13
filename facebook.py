@@ -85,9 +85,19 @@ class GraphAPI(object):
     If you are using the JavaScript SDK, you can use the
     get_user_from_cookie() method below to get the OAuth access token
     for the active user from the cookie saved by the SDK.
+
+    Alternatively, you can connect to the Graph API using your App ID and
+    Secret (both provided by Facebook on your app's developer page):
+
+       graph = facebook.GraphAPI(client_id = '12345', client_secret = "0ch2d738d...")
+       page = graph.get_object("cocacola")
+
     """
-    def __init__(self, access_token=None):
-        self.access_token = access_token
+    def __init__(self, access_token=None, client_id=None, client_secret=None):
+        if client_id and client_secret:
+            self.access_token = self._get_client_token(client_id, client_secret)
+        else:
+            self.access_token = access_token
 
     def get_object(self, id, **args):
         """Fetchs the given object from the graph."""
@@ -171,9 +181,9 @@ class GraphAPI(object):
         object_id = album_id or "me"
         #it would have been nice to reuse self.request; but multipart is messy in urllib
         post_args = {
-				  'access_token': self.access_token,
-				  'source': image,
-				  'message': message
+            'access_token': self.access_token,
+            'source': image,
+            'message': message
         }
         post_args.update(kwargs)
         content_type, body = self._encode_multipart_form(post_args)
@@ -187,7 +197,7 @@ class GraphAPI(object):
             data = e.read() # Facebook sends OAuth errors as 400, and urllib2 throws an exception, we want a GraphAPIError
         try:
             response = _parse_json(data)
-            if response and response.get("error"):
+            if response and isinstance(response, dict) and response.get("error"):
                 raise GraphAPIError(response["error"].get("code", 1),
                                     response["error"]["message"])
         except ValueError:
@@ -242,9 +252,14 @@ class GraphAPI(object):
             else:
                 args["access_token"] = self.access_token
         post_data = None if post_args is None else urllib.urlencode(post_args)
-        file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" +
-                              urllib.urlencode(args), post_data)
-
+        try:
+            file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" +
+                                  urllib.urlencode(args), post_data)
+        except urllib2.HTTPError, e:
+            # Facebook will somethimes return HTTP errors with valid JSON
+            # content in the body.  We'll check for this below and raise this
+            # exception later if we don't get a nice error message.
+            file = e
         try:
             fileInfo = file.info()
             if fileInfo.maintype == 'text':
@@ -263,6 +278,8 @@ class GraphAPI(object):
         if response and isinstance(response, dict) and response.get("error"):
             raise GraphAPIError(response["error"]["type"],
                                 response["error"]["message"])
+        elif isinstance(file, urllib2.HTTPError):
+            raise file
         return response
 
     def api_request(self, path, args=None, post_args=None):
@@ -332,6 +349,26 @@ class GraphAPI(object):
 
         return response
 
+    def _get_client_token(self, client_id, client_secret):
+        """Fetches an access_token based on an App's ID and secret"""
+        args = {
+            'client_id': client_id,
+            'client_secret': client_secret,
+            'grant_type': 'client_credentials',
+        }
+        file = urllib.urlopen(
+            "https://graph.facebook.com/oauth/access_token?" +
+                urllib.urlencode(args)
+        )
+        try:
+            access_token = file.read()
+            if access_token and access_token.startswith('access_token='):
+                access_token = urllib.unquote(access_token[13:])
+            else:
+                access_token = None
+        finally:
+            file.close()
+        return access_token
 
 class GraphAPIError(Exception):
     def __init__(self, type, message):
