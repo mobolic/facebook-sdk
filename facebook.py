@@ -52,6 +52,11 @@ except ImportError:
         import json
 _parse_json = json.loads
 
+# Find a query string parser
+try:
+    from urlparse import parse_qs
+except ImportError:
+    from cgi import parse_qs
 
 class GraphAPI(object):
     """A client for the Facebook Graph API.
@@ -348,15 +353,29 @@ def get_user_from_cookie(cookies, app_id, app_secret):
     http://github.com/facebook/connect-js/. Read more about Facebook
     authentication at http://developers.facebook.com/docs/authentication/.
     """
-    cookie = cookies.get("fbs_" + app_id, "")
+    cookie = cookies.get("fbsr_" + app_id, "")
     if not cookie: return None
-    args = dict((k, v[-1]) for k, v in cgi.parse_qs(cookie.strip('"')).items())
-    payload = "".join(k + "=" + args[k] for k in sorted(args.keys())
-                      if k != "sig")
-    sig = hashlib.md5(payload + app_secret).hexdigest()
-    expires = int(args["expires"])
-    if sig == args.get("sig") and (expires == 0 or time.time() < expires):
-        return args
+    parsed_request = parse_signed_request(cookie, app_secret)
+    args = {
+        "client_id": app_id,
+        "client_secret": app_secret,
+        "code": parsed_request["code"],
+        "redirect_uri":""
+    }
+    # We would use GraphAPI.request() here, except for that the fact that the
+    # response is a key-value pair, and not JSON.
+    response = urllib.urlopen("https://graph.facebook.com/oauth/access_token" +
+                              "?" + urllib.urlencode(args))
+    query_str = parse_qs(response.read())
+    if "access_token" in query_str:
+        result = {
+            "uid":parsed_request["user_id"],
+            "issued_at":parsed_request["issued_at"],
+            "access_token":query_str["access_token"][0],
+        }
+        if "expires" in query_str:
+            result["expires"] = query_str["expires"][0]
+        return result
     else:
         return None
 
