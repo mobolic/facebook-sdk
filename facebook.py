@@ -421,17 +421,17 @@ def auth_url(app_id, canvas_url, perms = None):
         kvps['scope'] = ",".join(perms)
     return url + urllib.urlencode(kvps)
 
-def get_app_access_token(application_id, application_secret):
+def get_app_access_token(app_id, app_secret):
     """
     Get the access_token for the app that can be used for insights and creating test users
-    application_id = retrieved from the developer page
-    application_secret = retrieved from the developer page
+    app_id = retrieved from the developer page
+    app_secret = retrieved from the developer page
     returns the application access_token
     """
     # Get an app access token
     args = {'grant_type':'client_credentials',
-            'client_id':application_id,
-            'client_secret':application_secret}
+            'client_id':app_id,
+            'client_secret':app_secret}
 
     file = urllib2.urlopen("https://graph.facebook.com/oauth/access_token?" +
                               urllib.urlencode(args))
