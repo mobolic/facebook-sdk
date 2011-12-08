@@ -361,28 +361,10 @@ def get_user_from_cookie(cookies, app_id, app_secret):
     cookie = cookies.get("fbsr_" + app_id, "")
     if not cookie: return None
     parsed_request = parse_signed_request(cookie, app_secret)
-    args = {
-        "client_id": app_id,
-        "client_secret": app_secret,
-        "code": parsed_request["code"],
-        "redirect_uri":""
-    }
-    # We would use GraphAPI.request() here, except for that the fact that the
-    # response is a key-value pair, and not JSON.
-    response = urllib.urlopen("https://graph.facebook.com/oauth/access_token" +
-                              "?" + urllib.urlencode(args))
-    query_str = parse_qs(response.read())
-    if "access_token" in query_str:
-        result = {
-            "uid":parsed_request["user_id"],
-            "issued_at":parsed_request["issued_at"],
-            "access_token":query_str["access_token"][0],
-        }
-        if "expires" in query_str:
-            result["expires"] = query_str["expires"][0]
-        return result
-    else:
-        return None
+    result = get_access_token_from_code(parsed_request["code"], "",
+                                      app_id, app_secret)
+    result["uid"] = parsed_request["user_id"]
+    return result
 
 def parse_signed_request(signed_request, app_secret):
     """ Return dictionary with signed request data.
@@ -420,6 +402,36 @@ def auth_url(app_id, canvas_url, perms = None):
     if perms:
         kvps['scope'] = ",".join(perms)
     return url + urllib.urlencode(kvps)
+
+
+def get_access_token_from_code(code, redirect_uri, app_id, app_secret):
+    """
+    Get a user-specific access token from the "code" returned from a Facebook
+    OAuth dialog. Returns a dict containing the access token and its expiration
+    date (if applicable).
+
+    """
+    args = {
+        "code": code,
+        "redirect_uri": redirect_uri,
+        "client_id": app_id,
+        "client_secret": app_secret,
+    }
+    # We would use GraphAPI.request() here, except for that the fact that the
+    # response is a key-value pair, and not JSON.
+    response = urllib.urlopen("https://graph.facebook.com/oauth/access_token" +
+                              "?" + urllib.urlencode(args)).read()
+    query_str = parse_qs(response)
+    if "access_token" in query_str:
+        result = {"access_token":query_str["access_token"][0]}
+        if "expires" in query_str:
+            result["expires"] = query_str["expires"][0]
+        return result
+    else:
+        response = json.loads(response)
+        raise GraphAPIError(response["error"]["type"],
+                            response["error"]["message"])
+
 
 def get_app_access_token(app_id, app_secret):
     """
