@@ -187,7 +187,8 @@ class GraphAPI(object):
             data = e.read() # Facebook sends OAuth errors as 400, and urllib2 throws an exception, we want a GraphAPIError
         try:
             response = _parse_json(data)
-            if response and response.get("error"):
+            # Raise an error if we got one, but don't freak out if Facebook just gave us a Bool value
+            if response and isinstance(response, dict) and response.get("error"):
                 raise GraphAPIError(response["error"].get("code", 1),
                                     response["error"]["message"])
         except ValueError:
