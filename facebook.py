@@ -86,8 +86,26 @@ class GraphAPI(object):
     get_user_from_cookie() method below to get the OAuth access token
     for the active user from the cookie saved by the SDK.
     """
-    def __init__(self, access_token=None):
+    def __init__(self, access_token=None, app_id=None, app_secret=None, allow_no_access_token=False):
+        self._app_id = app_id
+        self._app_secret = app_secret
+        if access_token is None and not allow_no_access_token:
+            access_token = self._get_token()
         self.access_token = access_token
+
+    def _get_token(self):
+        params = urllib.urlencode(dict(
+            client_id=self._app_id,
+            client_secret=self._app_secret,
+            type='client_cred'))
+        response = urllib.urlopen('https://graph.facebook.com/oauth/access_token?%s' % params).read()
+        if response:
+            print response
+            parsed = cgi.parse_qs(response)
+            if parsed and 'access_token' in parsed:
+                token = parsed['access_token'][0]
+                return token
+        return None
 
     def get_object(self, id, **args):
         """Fetchs the given object from the graph."""
