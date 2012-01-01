@@ -33,14 +33,28 @@ usage of this module might look like this:
 
 """
 
+import sys
 import cgi
 import time
-import urllib
-import urllib2
 import hashlib
 import hmac
 import base64
 import logging
+
+# backwards compatibility with python 2.X
+if sys.version_info[0] == 2:
+    from urllib import urlopen, urlencode
+    from urllib2 import Request, HTTPError
+
+    # Find a query string parser
+    try:
+        from urlparse import parse_qs
+    except ImportError:
+        from cgi import parse_qs
+else:
+    from urllib.request import Request, urlopen
+    from urllib.error import HTTPError
+    from urllib.parse import parse_qs, urlencode
 
 # Find a JSON parser
 try:
@@ -51,12 +65,6 @@ except ImportError:
     except ImportError:
         import json
 _parse_json = json.loads
-
-# Find a query string parser
-try:
-    from urlparse import parse_qs
-except ImportError:
-    from cgi import parse_qs
 
 class GraphAPI(object):
     """A client for the Facebook Graph API.
@@ -177,13 +185,12 @@ class GraphAPI(object):
         }
         post_args.update(kwargs)
         content_type, body = self._encode_multipart_form(post_args)
-        req = urllib2.Request("https://graph.facebook.com/%s/photos" % object_id, data=body)
+        req = Request("https://graph.facebook.com/%s/photos" % object_id, data=body)
         req.add_header('Content-Type', content_type)
         try:
-            data = urllib2.urlopen(req).read()
-        #For Python 3 use this:
-        #except urllib2.HTTPError as e:
-        except urllib2.HTTPError, e:
+            data = urlopen(req).read()
+        except HTTPError:
+            e = sys.exc_info()[1] # for compatibility with python 2.X and 3.X
             data = e.read() # Facebook sends OAuth errors as 400, and urllib2 throws an exception, we want a GraphAPIError
         try:
             response = _parse_json(data)
@@ -211,7 +218,7 @@ class GraphAPI(object):
             if not value:
                 continue
             L.append('--' + BOUNDARY)
-            if hasattr(value, 'read') and callable(value.read):
+            if hasattr(value, 'read') and hasattr(value.read, '__call__'):
                 filename = getattr(value,'name','%s.jpg' % key)
                 L.append('Content-Disposition: form-data; name="%s"; filename="%s"' % (key, filename))
                 L.append('Content-Type: image/jpeg')
@@ -242,11 +249,12 @@ class GraphAPI(object):
                 post_args["access_token"] = self.access_token
             else:
                 args["access_token"] = self.access_token
-        post_data = None if post_args is None else urllib.urlencode(post_args)
+        post_data = None if post_args is None else urlencode(post_args)
         try:
-            file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" +
-                                  urllib.urlencode(args), post_data)
-        except urllib2.HTTPError, e:
+            file = urlopen("https://graph.facebook.com/" + path + "?" +
+                           urlencode(args), post_data)
+        except HTTPError:
+            e = sys.exc_info()[1] # for compatibility with python 2.X and 3.X
             response = _parse_json( e.read() )
             raise GraphAPIError(response["error"]["type"],
                     response["error"]["message"])
@@ -292,9 +300,9 @@ class GraphAPI(object):
             post_args["format"] = "json-strings"
         else:
             args["format"] = "json-strings"
-        post_data = None if post_args is None else urllib.urlencode(post_args)
-        file = urllib.urlopen("https://api.facebook.com/method/" + path + "?" +
-                              urllib.urlencode(args), post_data)
+        post_data = None if post_args is None else urlencode(post_args)
+        file = urlopen("https://api.facebook.com/method/" + path + "?" +
+                       urlencode(args), post_data)
         try:
             response = _parse_json(file.read())
         finally:
@@ -319,19 +327,20 @@ class GraphAPI(object):
                 post_args["access_token"] = self.access_token
             else:
                 args["access_token"] = self.access_token
-        post_data = None if post_args is None else urllib.urlencode(post_args)
+        post_data = None if post_args is None else urlencode(post_args)
 
         args["query"] = query
         args["format"]="json"
-        file = urllib2.urlopen("https://api.facebook.com/method/fql.query?" +
-                              urllib.urlencode(args), post_data)
+        file = urlopen("https://api.facebook.com/method/fql.query?" +
+                       urlencode(args), post_data)
         try:
             content  = file.read()
             response = _parse_json(content)
             #Return a list if success, return a dictionary if failed
             if type(response) is dict and "error_code" in response:
                 raise GraphAPIError(response["error_code"],response["error_msg"])
-        except Exception, e:
+        except Exception:
+            e = sys.exc_info()[1] # for compatibility with python 2.X and 3.X
             raise e
         finally:
             file.close()
@@ -402,7 +411,7 @@ def auth_url(app_id, canvas_url, perms = None):
     kvps = {'client_id': app_id, 'redirect_uri': canvas_url}
     if perms:
         kvps['scope'] = ",".join(perms)
-    return url + urllib.urlencode(kvps)
+    return url + urlencode(kvps)
 
 
 def get_access_token_from_code(code, redirect_uri, app_id, app_secret):
@@ -420,8 +429,8 @@ def get_access_token_from_code(code, redirect_uri, app_id, app_secret):
     }
     # We would use GraphAPI.request() here, except for that the fact that the
     # response is a key-value pair, and not JSON.
-    response = urllib.urlopen("https://graph.facebook.com/oauth/access_token" +
-                              "?" + urllib.urlencode(args)).read()
+    response = urlopen("https://graph.facebook.com/oauth/access_token?" +
+                       urlencode(args)).read()
     query_str = parse_qs(response)
     if "access_token" in query_str:
         result = {"access_token":query_str["access_token"][0]}
@@ -446,8 +455,8 @@ def get_app_access_token(app_id, app_secret):
             'client_id':app_id,
             'client_secret':app_secret}
 
-    file = urllib2.urlopen("https://graph.facebook.com/oauth/access_token?" +
-                              urllib.urlencode(args))
+    file = urlopen("https://graph.facebook.com/oauth/access_token?" +
+                   urlencode(args))
 
     try:
         result = file.read().split("=")[1]
