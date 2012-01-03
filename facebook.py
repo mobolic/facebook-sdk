@@ -321,10 +321,20 @@ class GraphAPI(object):
                 args["access_token"] = self.access_token
         post_data = None if post_args is None else urllib.urlencode(post_args)
 
-        args["query"] = query
+        """Check query string if is a list type
+           switch to multiquery method
+        """
+        if not isinstance(query, basestring):
+            args["queries"] = query
+            fql_method = 'fql.multiquery'
+        else:
+            args["query"] = query
+            fql_method = 'fql.query'
+
         args["format"]="json"
-        file = urllib2.urlopen("https://api.facebook.com/method/fql.query?" +
-                              urllib.urlencode(args), post_data)
+
+        file = urllib2.urlopen("https://api.facebook.com/method/"+ fql_method +
+                              "?" + urllib.urlencode(args), post_data)
         try:
             content  = file.read()
             response = _parse_json(content)
