@@ -321,8 +321,9 @@ class GraphAPI(object):
                 args["access_token"] = self.access_token
         post_data = None if post_args is None else urllib.urlencode(post_args)
 
-        """Check query string if is a list type
-           switch to multiquery method
+        """Check if query is a dict and
+           use the multiquery method
+           else use single query
         """
         if not isinstance(query, basestring):
             args["queries"] = query
