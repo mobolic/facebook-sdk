@@ -362,8 +362,11 @@ def get_user_from_cookie(cookies, app_id, app_secret):
     cookie = cookies.get("fbsr_" + app_id, "")
     if not cookie: return None
     parsed_request = parse_signed_request(cookie, app_secret)
-    result = get_access_token_from_code(parsed_request["code"], "",
-                                      app_id, app_secret)
+    try:
+        result = get_access_token_from_code(parsed_request["code"], "",
+                                          app_id, app_secret)
+    except GraphAPIError:
+        return None
     result["uid"] = parsed_request["user_id"]
     return result
 
