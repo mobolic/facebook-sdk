@@ -80,7 +80,8 @@ class HomeHandler(BaseHandler):
 class LoginHandler(BaseHandler):
     def get(self):
         verification_code = self.request.get("code")
-        args = dict(client_id=FACEBOOK_APP_ID, redirect_uri=self.request.path_url)
+        args = dict(client_id=FACEBOOK_APP_ID,
+                    redirect_uri=self.request.path_url)
         if self.request.get("code"):
             args["client_secret"] = FACEBOOK_APP_SECRET
             args["code"] = self.request.get("code")
@@ -121,7 +122,8 @@ def set_cookie(response, name, value, domain=None, path="/", expires=None):
     cookie = Cookie.BaseCookie()
     cookie[name] = "|".join([value, timestamp, signature])
     cookie[name]["path"] = path
-    if domain: cookie[name]["domain"] = domain
+    if domain:
+        cookie[name]["domain"] = domain
     if expires:
         cookie[name]["expires"] = email.utils.formatdate(
             expires, localtime=False, usegmt=True)
@@ -130,9 +132,11 @@ def set_cookie(response, name, value, domain=None, path="/", expires=None):
 
 def parse_cookie(value):
     """Parses and verifies a cookie value from set_cookie"""
-    if not value: return None
+    if not value:
+        return None
     parts = value.split("|")
-    if len(parts) != 3: return None
+    if len(parts) != 3:
+        return None
     if cookie_signature(parts[0], parts[1]) != parts[2]:
         logging.warning("Invalid cookie signature %r", value)
         return None
@@ -153,7 +157,8 @@ def cookie_signature(*parts):
     people using this example don't accidentally all use the same secret).
     """
     hash = hmac.new(FACEBOOK_APP_SECRET, digestmod=hashlib.sha1)
-    for part in parts: hash.update(part)
+    for part in parts:
+        hash.update(part)
     return hash.hexdigest()
 
 

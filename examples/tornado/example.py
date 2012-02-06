@@ -44,7 +44,8 @@ class BaseHandler(tornado.web.RequestHandler):
         cookies = dict((n, self.cookies[n].value) for n in self.cookies.keys())
         cookie = facebook.get_user_from_cookie(
             cookies, options.facebook_app_id, options.facebook_app_secret)
-        if not cookie: return None
+        if not cookie:
+            return None
         user = self.db.get(
             "SELECT * FROM users WHERE id = %s", cookie["uid"])
         if not user:

@@ -31,6 +31,7 @@ from google.appengine.ext.webapp import util
 from google.appengine.ext.webapp import template
 from google.appengine.api.urlfetch import fetch
 
+
 class User(db.Model):
     id = db.StringProperty(required=True)
     created = db.DateTimeProperty(auto_now_add=True)
@@ -82,10 +83,11 @@ class HomeHandler(BaseHandler):
         self.response.out.write(template.render(path, args))
 
     def post(self):
-        url=self.request.get('url')
+        url = self.request.get('url')
         file = urllib2.urlopen(url)
         graph = facebook.GraphAPI(self.current_user.access_token)
         graph.put_photo(file, "Test Image")
+
 
 def main():
     logging.getLogger().setLevel(logging.DEBUG)
