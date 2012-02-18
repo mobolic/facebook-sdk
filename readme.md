@@ -38,7 +38,7 @@ You can see a full AppEngine example application in examples/appengine.
 Reporting Issues
 --------
 
-If you have bugs or other issues, file them [here][issues].
-
-[issues]: http://bugs.developers.facebook.net/enter_bug.cgi?product=SDKs
-
+If you have bugs or other issues specifically pertaining to this library, file
+them [here](https://github.com/pythonforfacebook/facebook-sdk/issues). Bugs
+with the Graph API should be filed on
+[Facebook's bugtracker](https://developers.facebook.com/bugs/).
