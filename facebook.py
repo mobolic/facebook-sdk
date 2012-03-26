@@ -198,8 +198,7 @@ class GraphAPI(object):
             # gave us a Bool value
             if (response and isinstance(response, dict) and
                 response.get("error")):
-                raise GraphAPIError(response["error"].get("code", 1),
-                                    response["error"]["message"])
+                raise GraphAPIError(response)
         except ValueError:
             response = data
 
@@ -260,8 +259,7 @@ class GraphAPI(object):
                                   urllib.urlencode(args), post_data)
         except urllib2.HTTPError, e:
             response = _parse_json(e.read())
-            raise GraphAPIError(response["error"]["type"],
-                    response["error"]["message"])
+            raise GraphAPIError(response)
 
         try:
             fileInfo = file.info()
@@ -275,8 +273,7 @@ class GraphAPI(object):
                     "url": file.url,
                 }
             else:
-                raise GraphAPIError('Response Error',
-                                    'Maintype was not text or image')
+                raise GraphAPIError('Maintype was not text or image')
         finally:
             file.close()
         if response and isinstance(response, dict) and response.get("error"):
@@ -313,8 +310,7 @@ class GraphAPI(object):
         finally:
             file.close()
         if response and response.get("error"):
-            raise GraphAPIError(response["error"]["type"],
-                                response["error"]["message"])
+            raise GraphAPIError(response)
         return response
 
     def fql(self, query, args=None, post_args=None):
@@ -355,8 +351,7 @@ class GraphAPI(object):
             response = _parse_json(content)
             #Return a list if success, return a dictionary if failed
             if type(response) is dict and "error_code" in response:
-                raise GraphAPIError(response["error_code"],
-                                    response["error_msg"])
+                raise GraphAPIError(response)
         except Exception, e:
             raise e
         finally:
@@ -387,14 +382,34 @@ class GraphAPI(object):
             return result
         else:
             response = json.loads(response)
-            raise GraphAPIError(response["error"]["type"],
-                                response["error"]["message"])
+            raise GraphAPIError(response)
 
 
 class GraphAPIError(Exception):
-    def __init__(self, type, message):
-        Exception.__init__(self, message)
-        self.type = type
+    def __init__(self, result):
+        #Exception.__init__(self, message)
+        #self.type = type
+        self.result = result
+        try:
+            self.type = result["error_code"]
+        except:
+            self.type = ""
+
+        # OAuth 2.0 Draft 10
+        try:
+            self.message = result["error_description"]
+        except:
+            # OAuth 2.0 Draft 00
+            try:
+                self.message = result["error"]["message"]
+            except:
+                # REST server style
+                try:
+                    self.message = result["error_msg"]
+                except:
+                    self.message = "Unknown Error. Check result."
+
+        Exception.__init__(self, self.message)
 
 
 def get_user_from_cookie(cookies, app_id, app_secret):
@@ -496,8 +511,7 @@ def get_access_token_from_code(code, redirect_uri, app_id, app_secret):
         return result
     else:
         response = json.loads(response)
-        raise GraphAPIError(response["error"]["type"],
-                            response["error"]["message"])
+        raise GraphAPIError(response)
 
 
 def get_app_access_token(app_id, app_secret):
