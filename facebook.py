@@ -407,7 +407,7 @@ class GraphAPIError(Exception):
                 try:
                     self.message = result["error_msg"]
                 except:
-                    self.message = "Unknown Error. Check result."
+                    self.message = result
 
         Exception.__init__(self, self.message)
 
