@@ -249,8 +249,12 @@ class GraphAPI(object):
         args = args or {}
 
         if self.access_token:
-            if post_args is not None:
-                post_args["access_token"] = self.access_token
+            if post_args is not None:                
+                # if page_token arg is present in attachment dic it will post to a facebook page
+                if hasattr(post_args,'page_token'):
+                  post_args["access_token"] = post_args['page_token']
+                else:
+                  post_args["access_token"] = self.access_token
             else:
                 args["access_token"] = self.access_token
         post_data = None if post_args is None else urllib.urlencode(post_args)
