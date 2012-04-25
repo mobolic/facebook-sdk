@@ -1,0 +1,2 @@
+include readme.md
+recursive-include examples *.css *.html *.ico *.py *.sql *.txt *.yaml
