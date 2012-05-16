@@ -124,10 +124,10 @@ class GraphAPI(object):
         See http://developers.facebook.com/docs/api#publishing for all of
         the supported writeable objects.
 
-        Most write operations require extended permissions. For example,
-        publishing wall posts requires the "publish_stream" permission. See
-        http://developers.facebook.com/docs/authentication/ for details about
-        extended permissions.
+        Certain write operations require extended permissions. For example,
+        publishing to a user's feed requires the "publish_actions" permission. See
+        http://developers.facebook.com/docs/publishing/ for details about
+        publishing permissions.
         """
         assert self.access_token, "Write operations require an access token"
         return self.request(parent_object + "/" + connection_name,
