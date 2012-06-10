@@ -469,6 +469,11 @@ def parse_signed_request(signed_request, app_secret):
     if data.get('algorithm', '').upper() != 'HMAC-SHA256':
         return False
 
+    # HMAC can only handle ascii (byte) strings
+    # http://bugs.python.org/issue5285
+    app_secret = app_secret.encode('ascii')
+    payload = payload.encode('ascii')
+
     expected_sig = hmac.new(app_secret,
                             msg=payload,
                             digestmod=hashlib.sha256).digest()
