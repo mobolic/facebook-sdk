@@ -33,8 +33,6 @@ usage of this module might look like this:
 
 """
 
-import cgi
-import time
 import urllib
 import urllib2
 import hashlib
@@ -280,6 +278,42 @@ class GraphAPI(object):
             raise GraphAPIError(response["error"]["type"],
                                 response["error"]["message"])
         return response
+       
+       
+       
+    def raw_request(self, url):
+        """Fetches the given path in the Graph API. 
+        
+        This very simple method should be used to access raw API urls,
+        for example paginators which contains access token and everything.
+        The reason for this function is to let you use the paging in the same API.
+        """
+
+        try:
+            file = urllib2.urlopen(url)
+        except urllib2.HTTPError, e:
+            response = _parse_json(e.read())
+            raise GraphAPIError(response)
+
+        try:
+            fileInfo = file.info()
+            if fileInfo.maintype == 'text':
+                response = _parse_json(file.read())
+            elif fileInfo.maintype == 'image':
+                mimetype = fileInfo['content-type']
+                response = {
+                    "data": file.read(),
+                    "mime-type": mimetype,
+                    "url": file.url,
+                }
+            else:
+                raise GraphAPIError('Maintype was not text or image')
+        finally:
+            file.close()
+        if response and isinstance(response, dict) and response.get("error"):
+            raise GraphAPIError(response["error"]["type"],
+                                response["error"]["message"])
+        return response
 
     def api_request(self, path, args=None, post_args=None):
         """Fetches the given path in the Graph API.
@@ -445,7 +479,7 @@ def parse_signed_request(signed_request, app_secret):
     """ Return dictionary with signed request data.
 
     We return a dictionary containing the information in the
-    signed_request. This includes a user_id if the user has authorised
+    signed_request. This includes a user_id if the user has authorized
     your application, as well as any information requested.
 
     If the signed_request is malformed or corrupted, False is returned.
