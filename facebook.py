@@ -34,7 +34,6 @@ usage of this module might look like this:
 """
 
 import cgi
-import time
 import urllib
 import urllib2
 import hashlib
@@ -240,7 +239,7 @@ class GraphAPI(object):
         content_type = 'multipart/form-data; boundary=%s' % BOUNDARY
         return content_type, body
 
-    def request(self, path, args=None, post_args=None):
+    def request(self, path, args=None, post_args=None, raw_url = False):
         """Fetches the given path in the Graph API.
 
         We translate args to a valid query string. If post_args is given,
@@ -255,8 +254,11 @@ class GraphAPI(object):
                 args["access_token"] = self.access_token
         post_data = None if post_args is None else urllib.urlencode(post_args)
         try:
-            file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" +
-                                  urllib.urlencode(args), post_data)
+            if raw_url:
+                file = urllib2.urlopen(path)
+            else:
+                file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" + urllib.urlencode(args), post_data)
+                
         except urllib2.HTTPError, e:
             response = _parse_json(e.read())
             raise GraphAPIError(response)
@@ -280,7 +282,7 @@ class GraphAPI(object):
             raise GraphAPIError(response["error"]["type"],
                                 response["error"]["message"])
         return response
-
+       
     def api_request(self, path, args=None, post_args=None):
         """Fetches the given path in the Graph API.
 
