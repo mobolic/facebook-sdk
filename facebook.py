@@ -478,11 +478,13 @@ def parse_signed_request(signed_request, app_secret):
     return data
 
 
-def auth_url(app_id, canvas_url, perms=None):
+def auth_url(app_id, canvas_url, perms=None, state=None):
     url = "https://www.facebook.com/dialog/oauth?"
     kvps = {'client_id': app_id, 'redirect_uri': canvas_url}
     if perms:
         kvps['scope'] = ",".join(perms)
+    if state:
+        kvps['state'] = state
     return url + urllib.urlencode(kvps)
 
 
