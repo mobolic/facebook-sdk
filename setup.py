@@ -8,7 +8,7 @@ def read(fname):
 
 setup(
     name='facebook-sdk',
-    version='0.3.1',
+    version='0.3.2',
     description='This client library is designed to support the Facebook '
                 'Graph API and the official Facebook JavaScript SDK, which '
                 'is the canonical way to implement Facebook authentication.',
