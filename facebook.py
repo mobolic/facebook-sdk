@@ -379,8 +379,7 @@ class GraphAPI(object):
             file = urllib2.urlopen("https://api.facebook.com/method/" +
                            fql_method + "?" + urllib.urlencode(args),
                            post_data)
-        
-        
+
         try:
             content = file.read()
             response = _parse_json(content)
