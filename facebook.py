@@ -87,6 +87,7 @@ class GraphAPI(object):
     If you are using the JavaScript SDK, you can use the
     get_user_from_cookie() method below to get the OAuth access token
     for the active user from the cookie saved by the SDK.
+
     """
     def __init__(self, access_token=None, timeout=None):
         self.access_token = access_token
@@ -130,6 +131,7 @@ class GraphAPI(object):
         publishing to a user's feed requires the "publish_actions" permission. See
         http://developers.facebook.com/docs/publishing/ for details about
         publishing permissions.
+
         """
         assert self.access_token, "Write operations require an access token"
         return self.request(parent_object + "/" + connection_name,
@@ -172,6 +174,7 @@ class GraphAPI(object):
         message=Caption for your image
         album_id=None posts to /me/photos which uses or creates and uses
         an album for your application.
+
         """
         object_id = album_id or "me"
         #it would have been nice to reuse self.request;
@@ -212,6 +215,7 @@ class GraphAPI(object):
         For files, value should be a file object.
         Other file-like objects might work and a fake name will be chosen.
         Return (content_type, body) ready for httplib.HTTP instance
+
         """
         BOUNDARY = '----------ThIs_Is_tHe_bouNdaRY_$'
         CRLF = '\r\n'
@@ -247,6 +251,7 @@ class GraphAPI(object):
 
         We translate args to a valid query string. If post_args is given,
         we send a POST request to the given path with the given arguments.
+
         """
         args = args or {}
 
@@ -293,6 +298,7 @@ class GraphAPI(object):
 
         We translate args to a valid query string. If post_args is given,
         we send a POST request to the given path with the given arguments.
+
         """
         args = args or {}
         if self.access_token:
@@ -452,6 +458,7 @@ def get_user_from_cookie(cookies, app_id, app_secret):
     Download the official Facebook JavaScript SDK at
     http://github.com/facebook/connect-js/. Read more about Facebook
     authentication at http://developers.facebook.com/docs/authentication/.
+
     """
     cookie = cookies.get("fbsr_" + app_id, "")
     if not cookie:
@@ -474,6 +481,7 @@ def parse_signed_request(signed_request, app_secret):
     your application, as well as any information requested.
 
     If the signed_request is malformed or corrupted, False is returned.
+
     """
     try:
         l = signed_request.split('.', 2)
