@@ -16,20 +16,20 @@
 
 """Python client library for the Facebook Platform.
 
-This client library is designed to support the Graph API and the official
-Facebook JavaScript SDK, which is the canonical way to implement
-Facebook authentication. Read more about the Graph API at
+This client library is designed to support the Graph API and the
+official Facebook JavaScript SDK, which is the canonical way to
+implement Facebook authentication. Read more about the Graph API at
 http://developers.facebook.com/docs/api. You can download the Facebook
 JavaScript SDK at http://github.com/facebook/connect-js/.
 
 If your application is using Google AppEngine's webapp framework, your
 usage of this module might look like this:
 
-    user = facebook.get_user_from_cookie(self.request.cookies, key, secret)
-    if user:
-        graph = facebook.GraphAPI(user["access_token"])
-        profile = graph.get_object("me")
-        friends = graph.get_connections("me", "friends")
+user = facebook.get_user_from_cookie(self.request.cookies, key, secret)
+if user:
+    graph = facebook.GraphAPI(user["access_token"])
+    profile = graph.get_object("me")
+    friends = graph.get_connections("me", "friends")
 
 """
 
@@ -63,15 +63,15 @@ except ImportError:
 class GraphAPI(object):
     """A client for the Facebook Graph API.
 
-    See http://developers.facebook.com/docs/api for complete documentation
-    for the API.
+    See http://developers.facebook.com/docs/api for complete
+    documentation for the API.
 
-    The Graph API is made up of the objects in Facebook (e.g., people, pages,
-    events, photos) and the connections between them (e.g., friends,
-    photo tags, and event RSVPs). This client provides access to those
-    primitive types in a generic way. For example, given an OAuth access
-    token, this will fetch the profile of the active user and the list
-    of the user's friends:
+    The Graph API is made up of the objects in Facebook (e.g., people,
+    pages, events, photos) and the connections between them (e.g.,
+    friends, photo tags, and event RSVPs). This client provides access
+    to those primitive types in a generic way. For example, given an
+    OAuth access token, this will fetch the profile of the active user
+    and the list of the user's friends:
 
        graph = facebook.GraphAPI(access_token)
        user = graph.get_object("me")
@@ -81,8 +81,8 @@ class GraphAPI(object):
     by the API at http://developers.facebook.com/docs/reference/api/.
 
     You can obtain an access token via OAuth or by using the Facebook
-    JavaScript SDK. See http://developers.facebook.com/docs/authentication/
-    for details.
+    JavaScript SDK. See
+    http://developers.facebook.com/docs/authentication/ for details.
 
     If you are using the JavaScript SDK, you can use the
     get_user_from_cookie() method below to get the OAuth access token
@@ -100,8 +100,8 @@ class GraphAPI(object):
     def get_objects(self, ids, **args):
         """Fetchs all of the given object from the graph.
 
-        We return a map from ID to object. If any of the IDs are invalid,
-        we raise an exception.
+        We return a map from ID to object. If any of the IDs are
+        invalid, we raise an exception.
         """
         args["ids"] = ",".join(ids)
         return self.request("", args)
@@ -124,13 +124,14 @@ class GraphAPI(object):
             post = feed["data"][0]
             graph.put_object(post["id"], "comments", message="First!")
 
-        See http://developers.facebook.com/docs/api#publishing for all of
-        the supported writeable objects.
+        See http://developers.facebook.com/docs/api#publishing for all
+        of the supported writeable objects.
 
-        Certain write operations require extended permissions. For example,
-        publishing to a user's feed requires the "publish_actions" permission. See
-        http://developers.facebook.com/docs/publishing/ for details about
-        publishing permissions.
+        Certain write operations require extended permissions. For
+        example, publishing to a user's feed requires the
+        "publish_actions" permission. See
+        http://developers.facebook.com/docs/publishing/ for details
+        about publishing permissions.
 
         """
         assert self.access_token, "Write operations require an access token"
@@ -143,8 +144,8 @@ class GraphAPI(object):
         We default to writing to the authenticated user's wall if no
         profile_id is specified.
 
-        attachment adds a structured attachment to the status message being
-        posted to the Wall. It should be a dictionary of the form:
+        attachment adds a structured attachment to the status message
+        being posted to the Wall. It should be a dictionary of the form:
 
             {"name": "Link name"
              "link": "http://www.example.com/",
@@ -169,7 +170,8 @@ class GraphAPI(object):
         self.request(id, post_args={"method": "delete"})
 
     def put_photo(self, image, message=None, album_id=None, **kwargs):
-        """Uploads an image using multipart/form-data
+        """Uploads an image using multipart/form-data.
+
         image=File like object for the image
         message=Caption for your image
         album_id=None posts to /me/photos which uses or creates and uses
@@ -211,10 +213,13 @@ class GraphAPI(object):
 
     # based on: http://code.activestate.com/recipes/146306/
     def _encode_multipart_form(self, fields):
-        """Fields are a dict of form name-> value
-        For files, value should be a file object.
-        Other file-like objects might work and a fake name will be chosen.
-        Return (content_type, body) ready for httplib.HTTP instance
+        """Encode files as 'multipart/form-data'.
+
+        Fields are a dict of form name-> value. For files, value should
+        be a file object. Other file-like objects might work and a fake
+        name will be chosen.
+
+        Returns (content_type, body) ready for httplib.HTTP instance.
 
         """
         BOUNDARY = '----------ThIs_Is_tHe_bouNdaRY_$'
@@ -249,8 +254,9 @@ class GraphAPI(object):
     def request(self, path, args=None, post_args=None):
         """Fetches the given path in the Graph API.
 
-        We translate args to a valid query string. If post_args is given,
-        we send a POST request to the given path with the given arguments.
+        We translate args to a valid query string. If post_args is
+        given, we send a POST request to the given path with the given
+        arguments.
 
         """
         args = args or {}
@@ -296,8 +302,9 @@ class GraphAPI(object):
     def api_request(self, path, args=None, post_args=None):
         """Fetches the given path in the Graph API.
 
-        We translate args to a valid query string. If post_args is given,
-        we send a POST request to the given path with the given arguments.
+        We translate args to a valid query string. If post_args is
+        given, we send a POST request to the given path with the given
+        arguments.
 
         """
         args = args or {}
@@ -336,10 +343,7 @@ class GraphAPI(object):
 
     def fql(self, query, args=None, post_args=None):
         """FQL query.
-        Two reasons to have this method:
-        1. Graph api does not expose some info fields of a user, e.g.
-            a user's networks/affiliations, we have to fall back to old api.
-        2. FQL is a strong tool.
+
         Example query: "SELECT affiliations FROM user WHERE uid = me()"
 
         """
@@ -457,7 +461,8 @@ def get_user_from_cookie(cookies, app_id, app_secret):
 
     Download the official Facebook JavaScript SDK at
     http://github.com/facebook/connect-js/. Read more about Facebook
-    authentication at http://developers.facebook.com/docs/authentication/.
+    authentication at
+    http://developers.facebook.com/docs/authentication/.
 
     """
     cookie = cookies.get("fbsr_" + app_id, "")
@@ -527,10 +532,10 @@ def auth_url(app_id, canvas_url, perms=None, state=None):
 
 
 def get_access_token_from_code(code, redirect_uri, app_id, app_secret):
-    """
-    Get a user-specific access token from the "code" returned from a Facebook
-    OAuth dialog. Returns a dict containing the access token and its expiration
-    date (if applicable).
+    """Get an access token from the "code" returned from an OAuth dialog.
+
+    Returns a dict containing the user-specific access token and its
+    expiration date (if applicable).
 
     """
     args = {
@@ -539,8 +544,8 @@ def get_access_token_from_code(code, redirect_uri, app_id, app_secret):
         "client_id": app_id,
         "client_secret": app_secret,
     }
-    # We would use GraphAPI.request() here, except for that the fact that the
-    # response is a key-value pair, and not JSON.
+    # We would use GraphAPI.request() here, except for that the fact
+    # that the response is a key-value pair, and not JSON.
     response = urllib.urlopen("https://graph.facebook.com/oauth/access_token" +
                               "?" + urllib.urlencode(args)).read()
     query_str = parse_qs(response)
@@ -555,13 +560,14 @@ def get_access_token_from_code(code, redirect_uri, app_id, app_secret):
 
 
 def get_app_access_token(app_id, app_secret):
-    """
-    Get the access_token for the app that can be used for insights and
-    creating test users.
+    """Get the access_token for the app.
+
+    This token can be used for insights and creating test users.
 
     app_id = retrieved from the developer page
     app_secret = retrieved from the developer page
-    returns the application access_token
+
+    Returns the application access_token.
 
     """
     # Get an app access token
