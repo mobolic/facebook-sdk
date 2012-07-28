@@ -317,8 +317,8 @@ class GraphAPI(object):
             # Timeout support for Python <2.6
             if self.timeout:
                 socket.setdefaulttimeout(self.timeout)
-                file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" +
-                                urllib.urlencode(args), post_data)
+            file = urllib.urlopen("https://api.facebook.com/method/" + path + "?" +
+                              urllib.urlencode(args), post_data)
 
         try:
             response = _parse_json(file.read())
