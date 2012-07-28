@@ -269,7 +269,7 @@ class GraphAPI(object):
         post_data = None if post_args is None else urllib.urlencode(post_args)
         try:
             file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" +
-                                  urllib.urlencode(args), post_data, timeout=self.timeout)
+                    urllib.urlencode(args), post_data, timeout=self.timeout)
         except urllib2.HTTPError, e:
             response = _parse_json(e.read())
             raise GraphAPIError(response)
@@ -324,14 +324,15 @@ class GraphAPI(object):
             args["format"] = "json-strings"
         post_data = None if post_args is None else urllib.urlencode(post_args)
         try:
-            file = urllib.urlopen("https://api.facebook.com/method/" + path + "?" +
-                              urllib.urlencode(args), post_data, timeout=self.timeout)
+            file = urllib.urlopen("https://api.facebook.com/method/" + path +
+                    "?" + urllib.urlencode(args),
+                    post_data, timeout=self.timeout)
         except TypeError:
             # Timeout support for Python <2.6
             if self.timeout:
                 socket.setdefaulttimeout(self.timeout)
-            file = urllib.urlopen("https://api.facebook.com/method/" + path + "?" +
-                                urllib.urlencode(args), post_data)
+            file = urllib.urlopen("https://api.facebook.com/method/" + path +
+                    "?" + urllib.urlencode(args), post_data)
 
         try:
             response = _parse_json(file.read())
