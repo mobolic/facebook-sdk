@@ -41,6 +41,7 @@ import hashlib
 import hmac
 import base64
 import logging
+import socket
 
 # Find a JSON parser
 try:
@@ -87,8 +88,9 @@ class GraphAPI(object):
     get_user_from_cookie() method below to get the OAuth access token
     for the active user from the cookie saved by the SDK.
     """
-    def __init__(self, access_token=None):
+    def __init__(self, access_token=None, timeout=None):
         self.access_token = access_token
+        self.timeout = timeout
 
     def get_object(self, id, **args):
         """Fetchs the given object from the graph."""
@@ -256,11 +258,16 @@ class GraphAPI(object):
         post_data = None if post_args is None else urllib.urlencode(post_args)
         try:
             file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" +
-                                  urllib.urlencode(args), post_data)
+                                  urllib.urlencode(args), post_data, timeout=self.timeout)
         except urllib2.HTTPError, e:
             response = _parse_json(e.read())
             raise GraphAPIError(response)
-
+        except TypeError:
+            # Timeout support for Python <2.6
+            if self.timeout:
+                socket.setdefaulttimeout(self.timeout)
+                file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" +
+                        urllib.urlencode(args), post_data)
         try:
             fileInfo = file.info()
             if fileInfo.maintype == 'text':
@@ -303,8 +310,16 @@ class GraphAPI(object):
         else:
             args["format"] = "json-strings"
         post_data = None if post_args is None else urllib.urlencode(post_args)
-        file = urllib.urlopen("https://api.facebook.com/method/" + path + "?" +
-                              urllib.urlencode(args), post_data)
+        try:
+            file = urllib.urlopen("https://api.facebook.com/method/" + path + "?" +
+                              urllib.urlencode(args), post_data, timeout=self.timeout)
+        except TypeError:
+            # Timeout support for Python <2.6
+            if self.timeout:
+                socket.setdefaulttimeout(self.timeout)
+                file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" +
+                                urllib.urlencode(args), post_data)
+
         try:
             response = _parse_json(file.read())
         finally:
@@ -343,9 +358,19 @@ class GraphAPI(object):
 
         args["format"] = "json"
 
-        file = urllib2.urlopen("https://api.facebook.com/method/" +
+        try:
+            file = urllib2.urlopen("https://api.facebook.com/method/" +
+                               fql_method + "?" + urllib.urlencode(args),
+                               post_data, timeout=self.timeout)
+        except TypeError:
+            # Timeout support for Python <2.6
+            if self.timeout:
+                socket.setdefaulttimeout(self.timeout)
+                file = urllib2.urlopen("https://api.facebook.com/method/" +
                                fql_method + "?" + urllib.urlencode(args),
                                post_data)
+        
+        
         try:
             content = file.read()
             response = _parse_json(content)
