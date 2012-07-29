@@ -193,6 +193,9 @@ class GraphAPI(object):
             # gave us a Bool value
             if (response and isinstance(response, dict) and
                 response.get("error")):
+                if response['error'].get('code') == '803':
+                    continue
+
                 raise GraphAPIError(response)
 
         conn.close()
