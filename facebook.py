@@ -170,32 +170,25 @@ class GraphAPI(object):
         """Deletes the object with the given ID from the graph."""
         self.request(id, post_args={"method": "delete"})
 
-    def delete_requests(self, user_id, request_ids):
-        """Deletes all request_ids for user user_ids.
-
-        request_ids is passed as a comma separated string which Facebook passes
-        in the query string of your canvas page request.
-        """
+    def delete_request(self, user_id, request_id):
+        """Deletes the Request with the given ID for the given user."""
         conn = httplib.HTTPSConnection('graph.facebook.com')
 
-        for request_id in urllib.unquote(request_ids).split(','):
-            url = '/%s_%s?%s' % (
-                request_id,
-                user_id,
-                urllib.urlencode({'access_token': self.access_token}),
-            )
-            conn.request('DELETE', url)
-            response = conn.getresponse()
-            data = response.read()
+        url = '/%s_%s?%s' % (
+            request_id,
+            user_id,
+            urllib.urlencode({'access_token': self.access_token}),
+        )
+        conn.request('DELETE', url)
+        response = conn.getresponse()
+        data = response.read()
 
-            response = _parse_json(data)
-            # Raise an error if we got one, but don't not if Facebook just
-            # gave us a Bool value
-            if (response and isinstance(response, dict) and
-                response.get("error")):
-                if response['error'].get('code') == '803':
-                    continue
-
+        response = _parse_json(data)
+        # Raise an error if we got one, but don't not if Facebook just
+        # gave us a Bool value
+        if (response and isinstance(response, dict) and
+            response.get("error")):
+            if response['error'].get('code') != '803':
                 raise GraphAPIError(response)
 
         conn.close()
