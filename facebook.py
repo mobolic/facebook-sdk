@@ -37,6 +37,7 @@ import cgi
 import time
 import urllib
 import urllib2
+import httplib
 import hashlib
 import hmac
 import base64
@@ -168,6 +169,33 @@ class GraphAPI(object):
     def delete_object(self, id):
         """Deletes the object with the given ID from the graph."""
         self.request(id, post_args={"method": "delete"})
+
+    def delete_requests(self, user_id, request_ids):
+        """Deletes all request_ids for user user_ids.
+
+        request_ids is passed as a comma separated string which Facebook passes
+        in the query string of your canvas page request.
+        """
+        conn = httplib.HTTPSConnection('graph.facebook.com')
+
+        for request_id in urllib.unquote(request_ids).split(','):
+            url = '/%s_%s?%s' % (
+                request_id,
+                user_id,
+                urllib.urlencode({'access_token': self.access_token}),
+            )
+            conn.request('DELETE', url)
+            response = conn.getresponse()
+            data = response.read()
+
+            response = _parse_json(data)
+            # Raise an error if we got one, but don't not if Facebook just
+            # gave us a Bool value
+            if (response and isinstance(response, dict) and
+                response.get("error")):
+                raise GraphAPIError(response)
+
+        conn.close()
 
     def put_photo(self, image, message=None, album_id=None, **kwargs):
         """Uploads an image using multipart/form-data.
