@@ -28,7 +28,7 @@ profile of the logged in user with:
 
     user = facebook.get_user_from_cookie(self.request.cookies, key, secret)
     if user:
-        graph = facebook.GraphAPI(user["oauth_access_token"])
+        graph = facebook.GraphAPI(user["access_token"])
         profile = graph.get_object("me")
         friends = graph.get_connections("me", "friends")
 
