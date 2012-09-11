@@ -255,15 +255,19 @@ class GraphAPI(object):
                 continue
             L.append('--' + BOUNDARY)
             if hasattr(value, 'read') and callable(value.read):
-                filename = getattr(value, 'name', '%s.jpg' % key)
+                try:
+                    filename = getattr(value, 'name')
+                except AttributeError :
+                    raise GraphAPIError('Can not find file name')
                 #Guess mime type from file.
                 mime_type = mimetypes.guess_type(filename)
                 if mime_type is None:
                     raise GraphAPIError('Could not determine file type')
-                    
+                else:
+                    mime_type = mime_type[0]
                 if mime_type not in ['image/gif', 'image/jpeg', 'image/png']:
                     raise GraphAPIError('Invalid file type for image: %s' % mime_type)
-                    
+
                 L.append(('Content-Disposition: form-data;'
                           'name="%s";'
                           'filename="%s"') % (key, filename))
