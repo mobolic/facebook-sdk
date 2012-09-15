@@ -441,6 +441,79 @@ class GraphAPI(object):
         else:
             response = json.loads(response)
             raise GraphAPIError(response)
+            
+    def next(self, response):
+        if 'paging' not in response and 'next' not in response['paging']:
+            return {'data' : []}
+            
+        url = response['paging']['next']
+        try:
+            file = urllib2.urlopen(url, timeout=self.timeout)
+        except urllib2.HTTPError, e:
+            response = _parse_json(e.read())
+            raise GraphAPIError(response)
+        except TypeError:
+            # Timeout support for Python <2.6
+            if self.timeout:
+                socket.setdefaulttimeout(self.timeout)
+            file = urllib2.urlopen(url)
+        try:
+            fileInfo = file.info()
+            if fileInfo.maintype == 'text':
+                response = _parse_json(file.read())
+            elif fileInfo.maintype == 'image':
+                mimetype = fileInfo['content-type']
+                response = {
+                    "data": file.read(),
+                    "mime-type": mimetype,
+                    "url": file.url,
+                }
+            else:
+                raise GraphAPIError('Maintype was not text or image')
+        finally:
+            file.close()
+        if response and isinstance(response, dict) and response.get("error"):
+            raise GraphAPIError(response["error"]["type"],
+                                response["error"]["message"])
+        return response
+            
+    
+    def previous(self, response):
+        if 'paging' not in response and 'previous' not in response['paging']:
+            return {'data' : []}
+            
+        url = response['paging']['previous']
+        try:
+            file = urllib2.urlopen(url, timeout=self.timeout)
+        except urllib2.HTTPError, e:
+            response = _parse_json(e.read())
+            raise GraphAPIError(response)
+        except TypeError:
+            # Timeout support for Python <2.6
+            if self.timeout:
+                socket.setdefaulttimeout(self.timeout)
+            file = urllib2.urlopen(url)
+        try:
+            fileInfo = file.info()
+            if fileInfo.maintype == 'text':
+                response = _parse_json(file.read())
+            elif fileInfo.maintype == 'image':
+                mimetype = fileInfo['content-type']
+                response = {
+                    "data": file.read(),
+                    "mime-type": mimetype,
+                    "url": file.url,
+                }
+            else:
+                raise GraphAPIError('Maintype was not text or image')
+        finally:
+            file.close()
+        if response and isinstance(response, dict) and response.get("error"):
+            raise GraphAPIError(response["error"]["type"],
+                                response["error"]["message"])
+        return response
+            
+            
 
 
 class GraphAPIError(Exception):
