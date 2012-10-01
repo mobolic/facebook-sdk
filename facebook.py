@@ -33,8 +33,6 @@ if user:
 
 """
 
-import cgi
-import time
 import urllib
 import urllib2
 import httplib
@@ -492,6 +490,8 @@ def get_user_from_cookie(cookies, app_id, app_secret):
     if not cookie:
         return None
     parsed_request = parse_signed_request(cookie, app_secret)
+    if not parsed_request:
+        return None
     try:
         result = get_access_token_from_code(parsed_request["code"], "",
                                           app_id, app_secret)
