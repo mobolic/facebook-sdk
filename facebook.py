@@ -33,8 +33,6 @@ if user:
 
 """
 
-import cgi
-import time
 import urllib
 import urllib2
 import httplib
