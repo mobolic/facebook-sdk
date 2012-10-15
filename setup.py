@@ -13,6 +13,8 @@ setup(
                 'Graph API and the official Facebook JavaScript SDK, which '
                 'is the canonical way to implement Facebook authentication.',
     author='Facebook',
+    maintainer='Martey Dodoo',
+    maintainer_email='facebook-sdk@marteydodoo.com',
     url='https://github.com/pythonforfacebook/facebook-sdk',
     license='Apache',
     py_modules=[
