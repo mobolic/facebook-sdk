@@ -18,7 +18,7 @@ setup(
     py_modules=[
         'facebook',
     ],
-    long_description=read("readme.md"),
+    long_description=read("README.rst"),
     classifiers=[
         'License :: OSI Approved :: Apache Software License',
     ],
