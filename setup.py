@@ -1,10 +1,5 @@
 #!/usr/bin/env python
 from distutils.core import setup
-import os
-
-def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
-
 
 setup(
     name='facebook-sdk',
@@ -20,7 +15,7 @@ setup(
     py_modules=[
         'facebook',
     ],
-    long_description=read("README.rst"),
+    long_description=open("README.rst").read(),
     classifiers=[
         'License :: OSI Approved :: Apache Software License',
     ],
