@@ -5,18 +5,22 @@
     <title>Facebook Example</title>
   </head>
   <body>
-	<a id="facebookLogin" href="#" style="display: none;">Login to Facebook</a>
+	<div id="content">
+		{% if current_user %}
+			Hello, {{ current_user }}	
+		{% else %} 
+			<a id="facebookLogin" href="#">Login to Facebook</a>
+		{% endif %}
+	</div>
     <div id="fb-root"></div>
-    
-
-
 	<script type="text/javascript">	
 		function login() {
 			FB.login(function(response) {
-				if (response.authResponse) {
+				if (response.authResponse) {	
 					FB.api('/me', function(response) {
 						alert('Good to see you, ' + response.name);
 					});
+					window.location.reload(true);
 				} else {
 					alert('Error in logging in');
 				}
@@ -36,11 +40,9 @@
     			if (response.status === 'connected') {
         			// connected
     			} else {
-					// not logged or not authorized
-        			var l = document.getElementById("facebookLogin");
-					l.style.display = "inline";
-        			l.onClick = login;
-    			} 		
+					var l = document.getElementById("facebookLogin");
+					l.onclick = login;	
+				} 		
 			});
 		};
 		(function(d){

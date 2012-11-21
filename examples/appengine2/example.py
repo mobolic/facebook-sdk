@@ -24,6 +24,7 @@ import facebook
 import os
 import webapp2
 import jinja2
+import application
 
 from google.appengine.ext import db
 
@@ -49,14 +50,15 @@ class BaseHandler(webapp2.RequestHandler):
     """
     @property
     def current_user(self):
-		pass
+		usercookie = facebook.get_user_from_cookie(self.request.cookies, application.FACEBOOK_APP_ID, application.FACEBOOK_APP_SECRET)
+		if usercookie: 
+			return usercookie["uid"]
+		return None
 
 class HomeHandler(BaseHandler):
     def get(self):
-		import application
-        template = jinja_environment.get_template('index.html')
-        self.response.out.write(template.render(dict(facebook_app_id=application.FACEBOOK_APP_ID)))
+		template = jinja_environment.get_template('index.html')
+		self.response.out.write(template.render(dict(facebook_app_id=application.FACEBOOK_APP_ID, current_user=self.current_user)))
 
 
 app = webapp2.WSGIApplication([('/', HomeHandler)], debug=True)
-
