@@ -61,6 +61,8 @@ class BaseHandler(webapp2.RequestHandler):
     @property
     def current_user(self):
         if not self.is_logged_in():
+            if self.session.get("user"):
+                del self.session["user"]
             return None
         else:
             if self.session.get("user"):
@@ -110,8 +112,8 @@ class HomeHandler(BaseHandler):
         url = self.request.get('url')
         file = urllib2.urlopen(url)
         graph = facebook.GraphAPI(self.current_user['access_token'])
-        graph.put_photo(file, "Test Image")
-        
-
+        response = graph.put_photo(file, "Test Image")
+        import logging
+        logging.info(response)
 
 app = webapp2.WSGIApplication([('/', HomeHandler)], debug=True, config=config)
