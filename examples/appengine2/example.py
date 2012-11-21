@@ -90,7 +90,7 @@ class BaseHandler(webapp2.RequestHandler):
 
 class HomeHandler(BaseHandler):
     def get(self):
-		template = jinja_environment.get_template('index.html')
+		template = jinja_environment.get_template('example.html')
 		self.response.out.write(template.render(dict(facebook_app_id=application.FACEBOOK_APP_ID, current_user=self.current_user)))
 
 

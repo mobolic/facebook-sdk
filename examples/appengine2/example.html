@@ -5,24 +5,53 @@
     <title>Facebook Example</title>
   </head>
   <body>
-    <fb:login-button autologoutlink="true" scope="publish_stream"></fb:login-button> 
+	<div id="content">
+		{% if current_user %}
+			Hello, {{ current_user.name }}	
+		{% else %} 
+			<a id="facebookLogin" href="#">Login to Facebook</a>
+		{% endif %}
+	</div>
     <div id="fb-root"></div>
-    
-    <script>
-      window.fbAsyncInit = function() {
-        FB.init({appId: '{{ facebook_app_id }}', status: true, cookie: true,
-                 xfbml: true});
-        FB.Event.subscribe('{% if current_user %}auth.logout{% else %}auth.login{% endif %}', function(response) {
-          window.location.reload();
-        });
-      };
-      (function() {
-        var e = document.createElement('script');
-        e.type = 'text/javascript';
-        e.src = document.location.protocol + '//connect.facebook.net/en_US/all.js';
-        e.async = true;
-        document.getElementById('fb-root').appendChild(e);
-      }());
-    </script>
-  </body>
+	<script type="text/javascript">	
+		function login() {
+			FB.login(function(response) {
+				if (response.authResponse) {	
+					FB.api('/me', function(response) {
+						alert('Good to see you, ' + response.name);
+					});
+					window.location.reload(true);
+				} else {
+					alert('Error in logging in');
+				}
+			}); 
+		}
+	</script>
+	<script type="text/javascript">
+   		window.fbAsyncInit = function() {
+    		FB.init({
+				appId: {{ facebook_app_id }}, 
+				status: true, 
+				cookie: true,
+        		xfbml: true
+			}); 	
+
+			FB.getLoginStatus(function(response) {
+    			if (response.status === 'connected') {
+        			// connected
+    			} else {
+					var l = document.getElementById("facebookLogin");
+					l.onclick = login;	
+				} 		
+			});
+		};
+		(function(d){
+     		var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+     		if (d.getElementById(id)) {return;}
+     		js = d.createElement('script'); js.id = id; js.async = true;
+     		js.src = "//connect.facebook.net/en_US/all.js";
+     		ref.parentNode.insertBefore(js, ref);
+   		}(document));
+	</script>
+	</body>
 </html>
