@@ -24,6 +24,7 @@ import facebook
 import os
 import webapp2
 import jinja2
+import urllib2
 
 from google.appengine.ext import db
 from webapp2_extras import sessions
@@ -46,7 +47,7 @@ class User(db.Model):
     access_token = db.StringProperty(required=True)
 
     def to_session(self):
-        return dict(name=self.name, profile_url=self.profile_url, id=self.id)
+        return dict(name=self.name, profile_url=self.profile_url, id=self.id, access_token=self.access_token)
 
 
 class BaseHandler(webapp2.RequestHandler):  
@@ -59,28 +60,35 @@ class BaseHandler(webapp2.RequestHandler):
     """
     @property
     def current_user(self):
-        if self.session.get("user"):
-            return self.session.get("user")
-
-        cookie = facebook.get_user_from_cookie(self.request.cookies, FACEBOOK_APP_ID, FACEBOOK_APP_SECRET)
-        if cookie: 
-            user = User.get_by_key_name(cookie["uid"])
-            if not user:
-                graph = facebook.GraphAPI(cookie["access_token"])
-                profile = graph.get_object("me")
-                user = User(key_name=str(profile["id"]),
-                    id=str(profile["id"]),
-                    name=profile["name"],
-                    profile_url=profile["link"],
-                    access_token=cookie["access_token"])
-                user.put()
-            elif user.access_token != cookie["access_token"]:
-                user.access_token = cookie["access_token"]
-                user.put()
-                
-            self.session["user"] = user.to_session()
+        if not self.is_logged_in():
+            return None
+        else:
+            if self.session.get("user"):
+                return self.session.get("user")
+            else:
+                cookie = self.get_user_from_cookie()
+                user = User.get_by_key_name(cookie["uid"])
+                if not user:
+                    graph = facebook.GraphAPI(cookie["access_token"])
+                    profile = graph.get_object("me")
+                    user = User(key_name=str(profile["id"]),
+                        id=str(profile["id"]),
+                        name=profile["name"],
+                        profile_url=profile["link"],
+                        access_token=cookie["access_token"])
+                    user.put()
+                elif user.access_token != cookie["access_token"]:
+                    user.access_token = cookie["access_token"]
+                    user.put()
+                self.session["user"] = user.to_session()
             return self.session.get("user")
         return None
+
+    def get_user_from_cookie(self):
+        return facebook.get_user_from_cookie(self.request.cookies, FACEBOOK_APP_ID, FACEBOOK_APP_SECRET)
+
+    def is_logged_in(self):
+        return self.get_user_from_cookie() is not None
 
     def dispatch(self):
         self.session_store = sessions.get_store(request=self.request)   
@@ -97,6 +105,13 @@ class HomeHandler(BaseHandler):
     def get(self):
         template = jinja_environment.get_template('example.html')
         self.response.out.write(template.render(dict(facebook_app_id=FACEBOOK_APP_ID, current_user=self.current_user)))
+    
+    def post(self):
+        url = self.request.get('url')
+        file = urllib2.urlopen(url)
+        graph = facebook.GraphAPI(self.current_user['access_token'])
+        graph.put_photo(file, "Test Image")
+        
 
 
 app = webapp2.WSGIApplication([('/', HomeHandler)], debug=True, config=config)
