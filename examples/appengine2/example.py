@@ -50,9 +50,22 @@ class BaseHandler(webapp2.RequestHandler):
     """
     @property
     def current_user(self):
-		usercookie = facebook.get_user_from_cookie(self.request.cookies, application.FACEBOOK_APP_ID, application.FACEBOOK_APP_SECRET)
-		if usercookie: 
-			return usercookie["uid"]
+		cookie = facebook.get_user_from_cookie(self.request.cookies, application.FACEBOOK_APP_ID, application.FACEBOOK_APP_SECRET)
+		if cookie: 
+			user = User.get_by_key_name(cookie["uid"])
+			if not user:
+				graph = facebook.GraphAPI(cookie["access_token"])
+				profile = graph.get_object("me")
+				user = User(key_name=str(profile["id"]),
+                	id=str(profile["id"]),
+                    name=profile["name"],
+                    profile_url=profile["link"],
+                    access_token=cookie["access_token"])
+				user.put()
+			elif user.access_token != cookie["access_token"]:
+				user.access_token = cookie["access_token"]
+				user.put()
+        	return user
 		return None
 
 class HomeHandler(BaseHandler):
