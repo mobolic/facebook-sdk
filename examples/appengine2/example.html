@@ -5,28 +5,15 @@
     <title>Facebook Example</title>
   </head>
   <body>
-	<div id="content">
-		{% if current_user %}
-			Hello, {{ current_user.name }}	
-		{% else %} 
-			<a id="facebookLogin" href="#">Login to Facebook</a>
-		{% endif %}
-	</div>
+	<fb:login-button autologoutlink="true" scope="publish_stream"></fb:login-button>
+
+	{% if current_user %}
+		<p><a href="{{ current_user.profile_url }}"><img src="http://graph.facebook.com/{{ current_user.id }}/picture?type=square"/></a></p>
+		<p>Hello, {{ current_user.name|escape }}</p>
+	{% endif %}
+
     <div id="fb-root"></div>
-	<script type="text/javascript">	
-		function login() {
-			FB.login(function(response) {
-				if (response.authResponse) {	
-					FB.api('/me', function(response) {
-						alert('Good to see you, ' + response.name);
-					});
-					window.location.reload(true);
-				} else {
-					alert('Error in logging in');
-				}
-			}); 
-		}
-	</script>
+	
 	<script type="text/javascript">
    		window.fbAsyncInit = function() {
     		FB.init({
@@ -34,16 +21,10 @@
 				status: true, 
 				cookie: true,
         		xfbml: true
-			}); 	
-
-			FB.getLoginStatus(function(response) {
-    			if (response.status === 'connected') {
-        			// connected
-    			} else {
-					var l = document.getElementById("facebookLogin");
-					l.onclick = login;	
-				} 		
-			});
+			}); 
+			FB.Event.subscribe('{% if current_user %}auth.logout{% else %}auth.login{% endif %}', function(response) {
+          		window.location.reload();
+        	});	
 		};
 		(function(d){
      		var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];

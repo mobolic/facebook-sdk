@@ -46,10 +46,10 @@ class User(db.Model):
     access_token = db.StringProperty(required=True)
 
     def to_session(self):
-        return dict(name=self.name)
+        return dict(name=self.name, profile_url=self.profile_url, id=self.id)
 
 
-class BaseHandler(webapp2.RequestHandler):	
+class BaseHandler(webapp2.RequestHandler):  
     """Provides access to the active Facebook user in self.current_user
 
     The property is lazy-loaded on first access, using the cookie saved
@@ -59,44 +59,44 @@ class BaseHandler(webapp2.RequestHandler):
     """
     @property
     def current_user(self):
-		if self.session.get("user"):
-			return self.session.get("user")
+        if self.session.get("user"):
+            return self.session.get("user")
 
-		cookie = facebook.get_user_from_cookie(self.request.cookies, FACEBOOK_APP_ID, FACEBOOK_APP_SECRET)
-		if cookie: 
-			user = User.get_by_key_name(cookie["uid"])
-			if not user:
-				graph = facebook.GraphAPI(cookie["access_token"])
-				profile = graph.get_object("me")
-				user = User(key_name=str(profile["id"]),
+        cookie = facebook.get_user_from_cookie(self.request.cookies, FACEBOOK_APP_ID, FACEBOOK_APP_SECRET)
+        if cookie: 
+            user = User.get_by_key_name(cookie["uid"])
+            if not user:
+                graph = facebook.GraphAPI(cookie["access_token"])
+                profile = graph.get_object("me")
+                user = User(key_name=str(profile["id"]),
                     id=str(profile["id"]),
                     name=profile["name"],
                     profile_url=profile["link"],
                     access_token=cookie["access_token"])
-				user.put()
-			elif user.access_token != cookie["access_token"]:
-				user.access_token = cookie["access_token"]
-				user.put()
-				
-			self.session["user"] = user.to_session()
-			return self.session.get("user")
-		return None
+                user.put()
+            elif user.access_token != cookie["access_token"]:
+                user.access_token = cookie["access_token"]
+                user.put()
+                
+            self.session["user"] = user.to_session()
+            return self.session.get("user")
+        return None
 
     def dispatch(self):
-		self.session_store = sessions.get_store(request=self.request)	
-		try:
-			webapp2.RequestHandler.dispatch(self)
-		finally:
-			self.session_store.save_sessions(self.response)
+        self.session_store = sessions.get_store(request=self.request)   
+        try:
+            webapp2.RequestHandler.dispatch(self)
+        finally:
+            self.session_store.save_sessions(self.response)
 
     @webapp2.cached_property
     def session(self):
-		return self.session_store.get_session()
+        return self.session_store.get_session()
 
 class HomeHandler(BaseHandler):
     def get(self):
-		template = jinja_environment.get_template('example.html')
-		self.response.out.write(template.render(dict(facebook_app_id=FACEBOOK_APP_ID, current_user=self.current_user)))
+        template = jinja_environment.get_template('example.html')
+        self.response.out.write(template.render(dict(facebook_app_id=FACEBOOK_APP_ID, current_user=self.current_user)))
 
 
 app = webapp2.WSGIApplication([('/', HomeHandler)], debug=True, config=config)
