@@ -24,13 +24,18 @@ import facebook
 import os
 import webapp2
 import jinja2
-import application
 
 from google.appengine.ext import db
 from webapp2_extras import sessions
 
 jinja_environment = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
+
+FACEBOOK_APP_ID = "395846413818309"
+FACEBOOK_APP_SECRET = "6500ea1a29d41f3bf5704b49cc425a2b"
+
+config = {} 
+config['webapp2_extras.sessions'] = dict(secret_key='82a059f3757a5eb09dd9da36e4edc55e1f0a7408')
 
 class User(db.Model):
     id = db.StringProperty(required=True)
@@ -57,7 +62,7 @@ class BaseHandler(webapp2.RequestHandler):
 		if self.session.get("user"):
 			return self.session.get("user")
 
-		cookie = facebook.get_user_from_cookie(self.request.cookies, application.FACEBOOK_APP_ID, application.FACEBOOK_APP_SECRET)
+		cookie = facebook.get_user_from_cookie(self.request.cookies, FACEBOOK_APP_ID, FACEBOOK_APP_SECRET)
 		if cookie: 
 			user = User.get_by_key_name(cookie["uid"])
 			if not user:
@@ -91,7 +96,7 @@ class BaseHandler(webapp2.RequestHandler):
 class HomeHandler(BaseHandler):
     def get(self):
 		template = jinja_environment.get_template('example.html')
-		self.response.out.write(template.render(dict(facebook_app_id=application.FACEBOOK_APP_ID, current_user=self.current_user)))
+		self.response.out.write(template.render(dict(facebook_app_id=FACEBOOK_APP_ID, current_user=self.current_user)))
 
 
-app = webapp2.WSGIApplication([('/', HomeHandler)], debug=True, config=application.config)
+app = webapp2.WSGIApplication([('/', HomeHandler)], debug=True, config=config)
