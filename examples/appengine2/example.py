@@ -40,8 +40,11 @@ class User(db.Model):
     profile_url = db.StringProperty(required=True)
     access_token = db.StringProperty(required=True)
 
+    def to_session(self):
+        return dict(name=self.name)
 
-class BaseHandler(webapp2.RequestHandler):
+
+class BaseHandler(webapp2.RequestHandler):	
     """Provides access to the active Facebook user in self.current_user
 
     The property is lazy-loaded on first access, using the cookie saved
@@ -61,7 +64,7 @@ class BaseHandler(webapp2.RequestHandler):
 				graph = facebook.GraphAPI(cookie["access_token"])
 				profile = graph.get_object("me")
 				user = User(key_name=str(profile["id"]),
-                	id=str(profile["id"]),
+                    id=str(profile["id"]),
                     name=profile["name"],
                     profile_url=profile["link"],
                     access_token=cookie["access_token"])
@@ -70,20 +73,19 @@ class BaseHandler(webapp2.RequestHandler):
 				user.access_token = cookie["access_token"]
 				user.put()
 				
-			self.session["user"] = user
-        	return user
+			self.session["user"] = user.to_session()
+			return self.session.get("user")
 		return None
 
-	def dispatch(self):
-		self.session_store = sessions.get_store(request=self.request)
-		
+    def dispatch(self):
+		self.session_store = sessions.get_store(request=self.request)	
 		try:
 			webapp2.RequestHandler.dispatch(self)
-		finally: 
+		finally:
 			self.session_store.save_sessions(self.response)
 
-	@webapp2.cached_property
-	def session(self):
+    @webapp2.cached_property
+    def session(self):
 		return self.session_store.get_session()
 
 class HomeHandler(BaseHandler):
@@ -92,4 +94,4 @@ class HomeHandler(BaseHandler):
 		self.response.out.write(template.render(dict(facebook_app_id=application.FACEBOOK_APP_ID, current_user=self.current_user)))
 
 
-app = webapp2.WSGIApplication([('/', HomeHandler)], debug=True, application.config)
+app = webapp2.WSGIApplication([('/', HomeHandler)], debug=True, config=application.config)
