@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Facebook Example</title>
+  </head>
+  <body>
+	<a id="facebookLogin" href="#" style="display: none;">Login to Facebook</a>
+    <div id="fb-root"></div>
+    
+
+
+	<script type="text/javascript">	
+		function login() {
+			FB.login(function(response) {
+				if (response.authResponse) {
+					FB.api('/me', function(response) {
+						alert('Good to see you, ' + response.name);
+					});
+				} else {
+					alert('Error in logging in');
+				}
+			}); 
+		}
+	</script>
+	<script type="text/javascript">
+   		window.fbAsyncInit = function() {
+    		FB.init({
+				appId: {{ facebook_app_id }}, 
+				status: true, 
+				cookie: true,
+        		xfbml: true
+			}); 	
+
+			FB.getLoginStatus(function(response) {
+    			if (response.status === 'connected') {
+        			// connected
+    			} else {
+					// not logged or not authorized
+        			var l = document.getElementById("facebookLogin");
+					l.style.display = "inline";
+        			l.onClick = login;
+    			} 		
+			});
+		};
+		(function(d){
+     		var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+     		if (d.getElementById(id)) {return;}
+     		js = d.createElement('script'); js.id = id; js.async = true;
+     		js.src = "//connect.facebook.net/en_US/all.js";
+     		ref.parentNode.insertBefore(js, ref);
+   		}(document));
+	</script>
+	</body>
+</html>
