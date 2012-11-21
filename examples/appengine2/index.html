@@ -7,7 +7,7 @@
   <body>
 	<div id="content">
 		{% if current_user %}
-			Hello, {{ current_user }}	
+			Hello, {{ current_user.name }}	
 		{% else %} 
 			<a id="facebookLogin" href="#">Login to Facebook</a>
 		{% endif %}
