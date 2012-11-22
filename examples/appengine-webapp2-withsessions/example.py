@@ -36,11 +36,11 @@ from webapp2_extras import sessions
 jinja_environment = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
 
-FACEBOOK_APP_ID = "395846413818309"
-FACEBOOK_APP_SECRET = "6500ea1a29d41f3bf5704b49cc425a2b"
+FACEBOOK_APP_ID = ""
+FACEBOOK_APP_SECRET = ""
 
 config = {} 
-config['webapp2_extras.sessions'] = dict(secret_key='3e161e2896605b42542142532071b1e60d0712f1')
+config['webapp2_extras.sessions'] = dict(secret_key='')
 
 class User(db.Model):
     id = db.StringProperty(required=True)
