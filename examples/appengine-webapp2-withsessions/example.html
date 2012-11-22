@@ -34,7 +34,7 @@
 			}); 
 
 			FB.Event.subscribe('{% if current_user %}auth.logout{% else %}auth.login{% endif %}', function(response) {
-          		{% if current_user %} "/logout" {% else %} window.location.reload() {% endif %}  
+          		{% if current_user %} window.location="/logout" {% else %} window.location.reload() {% endif %}  
         	});	
 		};
 		(function(d){

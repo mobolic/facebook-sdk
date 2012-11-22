@@ -130,7 +130,7 @@ class LogoutHandler(BaseHandler):
         if self.session.get("user") is not None:
             self.session["user"] = None
 
-        return webapp2.redirect("/")
+        self.redirect("/")
 
 
 app = webapp2.WSGIApplication([('/', HomeHandler), ('/logout', LogoutHandler)], debug=True, config=config)
