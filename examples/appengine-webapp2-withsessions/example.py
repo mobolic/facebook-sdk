@@ -36,11 +36,11 @@ from webapp2_extras import sessions
 jinja_environment = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
 
-FACEBOOK_APP_ID = ""
-FACEBOOK_APP_SECRET = ""
+FACEBOOK_APP_ID = "395846413818309"
+FACEBOOK_APP_SECRET = "6500ea1a29d41f3bf5704b49cc425a2b"
 
 config = {} 
-config['webapp2_extras.sessions'] = dict(secret_key='')
+config['webapp2_extras.sessions'] = dict(secret_key='3e161e2896605b42542142532071b1e60d0712f1')
 
 class User(db.Model):
     id = db.StringProperty(required=True)
@@ -64,17 +64,20 @@ class BaseHandler(webapp2.RequestHandler):
     """
     @property
     def current_user(self):
-        if not self.is_logged_in():
-            if self.session.get("user"):
-                del self.session["user"]
-            return None
+        if self.session.get("user"):
+            # User is logged in
+            return self.session.get("user")
         else:
-            if self.session.get("user"):
-                return self.session.get("user")
-            else:
-                cookie = self.get_user_from_cookie()
+            # Either used just logged in or just saw the first page
+            # We'll see here 
+            cookie = facebook.get_user_from_cookie(self.request.cookies, FACEBOOK_APP_ID, FACEBOOK_APP_SECRET)
+            
+            if cookie:
+                # Okay so user logged in 
+                # Now, check to see if existing user
                 user = User.get_by_key_name(cookie["uid"])
                 if not user:
+                    # Not an existing user so get user info
                     graph = facebook.GraphAPI(cookie["access_token"])
                     profile = graph.get_object("me")
                     user = User(key_name=str(profile["id"]),
@@ -86,16 +89,11 @@ class BaseHandler(webapp2.RequestHandler):
                 elif user.access_token != cookie["access_token"]:
                     user.access_token = cookie["access_token"]
                     user.put()
+                # User is now logged in
                 self.session["user"] = user.to_session()
-            return self.session.get("user")
+                return self.session.get("user")
         return None
-
-    def get_user_from_cookie(self):
-        return facebook.get_user_from_cookie(self.request.cookies, FACEBOOK_APP_ID, FACEBOOK_APP_SECRET)
-
-    def is_logged_in(self):
-        return self.get_user_from_cookie() is not None
-
+ 
     def dispatch(self):
         """ This snippet of code is taken from the webapp2 framework documentation.
         See more at http://webapp-improved.appspot.com/api/webapp2_extras/sessions.html
@@ -126,4 +124,13 @@ class HomeHandler(BaseHandler):
         photo = "http://www.facebook.com/photo.php?fbid={0}".format(response['id'])
         self.redirect(str(photo))
 
-app = webapp2.WSGIApplication([('/', HomeHandler)], debug=True, config=config)
+class LogoutHandler(BaseHandler):
+    def get(self):
+        """ Logout user by setting to None its value in the session"""
+        if self.session.get("user") is not None:
+            self.session["user"] = None
+
+        return webapp2.redirect("/")
+
+
+app = webapp2.WSGIApplication([('/', HomeHandler), ('/logout', LogoutHandler)], debug=True, config=config)

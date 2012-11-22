@@ -32,8 +32,9 @@
 				cookie: true,
         		xfbml: true
 			}); 
+
 			FB.Event.subscribe('{% if current_user %}auth.logout{% else %}auth.login{% endif %}', function(response) {
-          		window.location.reload();
+          		{% if current_user %} "/logout" {% else %} window.location.reload() {% endif %}  
         	});	
 		};
 		(function(d){
