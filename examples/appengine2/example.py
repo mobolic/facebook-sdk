@@ -113,7 +113,7 @@ class HomeHandler(BaseHandler):
         file = urllib2.urlopen(url)
         graph = facebook.GraphAPI(self.current_user['access_token'])
         response = graph.put_photo(file, "Test Image")
-        import logging
-        logging.info(response)
+        photo = "http://www.facebook.com/photo.php?fbid=%s" % response['id']
+        self.redirect(str(photo))
 
 app = webapp2.WSGIApplication([('/', HomeHandler)], debug=True, config=config)
