@@ -24,9 +24,9 @@ FACEBOOK_APP_ID = "your app id"
 FACEBOOK_APP_SECRET = "your app secret"
 
 import facebook
-import os.path
-import wsgiref.handlers
-import logging
+import os
+import webapp2
+import jinja2
 import urllib2
 
 from google.appengine.ext import db
@@ -35,6 +35,14 @@ from google.appengine.ext.webapp import util
 from google.appengine.ext.webapp import template
 from google.appengine.api.urlfetch import fetch
 
+jinja_environment = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
+
+FACEBOOK_APP_ID = ""
+FACEBOOK_APP_SECRET = ""
+
+config = {} 
+config['webapp2_extras.sessions'] = dict(secret_key='')
 
 class User(db.Model):
     id = db.StringProperty(required=True)
@@ -45,7 +53,8 @@ class User(db.Model):
     access_token = db.StringProperty(required=True)
 
 
-class BaseHandler(webapp.RequestHandler):
+
+class BaseHandler(webapp2.RequestHandler):  
     """Provides access to the active Facebook user in self.current_user
 
     The property is lazy-loaded on first access, using the cookie saved
@@ -81,11 +90,9 @@ class BaseHandler(webapp.RequestHandler):
 
 class HomeHandler(BaseHandler):
     def get(self):
-        path = os.path.join(os.path.dirname(__file__), "example.html")
-        args = dict(current_user=self.current_user,
-                    facebook_app_id=FACEBOOK_APP_ID)
-        self.response.out.write(template.render(path, args))
-
+        template = jinja_environment.get_template('example.html')
+        self.response.out.write(template.render(dict(facebook_app_id=FACEBOOK_APP_ID, current_user=self.current_user)))
+    
     def post(self):
         url = self.request.get('url')
         file = urllib2.urlopen(url)
