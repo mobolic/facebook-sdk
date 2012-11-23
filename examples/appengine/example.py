@@ -123,10 +123,13 @@ class HomeHandler(BaseHandler):
         photo = "http://www.facebook.com/photo.php?fbid={0}".format(response['id'])
         self.redirect(str(photo))
 
+class LogoutHandler(BaseHandler):
+    def get(self):
+        """ Logout user by setting to None its value in the session"""
+        if self.session.get("user") is not None:
+            self.session["user"] = None
 
-def main():
-    logging.getLogger().setLevel(logging.DEBUG)
-    util.run_wsgi_app(webapp.WSGIApplication([(r"/", HomeHandler)]))
+        self.redirect("/")
 
 
 if __name__ == "__main__":
