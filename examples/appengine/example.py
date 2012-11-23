@@ -15,13 +15,14 @@
 # under the License.
 
 """
-A barebones AppEngine application that uses Facebook for login.
-Make sure you add a copy of facebook.py (from python-sdk/src/) into this
-directory so it can be imported.
-"""
+An AppEngine application that demonstrates how to use webapp2's sessions with Facebook for login.
 
-FACEBOOK_APP_ID = "your app id"
-FACEBOOK_APP_SECRET = "your app secret"
+1. Make sure you add a copy of facebook.py (from python-sdk/src/) into this
+directory so it can be imported.
+2. Don't forget to tick Login With Facebook on your facebook app's dashboard
+3. Place a random, unguessable string as a session secret below in config dict.
+4. Fill app id and app secret.
+"""
 
 import facebook
 import os
