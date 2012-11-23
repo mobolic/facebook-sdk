@@ -8,36 +8,42 @@
     <fb:login-button autologoutlink="true" scope="publish_stream"></fb:login-button>
 
     {% if current_user %}
-      <p><a href="{{ current_user.profile_url }}"><img src="http://graph.facebook.com/{{ current_user.id }}/picture?type=square"/></a></p>
-      <p>Hello, {{ current_user.name|escape }}</p>
+        <p><a href="{{ current_user.profile_url }}"><img src="http://graph.facebook.com/{{ current_user.id }}/picture?type=square"/></a></p>
+        <p>Hello, {{ current_user.name|escape }}</p>
     {% endif %}
 
     <div id="fb-root"></div>
-    
+
     {% if current_user %}
-	    <div>
-	    Upload photo test: 
-		   <form method="post">
-		   Enter URL to URLFecth from:<input type="text" name="url"/>
-		   <input type="submit"/>
-		   </form>
-	    </div>
+        <div>
+        Upload photo test: 
+           <form method="post">
+           Enter URL to URLFetch from:<input type="text" name="url"/>
+           <input type="submit"/>
+           </form>
+        </div>
     {% endif %}
-    <script>
-      window.fbAsyncInit = function() {
-        FB.init({appId: '{{ facebook_app_id }}', status: true, cookie: true,
-                 xfbml: true});
-        FB.Event.subscribe('{% if current_user %}auth.logout{% else %}auth.login{% endif %}', function(response) {
-          window.location.reload();
-        });
-      };
-      (function() {
-        var e = document.createElement('script');
-        e.type = 'text/javascript';
-        e.src = document.location.protocol + '//connect.facebook.net/en_US/all.js';
-        e.async = true;
-        document.getElementById('fb-root').appendChild(e);
-      }());
+    
+    <script type="text/javascript">
+        window.fbAsyncInit = function() {
+            FB.init({
+                appId: {{ facebook_app_id }}, 
+                status: true, 
+                cookie: true,
+                xfbml: true
+            }); 
+
+            FB.Event.subscribe('{% if current_user %}auth.logout{% else %}auth.login{% endif %}', function(response) {
+                {% if current_user %} window.location="/logout" {% else %} window.location.reload() {% endif %}  
+            }); 
+        };
+        (function(d){
+            var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+            if (d.getElementById(id)) {return;}
+            js = d.createElement('script'); js.id = id; js.async = true;
+            js.src = "//connect.facebook.net/en_US/all.js";
+            ref.parentNode.insertBefore(js, ref);
+        }(document));
     </script>
-  </body>
+    </body>
 </html>
