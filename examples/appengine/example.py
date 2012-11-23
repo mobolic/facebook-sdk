@@ -132,5 +132,4 @@ class LogoutHandler(BaseHandler):
         self.redirect("/")
 
 
-if __name__ == "__main__":
-    main()
+app = webapp2.WSGIApplication([('/', HomeHandler), ('/logout', LogoutHandler)], debug=True, config=config)
