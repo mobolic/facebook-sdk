@@ -20,21 +20,23 @@ Make sure you add a copy of facebook.py (from python-sdk/src/) into this
 directory so it can be imported.
 """
 
-FACEBOOK_APP_ID = "your app id"
-FACEBOOK_APP_SECRET = "your app secret"
-
 import facebook
-import os.path
-import wsgiref.handlers
-import logging
+import os
+import webapp2
+import jinja2
 import urllib2
 
 from google.appengine.ext import db
-from google.appengine.ext import webapp
-from google.appengine.ext.webapp import util
-from google.appengine.ext.webapp import template
-from google.appengine.api.urlfetch import fetch
+from webapp2_extras import sessions
 
+jinja_environment = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
+
+FACEBOOK_APP_ID = ""
+FACEBOOK_APP_SECRET = ""
+
+config = {} 
+config['webapp2_extras.sessions'] = dict(secret_key='')
 
 class User(db.Model):
     id = db.StringProperty(required=True)
@@ -44,8 +46,11 @@ class User(db.Model):
     profile_url = db.StringProperty(required=True)
     access_token = db.StringProperty(required=True)
 
+    def to_session(self):
+        return dict(name=self.name, profile_url=self.profile_url, id=self.id, access_token=self.access_token)
 
-class BaseHandler(webapp.RequestHandler):
+
+class BaseHandler(webapp2.RequestHandler):  
     """Provides access to the active Facebook user in self.current_user
 
     The property is lazy-loaded on first access, using the cookie saved
@@ -115,11 +120,13 @@ class HomeHandler(BaseHandler):
         photo = "http://www.facebook.com/photo.php?fbid={0}".format(response['id'])
         self.redirect(str(photo))
 
+class LogoutHandler(BaseHandler):
+    def get(self):
+        """ Logout user by setting to None its value in the session"""
+        if self.session.get("user") is not None:
+            self.session["user"] = None
 
-def main():
-    logging.getLogger().setLevel(logging.DEBUG)
-    util.run_wsgi_app(webapp.WSGIApplication([(r"/", HomeHandler)]))
+        self.redirect("/")
 
 
-if __name__ == "__main__":
-    main()
+app = webapp2.WSGIApplication([('/', HomeHandler), ('/logout', LogoutHandler)], debug=True, config=config)
