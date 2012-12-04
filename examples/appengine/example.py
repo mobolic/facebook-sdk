@@ -30,11 +30,10 @@ import jinja2
 import urllib2
 
 from google.appengine.ext import db
-from google.appengine.ext import webapp
-from google.appengine.ext.webapp import util
-from google.appengine.ext.webapp import template
-from google.appengine.api.urlfetch import fetch
+from webapp2_extras import sessions
 
+config = {} 
+config['webapp2_extras.sessions'] = dict(secret_key='')
 
 class User(db.Model):
     id = db.StringProperty(required=True)
@@ -45,7 +44,7 @@ class User(db.Model):
     access_token = db.StringProperty(required=True)
 
 
-class BaseHandler(webapp.RequestHandler):
+class BaseHandler(webapp2.RequestHandler):  
     """Provides access to the active Facebook user in self.current_user
 
     The property is lazy-loaded on first access, using the cookie saved
@@ -55,29 +54,52 @@ class BaseHandler(webapp.RequestHandler):
     """
     @property
     def current_user(self):
-        if not hasattr(self, "_current_user"):
-            self._current_user = None
-            cookie = facebook.get_user_from_cookie(
-                self.request.cookies, FACEBOOK_APP_ID, FACEBOOK_APP_SECRET)
+        if self.session.get("user"):
+            # User is logged in
+            return self.session.get("user")
+        else:
+            # Either used just logged in or just saw the first page
+            # We'll see here 
+            cookie = facebook.get_user_from_cookie(self.request.cookies, FACEBOOK_APP_ID, FACEBOOK_APP_SECRET)
+            
             if cookie:
-                # Store a local instance of the user data so we don't need
-                # a round-trip to Facebook on every request
+                # Okay so user logged in 
+                # Now, check to see if existing user
                 user = User.get_by_key_name(cookie["uid"])
                 if not user:
+                    # Not an existing user so get user info
                     graph = facebook.GraphAPI(cookie["access_token"])
                     profile = graph.get_object("me")
                     user = User(key_name=str(profile["id"]),
-                                id=str(profile["id"]),
-                                name=profile["name"],
-                                profile_url=profile["link"],
-                                access_token=cookie["access_token"])
+                        id=str(profile["id"]),
+                        name=profile["name"],
+                        profile_url=profile["link"],
+                        access_token=cookie["access_token"])
                     user.put()
                 elif user.access_token != cookie["access_token"]:
                     user.access_token = cookie["access_token"]
                     user.put()
-                self._current_user = user
-        return self._current_user
+                # User is now logged in
+                self.session["user"] = dict(name=user.name, profile_url=user.profile_url, user=user.id, access_token=user.access_token)
+                return self.session.get("user")
+        return None
+ 
+    def dispatch(self):
+        """ This snippet of code is taken from the webapp2 framework documentation.
+        See more at http://webapp-improved.appspot.com/api/webapp2_extras/sessions.html
+        """
+        self.session_store = sessions.get_store(request=self.request)   
+        try:
+            webapp2.RequestHandler.dispatch(self)
+        finally:
+            self.session_store.save_sessions(self.response)
 
+    @webapp2.cached_property
+    def session(self):
+        """ This snippet of code is taken from the webapp2 framework documentation.
+        See more at http://webapp-improved.appspot.com/api/webapp2_extras/sessions.html
+        """
+        return self.session_store.get_session()
 
 class HomeHandler(BaseHandler):
     def get(self):
@@ -92,4 +114,4 @@ class HomeHandler(BaseHandler):
 
 jinja_environment = jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
 
-app = webapp2.WSGIApplication([('/', HomeHandler)], debug=True)
+app = webapp2.WSGIApplication([('/', HomeHandler)], debug=True, config=config)
