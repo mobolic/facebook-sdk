@@ -80,7 +80,7 @@ class BaseHandler(webapp2.RequestHandler):
                     user.access_token = cookie["access_token"]
                     user.put()
                 # User is now logged in
-                self.session["user"] = dict(name=user.name, profile_url=user.profile_url, user=user.id, access_token=user.access_token)
+                self.session["user"] = dict(name=user.name, profile_url=user.profile_url, id=user.id, access_token=user.access_token)
                 return self.session.get("user")
         return None
  
