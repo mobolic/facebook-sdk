@@ -16,8 +16,12 @@
 
 """
 A barebones AppEngine application that uses Facebook for login.
-Make sure you add a copy of facebook.py (from python-sdk/src/) into this
+
+1. Make sure you add a copy of facebook.py (from python-sdk/src/) into this
 directory so it can be imported.
+2. Don't forget to tick Login With Facebook on your facebook app's dashboard and place the app's url wherever it is hosted
+3. Place a random, unguessable string as a session secret below in config dict.
+4. Fill app id and app secret.
 """
 
 FACEBOOK_APP_ID = "your app id"
