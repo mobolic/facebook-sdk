@@ -112,6 +112,13 @@ class HomeHandler(BaseHandler):
         graph = facebook.GraphAPI(self.current_user.access_token)
         graph.put_photo(file, "Test Image")
 
+class LogoutHandler(BaseHandler):
+    def get(self):
+        if self.current_user is not None:
+            self.session['user'] = None
+
+        self.redirect('/')
+
 jinja_environment = jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
 
-app = webapp2.WSGIApplication([('/', HomeHandler)], debug=True, config=config)
+app = webapp2.WSGIApplication([('/', HomeHandler), ('/logout', LogoutHandler)], debug=True, config=config)
