@@ -253,11 +253,23 @@ class GraphAPI(object):
                 continue
             L.append('--' + BOUNDARY)
             if hasattr(value, 'read') and callable(value.read):
-                filename = getattr(value, 'name', '%s.jpg' % key)
+                try:
+                    filename = getattr(value, 'name')
+                except AttributeError :
+                    raise GraphAPIError('Can not find file name')
+
+                #mime type from file.
+                f = open(filename, 'r')
+                mime_type = self.mimetype_from_data(f.read(6))
+                f.close()
+
+                if mime_type not in ['image/gif', 'image/jpeg', 'image/png']:
+                    raise GraphAPIError('Invalid file type for image: %s' % mime_type)
+
                 L.append(('Content-Disposition: form-data;'
                           'name="%s";'
                           'filename="%s"') % (key, filename))
-                L.append('Content-Type: image/jpeg')
+                L.append('Content-Type: %s' % mime_type)
                 value = value.read()
                 logging.debug(type(value))
             else:
@@ -272,6 +284,18 @@ class GraphAPI(object):
         body = CRLF.join(L)
         content_type = 'multipart/form-data; boundary=%s' % BOUNDARY
         return content_type, body
+
+    # http://www.mikekunz.com/image_file_header.html
+    def mimetype_from_data(self, data):
+        """Returns mimeType (like 'image/jpeg') from first 6 bytes of image data."""
+        if data[:2] == '\xff\xd8':
+            return "image/jpeg"
+        elif data[:4] == '\x89PNG':
+            return "image/png"
+        elif data[:4] == 'GIF8':
+            return "image/gif"
+
+        return ''
 
     def request(self, path, args=None, post_args=None):
         """Fetches the given path in the Graph API.
