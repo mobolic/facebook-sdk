@@ -175,8 +175,8 @@ class GraphAPI(object):
         conn = httplib.HTTPSConnection('graph.facebook.com')
 
         url = '/%s_%s?%s' % (
-            request_id,
             user_id,
+            request_id,
             urllib.urlencode({'access_token': self.access_token}),
         )
         conn.request('DELETE', url)
