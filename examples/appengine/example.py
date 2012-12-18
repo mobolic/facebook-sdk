@@ -17,14 +17,16 @@
 """
 A barebones AppEngine application that uses Facebook for login.
 
-1. Make sure you add a copy of facebook.py (from python-sdk/src/) into this
-directory so it can be imported.
-2. Don't forget to tick Login With Facebook on your facebook app's dashboard and place the app's url wherever it is hosted
-3. Place a random, unguessable string as a session secret below in config dict.
-4. Fill app id and app secret.
-5. Change the application name in app.yaml.
-"""
+1.  Make sure you add a copy of facebook.py (from python-sdk/src/)
+    into this directory so it can be imported.
+2.  Don't forget to tick Login With Facebook on your facebook app's
+    dashboard and place the app's url wherever it is hosted
+3.  Place a random, unguessable string as a session secret below in
+    config dict.
+4.  Fill app id and app secret.
+5.  Change the application name in app.yaml.
 
+"""
 FACEBOOK_APP_ID = "your app id"
 FACEBOOK_APP_SECRET = "your app secret"
 
@@ -37,8 +39,9 @@ import urllib2
 from google.appengine.ext import db
 from webapp2_extras import sessions
 
-config = {} 
+config = {}
 config['webapp2_extras.sessions'] = dict(secret_key='')
+
 
 class User(db.Model):
     id = db.StringProperty(required=True)
@@ -49,7 +52,7 @@ class User(db.Model):
     access_token = db.StringProperty(required=True)
 
 
-class BaseHandler(webapp2.RequestHandler):  
+class BaseHandler(webapp2.RequestHandler):
     """Provides access to the active Facebook user in self.current_user
 
     The property is lazy-loaded on first access, using the cookie saved
@@ -64,36 +67,47 @@ class BaseHandler(webapp2.RequestHandler):
             return self.session.get("user")
         else:
             # Either used just logged in or just saw the first page
-            # We'll see here 
-            cookie = facebook.get_user_from_cookie(self.request.cookies, FACEBOOK_APP_ID, FACEBOOK_APP_SECRET)
-            
+            # We'll see here
+            cookie = facebook.get_user_from_cookie(self.request.cookies,
+                                                   FACEBOOK_APP_ID,
+                                                   FACEBOOK_APP_SECRET)
             if cookie:
-                # Okay so user logged in 
+                # Okay so user logged in.
                 # Now, check to see if existing user
                 user = User.get_by_key_name(cookie["uid"])
                 if not user:
                     # Not an existing user so get user info
                     graph = facebook.GraphAPI(cookie["access_token"])
                     profile = graph.get_object("me")
-                    user = User(key_name=str(profile["id"]),
+                    user = User(
+                        key_name=str(profile["id"]),
                         id=str(profile["id"]),
                         name=profile["name"],
                         profile_url=profile["link"],
-                        access_token=cookie["access_token"])
+                        access_token=cookie["access_token"]
+                    )
                     user.put()
                 elif user.access_token != cookie["access_token"]:
                     user.access_token = cookie["access_token"]
                     user.put()
                 # User is now logged in
-                self.session["user"] = dict(name=user.name, profile_url=user.profile_url, id=user.id, access_token=user.access_token)
+                self.session["user"] = dict(
+                    name=user.name,
+                    profile_url=user.profile_url,
+                    id=user.id,
+                    access_token=user.access_token
+                )
                 return self.session.get("user")
         return None
- 
+
     def dispatch(self):
-        """ This snippet of code is taken from the webapp2 framework documentation.
-        See more at http://webapp-improved.appspot.com/api/webapp2_extras/sessions.html
         """
-        self.session_store = sessions.get_store(request=self.request)   
+        This snippet of code is taken from the webapp2 framework documentation.
+        See more at
+        http://webapp-improved.appspot.com/api/webapp2_extras/sessions.html
+
+        """
+        self.session_store = sessions.get_store(request=self.request)
         try:
             webapp2.RequestHandler.dispatch(self)
         finally:
@@ -101,23 +115,32 @@ class BaseHandler(webapp2.RequestHandler):
 
     @webapp2.cached_property
     def session(self):
-        """ This snippet of code is taken from the webapp2 framework documentation.
-        See more at http://webapp-improved.appspot.com/api/webapp2_extras/sessions.html
+        """
+        This snippet of code is taken from the webapp2 framework documentation.
+        See more at
+        http://webapp-improved.appspot.com/api/webapp2_extras/sessions.html
+
         """
         return self.session_store.get_session()
+
 
 class HomeHandler(BaseHandler):
     def get(self):
         template = jinja_environment.get_template('example.html')
-        self.response.out.write(template.render(dict(facebook_app_id=FACEBOOK_APP_ID, current_user=self.current_user)))
-    
+        self.response.out.write(template.render(dict(
+            facebook_app_id=FACEBOOK_APP_ID,
+            current_user=self.current_user
+        )))
+
     def post(self):
         url = self.request.get('url')
         file = urllib2.urlopen(url)
         graph = facebook.GraphAPI(self.current_user['access_token'])
         response = graph.put_photo(file, "Test Image")
-        photo_url = "http://www.facebook.com/photo.php?fbid={0}".format(response['id'])
+        photo_url = ("http://www.facebook.com/"
+                     "photo.php?fbid={0}".format(response['id']))
         self.redirect(str(photo_url))
+
 
 class LogoutHandler(BaseHandler):
     def get(self):
@@ -126,6 +149,12 @@ class LogoutHandler(BaseHandler):
 
         self.redirect('/')
 
-jinja_environment = jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
+jinja_environment = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(os.path.dirname(__file__))
+)
 
-app = webapp2.WSGIApplication([('/', HomeHandler), ('/logout', LogoutHandler)], debug=True, config=config)
+app = webapp2.WSGIApplication(
+    [('/', HomeHandler), ('/logout', LogoutHandler)],
+    debug=True,
+    config=config
+)
