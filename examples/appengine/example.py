@@ -22,6 +22,7 @@ directory so it can be imported.
 2. Don't forget to tick Login With Facebook on your facebook app's dashboard and place the app's url wherever it is hosted
 3. Place a random, unguessable string as a session secret below in config dict.
 4. Fill app id and app secret.
+5. Change the application name in app.yaml.
 """
 
 FACEBOOK_APP_ID = "your app id"
