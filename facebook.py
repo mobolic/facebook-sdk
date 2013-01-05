@@ -472,9 +472,8 @@ def parse_signed_request(signed_request, app_secret):
 
     """
     try:
-        l = signed_request.split('.', 2)
-        encoded_sig = str(l[0])
-        payload = str(l[1])
+        encoded_sig, payload = map(str, signed_request.split('.', 2))
+
         sig = base64.urlsafe_b64decode(encoded_sig + "=" *
                                        ((4 - len(encoded_sig) % 4) % 4))
         data = base64.urlsafe_b64decode(payload + "=" *
