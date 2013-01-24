@@ -318,8 +318,7 @@ class GraphAPI(object):
         finally:
             file.close()
         if response and isinstance(response, dict) and response.get("error"):
-            raise GraphAPIError(response["error"]["type"],
-                                response["error"]["message"])
+            raise GraphAPIError(response)
         return response
 
     def fql(self, query, args=None, post_args=None):
