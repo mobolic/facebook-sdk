@@ -32,19 +32,16 @@ if user:
     friends = graph.get_connections("me", "friends")
 
 """
-from functools import partial
-
 import urllib
-import urllib2
-import httplib
 import hashlib
 import hmac
 import base64
+import warnings
+
 
 import requests
 
 # Find a JSON parser
-import warnings
 
 try:
     import simplejson as json
