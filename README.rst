@@ -1,3 +1,12 @@
+
+====
+Version Differences
+====
+
+This library has a dependency on `Python Requests`_, as well as the assumption
+that you are running Python 2.7 or higher.
+
+
 ===================
 Facebook Python SDK
 ===================
@@ -53,3 +62,4 @@ bugtracker`_.
 
 .. _here: https://github.com/mvid/facebook-sdk/issues
 .. _Facebook's bugtracker: https://developers.facebook.com/bugs/
+.. _Python Requests: https://github.com/kennethreitz/requests
