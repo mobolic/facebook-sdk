@@ -104,12 +104,12 @@ class GraphAPI(object):
         We return a map from ID to object. If any of the IDs are
         invalid, we raise an exception.
         """
-        args["ids"] = ",".join(ids)
+        args["ids"] = ",".join(map(str, ids))
         return self.request("", args)
 
     def get_connections(self, id, connection_name, **args):
         """Fetchs the connections for given object."""
-        return self.request(id + "/" + connection_name, args)
+        return self.request("%s/%s" % (id, connection_name), args)
 
     def put_object(self, parent_object, connection_name, **data):
         """Writes the given object to the graph, connected to the given parent.
@@ -136,7 +136,7 @@ class GraphAPI(object):
 
         """
         assert self.access_token, "Write operations require an access token"
-        return self.request(parent_object + "/" + connection_name,
+        return self.request("%s/%s" % (parent_object, connection_name),
                             post_args=data)
 
     def put_wall_post(self, message, attachment={}, profile_id="me"):
@@ -281,6 +281,7 @@ class GraphAPI(object):
         arguments.
 
         """
+        path = str(path)
         args = args or {}
 
         if self.access_token:
