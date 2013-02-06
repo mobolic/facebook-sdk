@@ -504,17 +504,12 @@ def parse_signed_request(signed_request, app_secret):
     return data
 
 
-def auth_url(app_id, canvas_url, perms=None, state=None, response_type=None, display=None):
+def auth_url(app_id, canvas_url, perms=None, **kwargs):
     url = "https://www.facebook.com/dialog/oauth?"
     kvps = {'client_id': app_id, 'redirect_uri': canvas_url}
     if perms:
         kvps['scope'] = ",".join(perms)
-    if state:
-        kvps['state'] = state
-    if response_type:
-        kvps['response_type'] = response_type
-    if display:
-        kvps['display'] = display
+    kvps.update(kwargs)
     return url + urllib.urlencode(kvps)
 
 def get_access_token_from_code(code, redirect_uri, app_id, app_secret):
