@@ -155,6 +155,8 @@ class GraphAPI(object):
              "picture": "http://www.example.com/thumbnail.jpg"}
 
         """
+        # Fixes problem that messages with unicode symbols are ignored.
+        message = message.encode("utf-8")
         return self.put_object(profile_id, "feed", message=message,
                                **attachment)
 
