@@ -90,9 +90,10 @@ class GraphAPI(object):
     for the active user from the cookie saved by the SDK.
 
     """
-    def __init__(self, access_token=None, timeout=None):
+    def __init__(self, access_token=None, timeout=None, *args, **kwargs):
         self.access_token = access_token
         self.timeout = timeout
+        self.max_pages = kwargs.pop("max_pages", 3)
 
     def get_object(self, id, **args):
         """Fetchs the given object from the graph."""
@@ -109,6 +110,9 @@ class GraphAPI(object):
 
     def get_connections(self, id, connection_name, **args):
         """Fetchs the connections for given object."""
+        as_generator = args.pop("as_generator", False)
+        if as_generator:
+            return self._paginator(id + "/" + connection_name, args)
         return self.request(id + "/" + connection_name, args)
 
     def put_object(self, parent_object, connection_name, **data):
@@ -273,14 +277,8 @@ class GraphAPI(object):
         content_type = 'multipart/form-data; boundary=%s' % BOUNDARY
         return content_type, body
 
-    def request(self, path, args=None, post_args=None):
-        """Fetches the given path in the Graph API.
-
-        We translate args to a valid query string. If post_args is
-        given, we send a POST request to the given path with the given
-        arguments.
-
-        """
+    def prepare_url_with_post_data(self, path, args=None, post_args=None):
+        """Prepare a Graph API URL with the given path and arguments"""
         args = args or {}
 
         if self.access_token:
@@ -289,10 +287,40 @@ class GraphAPI(object):
             else:
                 args["access_token"] = self.access_token
         post_data = None if post_args is None else urllib.urlencode(post_args)
+        prefix = "https://graph.facebook.com/"
+        url = prefix + path + "?" + urllib.urlencode(args)
+
+        return url, post_data
+
+    def _paginator(self, path, args=None):
+        """Creates a paginator with the given path in the Graph API."""
+        url, post_data = self.prepare_url_with_post_data(path, args)
+        pages_read = 0
+        while url and pages_read < self.max_pages:
+            api_responses, url = self._raw_request(url)
+            pages_read += 1
+            yield api_responses, url
+        return
+
+    def request(self, path, args=None, post_args=None):
+        """Fetches the given path in the Graph API.
+
+        We translate args to a valid query string. If post_args is
+        given, we send a POST request to the given path with the given
+        arguments.
+
+        """
+        url, post_data = self.prepare_url_with_post_data(path, args, post_args)
+        response, next_url = self._raw_request(url, post_data)
+        return response
+
+    def _raw_request(self, url, post_data=None):
+        """Fetches the given raw Graph API URL.
+
+        Perform HTTP request with the given URL and POST data, if any.
+        """
         try:
-            file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" +
-                                   urllib.urlencode(args),
-                                   post_data, timeout=self.timeout)
+            file = urllib2.urlopen(url, post_data, timeout=self.timeout)
         except urllib2.HTTPError, e:
             response = _parse_json(e.read())
             raise GraphAPIError(response)
@@ -300,8 +328,7 @@ class GraphAPI(object):
             # Timeout support for Python <2.6
             if self.timeout:
                 socket.setdefaulttimeout(self.timeout)
-            file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" +
-                                   urllib.urlencode(args), post_data)
+            file = urllib2.urlopen(url, post_data)
         try:
             fileInfo = file.info()
             if fileInfo.maintype == 'text':
@@ -320,7 +347,10 @@ class GraphAPI(object):
         if response and isinstance(response, dict) and response.get("error"):
             raise GraphAPIError(response["error"]["type"],
                                 response["error"]["message"])
-        return response
+
+        next_url = response.get('paging', {}).get('next')
+        response = response.get('data')
+        return response, next_url
 
     def fql(self, query, args=None, post_args=None):
         """FQL query.
