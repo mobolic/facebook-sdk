@@ -191,7 +191,7 @@ class GraphAPI(object):
         Example query: "SELECT affiliations FROM user WHERE uid = me()"
 
         """
-        self.request("fql", {"q": query})
+        return self.request("fql", {"q": query})
 
 
     def get_app_access_token(self, app_id, app_secret):
@@ -277,7 +277,7 @@ class GraphAPI(object):
             result = {"data": response.content,
                       "mime-type": mimetype,
                       "url": response.url}
-        elif parse_qs(response.text).has("access_token"):
+        elif parse_qs(response.text).has_key("access_token"):
             query_str = parse_qs(response.text)
             if "access_token" in query_str:
                 result = {"access_token": query_str["access_token"][0]}
