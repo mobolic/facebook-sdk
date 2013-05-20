@@ -349,7 +349,9 @@ class GraphAPI(object):
                                 response["error"]["message"])
 
         next_url = response.get('paging', {}).get('next')
-        response = response.get('data')
+        data = response.get('data')
+        if data is not None:
+            response = data
         return response, next_url
 
     def fql(self, query, args=None, post_args=None):
