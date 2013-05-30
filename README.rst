@@ -53,3 +53,11 @@ bugtracker`_.
 
 .. _here: https://github.com/pythonforfacebook/facebook-sdk/issues
 .. _Facebook's bugtracker: https://developers.facebook.com/bugs/
+
+
+Support & Discussion
+====================
+
+Have a question? Need help? Visit the library's `Google Group`_.
+
+.. _Google Group: https://groups.google.com/group/pythonforfacebook
