@@ -33,9 +33,14 @@ if user:
 
 """
 
+FACEBOOK_BASE_URL='https://facebook.com/'
+FACEBOOK_GRAPH_URL='https://graph.facebook.com/'
+FACEBOOK_API_URL='https://api.facebook.com/'
+
 import cgi
 import time
 import urllib
+import urlparse
 import urllib2
 import httplib
 import hashlib
@@ -210,8 +215,8 @@ class GraphAPI(object):
         }
         post_args.update(kwargs)
         content_type, body = self._encode_multipart_form(post_args)
-        req = urllib2.Request(("https://graph.facebook.com/%s/photos" %
-                               object_id),
+        req = urllib2.Request((urlparse.urljoin(FACEBOOK_GRAPH_URL,
+                              "%s/photos" % object_id)),
                               data=body)
         req.add_header('Content-Type', content_type)
         try:
@@ -290,8 +295,8 @@ class GraphAPI(object):
                 args["access_token"] = self.access_token
         post_data = None if post_args is None else urllib.urlencode(post_args)
         try:
-            file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" +
-                                   urllib.urlencode(args),
+            file = urllib2.urlopen(urlparse.urljoin(FACEBOOK_GRAPH_URL, '%s?%s' % (path,
+                                   urllib.urlencode(args))),
                                    post_data, timeout=self.timeout)
         except urllib2.HTTPError, e:
             response = _parse_json(e.read())
@@ -300,8 +305,8 @@ class GraphAPI(object):
             # Timeout support for Python <2.6
             if self.timeout:
                 socket.setdefaulttimeout(self.timeout)
-            file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" +
-                                   urllib.urlencode(args), post_data)
+            file = urllib2.urlopen(urlparse.urljoin(FACEBOOK_GRAPH_URL, '%s?%s' % (path,
+                                   urllib.urlencode(args))), post_data)
         try:
             fileInfo = file.info()
             if fileInfo.maintype == 'text':
@@ -350,15 +355,15 @@ class GraphAPI(object):
         args["format"] = "json"
 
         try:
-            file = urllib2.urlopen("https://api.facebook.com/method/" +
-                                   fql_method + "?" + urllib.urlencode(args),
+            file = urllib2.urlopen(urlparse.urljoin(FACEBOOK_API_URL, "/method/%s?%s" % 
+                                   (fql_method, urllib.urlencode(args))),
                                    post_data, timeout=self.timeout)
         except TypeError:
             # Timeout support for Python <2.6
             if self.timeout:
                 socket.setdefaulttimeout(self.timeout)
-            file = urllib2.urlopen("https://api.facebook.com/method/" +
-                                   fql_method + "?" + urllib.urlencode(args),
+            file = urllib2.urlopen(urlparse.urljoin(FACEBOOK_API_URL, "/method/%s?%s" %
+                                   (fql_method, urllib.urlencode(args))),
                                    post_data)
 
         try:
@@ -387,9 +392,9 @@ class GraphAPI(object):
             "grant_type": "fb_exchange_token",
             "fb_exchange_token": self.access_token,
         }
-        response = urllib.urlopen("https://graph.facebook.com/oauth/"
+        response = urllib.urlopen(urlparse.urljoin(FACEBOOK_GRAPH_URL, "/oauth/"
                                   "access_token?" +
-                                  urllib.urlencode(args)).read()
+                                  urllib.urlencode(args)).read())
         query_str = parse_qs(response)
         if "access_token" in query_str:
             result = {"access_token": query_str["access_token"][0]}
@@ -440,41 +445,7 @@ def get_user_from_cookie(cookies, app_id, app_secret):
     requests to the Graph API. If the user is not logged in, we
     return None.
 
-    Download the official Facebook JavaScript SDK at
-    http://github.com/facebook/connect-js/. Read more about Facebook
-    authentication at
-    http://developers.facebook.com/docs/authentication/.
-
-    """
-    cookie = cookies.get("fbsr_" + app_id, "")
-    if not cookie:
-        return None
-    parsed_request = parse_signed_request(cookie, app_secret)
-    if not parsed_request:
-        return None
-    try:
-        result = get_access_token_from_code(parsed_request["code"], "",
-                                            app_id, app_secret)
-    except GraphAPIError:
-        return None
-    result["uid"] = parsed_request["user_id"]
-    return result
-
-
-def parse_signed_request(signed_request, app_secret):
-    """ Return dictionary with signed request data.
-
-    We return a dictionary containing the information in the
-    signed_request. This includes a user_id if the user has authorised
-    your application, as well as any information requested.
-
-    If the signed_request is malformed or corrupted, False is returned.
-
-    """
-    try:
-        encoded_sig, payload = map(str, signed_request.split('.', 1))
-
-        sig = base64.urlsafe_b64decode(encoded_sig + "=" *
+    Download the official Facebsig + "=" *
                                        ((4 - len(encoded_sig) % 4) % 4))
         data = base64.urlsafe_b64decode(payload + "=" *
                                         ((4 - len(payload) % 4) % 4))
@@ -504,7 +475,7 @@ def parse_signed_request(signed_request, app_secret):
 
 
 def auth_url(app_id, canvas_url, perms=None, **kwargs):
-    url = "https://www.facebook.com/dialog/oauth?"
+    url = urlparse.urljoin(FACEBOOK_BASE_URL, "/dialog/oauth?")
     kvps = {'client_id': app_id, 'redirect_uri': canvas_url}
     if perms:
         kvps['scope'] = ",".join(perms)
@@ -526,8 +497,8 @@ def get_access_token_from_code(code, redirect_uri, app_id, app_secret):
     }
     # We would use GraphAPI.request() here, except for that the fact
     # that the response is a key-value pair, and not JSON.
-    response = urllib.urlopen("https://graph.facebook.com/oauth/access_token" +
-                              "?" + urllib.urlencode(args)).read()
+    response = urllib.urlopen(urlparse.urljoin(FACEBOOK_GRAPH_URL, "/oauth/access_token?%s" %
+                              urllib.urlencode(args))).read()
     query_str = parse_qs(response)
     if "access_token" in query_str:
         result = {"access_token": query_str["access_token"][0]}
@@ -555,8 +526,8 @@ def get_app_access_token(app_id, app_secret):
             'client_id': app_id,
             'client_secret': app_secret}
 
-    file = urllib2.urlopen("https://graph.facebook.com/oauth/access_token?" +
-                           urllib.urlencode(args))
+    file = urllib2.urlopen(urlparse.urljoin(FACEBOOK_GRAPH_URL, "/oauth/access_token?%s" %
+                           urllib.urlencode(args)))
 
     try:
         result = file.read().split("=")[1]
