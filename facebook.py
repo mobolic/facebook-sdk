@@ -445,7 +445,41 @@ def get_user_from_cookie(cookies, app_id, app_secret):
     requests to the Graph API. If the user is not logged in, we
     return None.
 
-    Download the official Facebsig + "=" *
+    Download the official Facebook JavaScript SDK at
+    http://github.com/facebook/connect-js/. Read more about Facebook
+    authentication at
+    http://developers.facebook.com/docs/authentication/.
+
+    """
+    cookie = cookies.get("fbsr_" + app_id, "")
+    if not cookie:
+        return None
+    parsed_request = parse_signed_request(cookie, app_secret)
+    if not parsed_request:
+        return None
+    try:
+        result = get_access_token_from_code(parsed_request["code"], "",
+                                            app_id, app_secret)
+    except GraphAPIError:
+        return None
+    result["uid"] = parsed_request["user_id"]
+    return result
+
+
+def parse_signed_request(signed_request, app_secret):
+    """ Return dictionary with signed request data.
+
+    We return a dictionary containing the information in the
+    signed_request. This includes a user_id if the user has authorised
+    your application, as well as any information requested.
+
+    If the signed_request is malformed or corrupted, False is returned.
+
+    """
+    try:
+        encoded_sig, payload = map(str, signed_request.split('.', 1))
+
+        sig = base64.urlsafe_b64decode(encoded_sig + "=" *
                                        ((4 - len(encoded_sig) % 4) % 4))
         data = base64.urlsafe_b64decode(payload + "=" *
                                         ((4 - len(payload) % 4) % 4))
