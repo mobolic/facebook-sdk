@@ -264,8 +264,8 @@ class GraphAPI(object):
                 L.append('Content-Disposition: form-data; name="%s"' % key)
             L.append('')
             if isinstance(value, unicode):
-                logging.debug("Convert to ascii")
-                value = value.encode('ascii')
+                logging.debug("Convert to utf-8")
+                value = value.encode('utf-8')
             L.append(value)
         L.append('--' + BOUNDARY + '--')
         L.append('')
