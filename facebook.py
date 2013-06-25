@@ -336,29 +336,19 @@ class GraphAPI(object):
                 args["access_token"] = self.access_token
         post_data = None if post_args is None else urllib.urlencode(post_args)
 
-        """Check if query is a dict and
-           use the multiquery method
-           else use single query
-        """
-        if not isinstance(query, basestring):
-            args["queries"] = query
-            fql_method = 'fql.multiquery'
-        else:
-            args["query"] = query
-            fql_method = 'fql.query'
-
+        args["q"] = query
         args["format"] = "json"
 
         try:
-            file = urllib2.urlopen("https://api.facebook.com/method/" +
-                                   fql_method + "?" + urllib.urlencode(args),
+            file = urllib2.urlopen("https://graph.facebook.com/fql?" +
+                                   urllib.urlencode(args),
                                    post_data, timeout=self.timeout)
         except TypeError:
             # Timeout support for Python <2.6
             if self.timeout:
                 socket.setdefaulttimeout(self.timeout)
-            file = urllib2.urlopen("https://api.facebook.com/method/" +
-                                   fql_method + "?" + urllib.urlencode(args),
+            file = urllib2.urlopen("https://graph.facebook.com/fql?" +
+                                   urllib.urlencode(args),
                                    post_data)
 
         try:
