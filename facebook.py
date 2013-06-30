@@ -200,7 +200,7 @@ class GraphAPI(object):
         )
         conn.request('DELETE', url)
         response = conn.getresponse()
-        data = response.read()
+        data = response.read().decode("utf-8")
 
         response = _parse_json(data)
         # Raise an error if we got one, but don't not if Facebook just
@@ -230,14 +230,15 @@ class GraphAPI(object):
         post_args.update(kwargs)
         content_type, body = self._encode_multipart_form(post_args)
         req = Request(("https://graph.facebook.com/%s/photos" %
-                               object_id),
-                              data=body)
+                       object_id),
+                      data=body)
         req.add_header('Content-Type', content_type)
         try:
-            data = urlopen(req).read()
+            data = urlopen(req).read().decode("utf-8")
         except HTTPError as e:
-            data = e.read()  # Facebook sends OAuth errors as 400, and urllib2
-                             # throws an exception, we want a GraphAPIError
+            data = e.read().decode("utf-8")
+            # Facebook sends OAuth errors as 400, and urllib2
+            # throws an exception, we want a GraphAPIError
         try:
             response = _parse_json(data)
             # Raise an error if we got one, but don't not if Facebook just
@@ -280,7 +281,7 @@ class GraphAPI(object):
             else:
                 L.append('Content-Disposition: form-data; name="%s"' % key)
             L.append('')
-            if isinstance(value, unicode):
+            if isinstance(value, six.text_type):
                 logging.debug("Convert to ascii")
                 value = value.encode('ascii')
             L.append(value)
@@ -309,23 +310,24 @@ class GraphAPI(object):
         try:
             file = urlopen("https://graph.facebook.com/" + path + "?" +
                            urlencode(args),
-                                   post_data, timeout=self.timeout)
+                           post_data, timeout=self.timeout)
         except HTTPError as e:
-            response = _parse_json(e.read())
+            response = _parse_json(e.read().decode("utf-8"))
             raise GraphAPIError(response)
         except TypeError:
             # Timeout support for Python <2.6
             if self.timeout:
                 socket.setdefaulttimeout(self.timeout)
             file = urlopen("https://graph.facebook.com/" + path + "?" +
-                                   urlencode(args), post_data)
+                           urlencode(args), post_data)
         try:
             fileInfo = file.info()
             if fileInfo.maintype == 'text':
-                response = _parse_json(file.read())
+                response = _parse_json(file.read().decode("utf-8"))
             elif fileInfo.maintype == 'image':
                 mimetype = fileInfo['content-type']
                 response = {
+                    # Don't decode this from utf-8 as it's raw image data
                     "data": file.read(),
                     "mime-type": mimetype,
                     "url": file.url,
@@ -379,7 +381,7 @@ class GraphAPI(object):
                            post_data)
 
         try:
-            content = file.read()
+            content = file.read().decode("utf-8")
             response = _parse_json(content)
             #Return a list if success, return a dictionary if failed
             if type(response) is dict and "error_code" in response:
@@ -406,7 +408,7 @@ class GraphAPI(object):
         }
         response = urlopen("https://graph.facebook.com/oauth/"
                            "access_token?" +
-                           urlencode(args)).read()
+                           urlencode(args)).read().decode("utf-8")
         query_str = parse_qs(response)
         if "access_token" in query_str:
             result = {"access_token": query_str["access_token"][0]}
@@ -576,7 +578,7 @@ def get_app_access_token(app_id, app_secret):
                    urlencode(args))
 
     try:
-        result = file.read().split("=")[1]
+        result = file.read().decode("utf-8").split("=")[1]
     finally:
         file.close()
 
