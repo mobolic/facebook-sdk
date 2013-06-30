@@ -216,9 +216,7 @@ class GraphAPI(object):
         req.add_header('Content-Type', content_type)
         try:
             data = urllib2.urlopen(req).read()
-        #For Python 3 use this:
-        #except urllib2.HTTPError as e:
-        except urllib2.HTTPError, e:
+        except urllib2.HTTPError as e:
             data = e.read()  # Facebook sends OAuth errors as 400, and urllib2
                              # throws an exception, we want a GraphAPIError
         try:
@@ -293,7 +291,7 @@ class GraphAPI(object):
             file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" +
                                    urllib.urlencode(args),
                                    post_data, timeout=self.timeout)
-        except urllib2.HTTPError, e:
+        except urllib2.HTTPError as e:
             response = _parse_json(e.read())
             raise GraphAPIError(response)
         except TypeError:
@@ -367,7 +365,7 @@ class GraphAPI(object):
             #Return a list if success, return a dictionary if failed
             if type(response) is dict and "error_code" in response:
                 raise GraphAPIError(response)
-        except Exception, e:
+        except Exception as e:
             raise e
         finally:
             file.close()
