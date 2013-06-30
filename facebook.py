@@ -44,6 +44,8 @@ import base64
 import logging
 import socket
 
+import six
+
 # Find a JSON parser
 try:
     import simplejson as json

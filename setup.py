@@ -19,4 +19,5 @@ setup(
     classifiers=[
         'License :: OSI Approved :: Apache Software License',
     ],
+    install_requires=["six==1.3.0"]
 )
