@@ -322,10 +322,15 @@ class GraphAPI(object):
                            urlencode(args), post_data)
         try:
             fileInfo = file.info()
-            if fileInfo.maintype == 'text':
-                response = _parse_json(file.read().decode("utf-8"))
-            elif fileInfo.maintype == 'image':
+            if six.PY3:
+                maintype = fileInfo.get_content_maintype()
+                mimetype = fileInfo.get_content_type()
+            else:
+                maintype = fileInfo.maintype
                 mimetype = fileInfo['content-type']
+            if maintype == 'text':
+                response = _parse_json(file.read().decode("utf-8"))
+            elif maintype == 'image':
                 response = {
                     # Don't decode this from utf-8 as it's raw image data
                     "data": file.read(),
