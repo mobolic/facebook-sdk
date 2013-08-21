@@ -44,6 +44,17 @@ you could get the profile of the logged in user with:
 
 You can see a full AppEngine example application in examples/appengine.
 
+
+Installation
+============
+
+Install from PyPI:
+
+::
+
+    pip install facebook-sdk
+
+
 Reporting Issues
 ================
 
