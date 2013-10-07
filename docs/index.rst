@@ -14,6 +14,14 @@ Contents:
    intro
    install
 
+Module contents
+===============
+
+.. automodule:: facebook
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
 Indices and tables
 ==================
