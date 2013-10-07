@@ -1,3 +1,6 @@
+#IntelliJ
+.idea
+
 *.py[co]
 
 # Packages
