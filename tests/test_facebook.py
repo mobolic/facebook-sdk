@@ -13,6 +13,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import urllib
 import facebook
 import os
 import unittest
@@ -42,6 +43,26 @@ class TestGetAppAccessToken(FacebookTestCase):
     def test_get_app_access_token(self):
         assert(isinstance(facebook.get_app_access_token(
             self.app_id, self.secret), str))
+
+
+class TestAuthUrl(FacebookTestCase):
+    """
+    Test that a constructed auth URL matches what we expect
+    """
+    def test_get_auth_url(self):
+        """
+        This test is pretty pointless really considering what it does,
+        but coverage is coverage
+        """
+        mock_url = 'http://test.fb/canvas'
+        generated_auth_url = facebook.auth_url(self.app_id, mock_url)
+        assert(
+            generated_auth_url ==
+            'https://www.facebook.com/dialog/oauth?redirect_uri=%s&client_id=%s' % (
+                urllib.quote_plus(mock_url),
+                self.app_id
+            )
+        )
 
 
 if __name__ == '__main__':
