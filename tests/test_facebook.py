@@ -15,6 +15,7 @@
 # under the License.
 import os
 import unittest
+import facebook
 
 
 class FacebookTestCase(unittest.TestCase):
@@ -29,3 +30,10 @@ class FacebookTestCase(unittest.TestCase):
             raise Exception("FACEBOOK_APP_ID and FACEBOOK_SECRET "
                             "must be set as environmental variables.")
 
+    def get_graph_client(self):
+        """
+        Get an instance of the Graph API client
+        """
+        return facebook.GraphAPI(
+            facebook.get_app_access_token(self.app_id, self.secret)
+        )
