@@ -1,0 +1,9 @@
+language: python
+python:
+  - "2.6"
+  - "2.7"
+  - "3.2"
+  - "3.3"
+env:
+  - FACEBOOK_APP_ID=12345678 FACEBOOK_SECRET=Som3F8k3Sek4it
+script: nosetests

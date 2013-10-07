@@ -13,13 +13,15 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-import facebook
 import os
 import unittest
+import facebook
 
 
 class FacebookTestCase(unittest.TestCase):
-    """Sets up application ID and secret from environment."""
+    """
+    Sets up application ID and secret from environment.
+    """
     def setUp(self):
         try:
             self.app_id = os.environ["FACEBOOK_APP_ID"]
@@ -28,19 +30,10 @@ class FacebookTestCase(unittest.TestCase):
             raise Exception("FACEBOOK_APP_ID and FACEBOOK_SECRET "
                             "must be set as environmental variables.")
 
-
-class TestGetAppAccessToken(FacebookTestCase):
-    """
-    Test if application access token is returned properly.
-
-    Note that this only tests if the returned token is a string, not
-    whether it is valid.
-
-    """
-    def test_get_app_access_token(self):
-        assert(isinstance(facebook.get_app_access_token(
-            self.app_id, self.secret), str))
-
-
-if __name__ == '__main__':
-    unittest.main()
+    def get_graph_client(self):
+        """
+        Get an instance of the Graph API client
+        """
+        return facebook.GraphAPI(
+            facebook.get_app_access_token(self.app_id, self.secret)
+        )
