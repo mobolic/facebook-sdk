@@ -13,10 +13,6 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-import base64
-import hashlib
-import hmac
-import json
 import facebook
 import os
 import unittest
@@ -47,57 +43,6 @@ class TestGetAppAccessToken(FacebookTestCase):
         assert(isinstance(facebook.get_app_access_token(
             self.app_id, self.secret), str))
 
-
-class TestSignedRequestParser(FacebookTestCase):
-    """
-    Test if the application can parse a valid signed request object
-    """
-    # Payload borrowed from FB docs
-    TEST_PAYLOAD = {
-        "oauth_token": "S0meInvEnt3dT0k3n",
-        "algorithm": "HMAC-SHA256",
-        "expires": 1291840400,
-        "issued_at": 1291836800,
-        "user_id": "218471"
-    }
-
-    def test_valid_signed_request_parse(self):
-        """
-        Construct a signed request token, and run it through the parser
-        """
-        encoded_payload = base64.urlsafe_b64encode(json.dumps(self.TEST_PAYLOAD).encode('ascii'))
-
-        signature = hmac.new(
-            self.secret,
-            msg=encoded_payload,
-            digestmod=hashlib.sha256
-        ).digest()
-
-        token = "%s.%s" % (
-            base64.urlsafe_b64encode(signature),
-            base64.urlsafe_b64encode(json.dumps(self.TEST_PAYLOAD))
-        )
-
-        assert(facebook.parse_signed_request(token, self.secret) == self.TEST_PAYLOAD)
-
-    def test_invalid_signed_request_parse(self):
-        """
-        Construct a signed request with an invalid secret, and run it through the parser
-        """
-        encoded_payload = base64.urlsafe_b64encode(json.dumps(self.TEST_PAYLOAD).encode('ascii'))
-
-        signature = hmac.new(
-            'THISISANONSENSESECRETTOgenerateAfaIlIngToken',
-            msg=encoded_payload,
-            digestmod=hashlib.sha256
-        ).digest()
-
-        token = "%s.%s" % (
-            base64.urlsafe_b64encode(signature),
-            base64.urlsafe_b64encode(json.dumps(self.TEST_PAYLOAD))
-        )
-
-        assert(not facebook.parse_signed_request(token, self.secret))
 
 if __name__ == '__main__':
     unittest.main()
