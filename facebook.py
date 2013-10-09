@@ -566,3 +566,31 @@ def get_app_access_token(app_id, app_secret):
         file.close()
 
     return result
+
+
+def create_test_user(app_id, app_access_token, **kwargs):
+	"""Creates test user for the app.
+
+	app_access_token = retrieved from get_app_access_token above
+	
+	see https://developers.facebook.com/docs/test_users/ for options.
+	
+    Returns test user data including user access_token.
+
+    """
+    # default options
+	args = {
+		'installed': True,
+		'method': 'post',
+		'locale': 'en_US',
+		'access_token': app_access_token,
+	}
+	args.update(kwargs)
+	file = urllib2.urlopen('https://graph.facebook.com/' + app_id + '/accounts/test-users?' + urllib.urlencode(args))
+	
+	try:
+		result = json.loads(file.read())
+	finally:
+		file.close()
+	
+	return result
