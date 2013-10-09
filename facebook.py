@@ -377,9 +377,9 @@ class GraphAPI(object):
             "grant_type": "fb_exchange_token",
             "fb_exchange_token": self.access_token,
         }
-        response = urllib.urlopen("https://graph.facebook.com/oauth/"
-                                  "access_token?" +
-                                  urllib.urlencode(args)).read()
+        response = urllib2.urlopen("https://graph.facebook.com/oauth/"
+                                   "access_token?" +
+                                   urllib.urlencode(args)).read()
         query_str = parse_qs(response)
         if "access_token" in query_str:
             result = {"access_token": query_str["access_token"][0]}
@@ -516,8 +516,8 @@ def get_access_token_from_code(code, redirect_uri, app_id, app_secret):
     }
     # We would use GraphAPI.request() here, except for that the fact
     # that the response is a key-value pair, and not JSON.
-    response = urllib.urlopen("https://graph.facebook.com/oauth/access_token" +
-                              "?" + urllib.urlencode(args)).read()
+    response = urllib2.urlopen("https://graph.facebook.com/oauth/access_token" +
+                               "?" + urllib.urlencode(args)).read()
     query_str = parse_qs(response)
     if "access_token" in query_str:
         result = {"access_token": query_str["access_token"][0]}
