@@ -46,12 +46,12 @@ import socket
 
 # Find a JSON parser
 try:
-    import simplejson as json
+    import json
 except ImportError:
     try:
-        from django.utils import simplejson as json
+        import simplejson as json
     except ImportError:
-        import json
+        from django.utils import simplejson as json
 _parse_json = json.loads
 
 # Find a query string parser
