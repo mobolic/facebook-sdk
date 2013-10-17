@@ -1,4 +1,7 @@
-*.py[co]
+*.py[cod]
+
+# C extensions
+*.so
 
 # Packages
 *.egg
@@ -12,7 +15,9 @@ var
 sdist
 develop-eggs
 .installed.cfg
-MANIFEST
+lib
+lib64
+__pycache__
 
 # Installer logs
 pip-log.txt
@@ -20,9 +25,12 @@ pip-log.txt
 # Unit test / coverage reports
 .coverage
 .tox
+nosetests.xml
 
-#Translations
+# Translations
 *.mo
 
-#Mr Developer
+# Mr Developer
 .mr.developer.cfg
+.project
+.pydevproject
