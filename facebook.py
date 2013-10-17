@@ -109,6 +109,15 @@ class GraphAPI(object):
         """Fetchs the connections for given object."""
         return self.request(id + "/" + connection_name, args)
 
+    def search(self, query, type, **kwargs):
+        """Search for provided query and type"""
+        args = {
+            'q': query,
+            'type': type,
+        }
+        kwargs.update(args)
+        return self.request('search', kwargs)
+
     def put_object(self, parent_object, connection_name, **data):
         """Writes the given object to the graph, connected to the given parent.
 
