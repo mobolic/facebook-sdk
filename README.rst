@@ -41,6 +41,19 @@ you could get the profile of the logged in user with:
         profile = graph.get_object("me")
         friends = graph.get_connections("me", "friends")
 
+The FacebookObject:
+
+Used only for paging currently, however more functions may be added at a later
+date.
+
+::
+
+    graph = facebook.GraphAPI(oauth_access_token, object_return=True)
+    timeline = graph.get_object("me/home")
+    timeline.data  # The raw python dict, as above
+    timeline.previous()  # FacebookObject with the previous page
+    timeline.next().data  # Dict with the next page
+
 
 You can see a full AppEngine example application in examples/appengine.
 

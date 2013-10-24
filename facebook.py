@@ -61,6 +61,37 @@ except ImportError:
     from cgi import parse_qs
 
 
+class FacebookObject(object):
+    """A wrapper around data extracted from the GraphAPI that allows for things
+    like easy pagination
+    """
+
+    def __init__(self, data, api):
+        self.data = data
+        self.api = api
+
+    def next_page(self):
+        """Retrieve the next page, or None if this is the last page of data.
+        """
+        return self._get_paginated('next')
+
+    def previous_page(self):
+        """Retrieve the previous page, or None if this is the first page of
+        data.
+        """
+        return self._get_paginated('previous')
+
+    def _get_paginated(self, page_key):
+        """Quick wrapper around paginated queries to handle paging when there
+        are no pages.
+
+        Returns None with no pages.
+        """
+        try:
+            return self.api.raw_request(self.data['paging'][page_key])
+        except KeyError:
+            return None
+
 class GraphAPI(object):
     """A client for the Facebook Graph API.
 
@@ -93,9 +124,10 @@ class GraphAPI(object):
 
     base_uri = 'https://graph.facebook.com/'
 
-    def __init__(self, access_token=None, timeout=None):
+    def __init__(self, access_token=None, timeout=None, object_return=False):
         self.access_token = access_token
         self.timeout = timeout
+        self.object_return = object_return
 
     def get_object(self, id, **args):
         """Fetchs the given object from the graph."""
@@ -357,7 +389,11 @@ class GraphAPI(object):
         if response and isinstance(response, dict) and response.get("error"):
             raise GraphAPIError(response["error"]["type"],
                                 response["error"]["message"])
-        return response
+
+        if self.object_return:
+            return FacebookObject(response, self)
+        else:
+            return response
 
     def extend_access_token(self, app_id, app_secret):
         """
