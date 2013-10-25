@@ -78,7 +78,7 @@ class MockURLOpenTestCase(unittest.TestCase):
         return FakeHTTPError(string)
 
     def setUp(self):
-        self.api = facebook.GraphAPI()
+        self.api = facebook.GraphAPI('bogustoken')
         self.urlopen = urllib2.urlopen
 
         def urlopen(*args, **kwargs):
@@ -171,6 +171,34 @@ class RawRequestTestCase(MockURLOpenTestCase):
             }
         }""")
         self.assertRaises(facebook.GraphAPIError, self.api.raw_request, [None])
+
+
+class ProcessArgsTestCase(MockURLOpenTestCase):
+    """
+    Test the _process_args method of the GraphAPI
+    """
+
+    def test_defaults(self):
+        """
+        When given no args, access_token should be included in return args
+        """
+        self.assertEqual(self.api._process_args(),
+                         ({'access_token': 'bogustoken'}, None))
+
+    def test_token_in_args(self):
+        """
+        When given args, access_token should be merged in with the values
+        """
+        self.assertEqual(self.api._process_args(args={'key': 'val'}),
+                         ({'access_token': 'bogustoken', 'key': 'val'}, None))
+
+    def test_token_in_post(self):
+        """
+        When given post args, access_token is added and dict is urlencoded to a
+        query string
+        """
+        self.assertEqual(self.api._process_args(post_args={'key': '&val'}),
+                         ({}, 'access_token=bogustoken&key=%26val'))
 
 
 if __name__ == '__main__':
