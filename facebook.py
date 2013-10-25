@@ -328,7 +328,6 @@ class GraphAPI(object):
         the given path with the given arguments.
 
         """
-        print "URI: %s" % uri
         try:
             file = urllib2.urlopen(uri, post_data, timeout=self.timeout)
         except urllib2.HTTPError, e:
