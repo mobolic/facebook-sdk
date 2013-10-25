@@ -25,8 +25,8 @@ class FacebookTestCase(unittest.TestCase):
             self.app_id = os.environ["FACEBOOK_APP_ID"]
             self.secret = os.environ["FACEBOOK_SECRET"]
         except KeyError:
-            raise Exception("FACEBOOK_APP_ID and FACEBOOK_SECRET "
-                            "must be set as environmental variables.")
+            self.skipTest("FACEBOOK_APP_ID and FACEBOOK_SECRET must be set as "
+                          "environmental variables.")
 
 
 class TestGetAppAccessToken(FacebookTestCase):
