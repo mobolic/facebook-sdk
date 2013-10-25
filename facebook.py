@@ -61,6 +61,37 @@ except ImportError:
     from cgi import parse_qs
 
 
+class FacebookObject(object):
+    """A wrapper around data extracted from the GraphAPI that allows for things
+    like easy pagination
+    """
+
+    def __init__(self, data, api):
+        self.data = data
+        self.api = api
+
+    def next_page(self):
+        """Retrieve the next page, or None if this is the last page of data.
+        """
+        return self._get_paginated('next')
+
+    def previous_page(self):
+        """Retrieve the previous page, or None if this is the first page of
+        data.
+        """
+        return self._get_paginated('previous')
+
+    def _get_paginated(self, page_key):
+        """Quick wrapper around paginated queries to handle paging when there
+        are no pages.
+
+        Returns None with no pages.
+        """
+        try:
+            return self.api.raw_request(self.data['paging'][page_key])
+        except KeyError:
+            return None
+
 class GraphAPI(object):
     """A client for the Facebook Graph API.
 
@@ -90,9 +121,13 @@ class GraphAPI(object):
     for the active user from the cookie saved by the SDK.
 
     """
-    def __init__(self, access_token=None, timeout=None):
+
+    base_uri = 'https://graph.facebook.com/'
+
+    def __init__(self, access_token=None, timeout=None, object_return=False):
         self.access_token = access_token
         self.timeout = timeout
+        self.object_return = object_return
 
     def get_object(self, id, **args):
         """Fetchs the given object from the graph."""
@@ -273,13 +308,11 @@ class GraphAPI(object):
         content_type = 'multipart/form-data; boundary=%s' % BOUNDARY
         return content_type, body
 
-    def request(self, path, args=None, post_args=None):
-        """Fetches the given path in the Graph API.
+    def _process_args(self, args=None, post_args=None):
+        """Process args and POST args into a usable form for a raw_request.
 
-        We translate args to a valid query string. If post_args is
-        given, we send a POST request to the given path with the given
-        arguments.
-
+        Adds access_token and urlencode the POST args into post data. Returns a
+        tuple of (args, post_data).
         """
         args = args or {}
 
@@ -289,10 +322,47 @@ class GraphAPI(object):
             else:
                 args["access_token"] = self.access_token
         post_data = None if post_args is None else urllib.urlencode(post_args)
+
+        return (args, post_data)
+
+
+    def request(self, path, args=None, post_args=None):
+        """Fetches the given path in the Graph API.
+
+        We translate args to a valid query string. If post_args is
+        given, we send a POST request to the given path with the given
+        arguments.
+
+        """
+        args, post_data = self._process_args(args, post_args)
+
+        uri = self.base_uri + path + '?' + urllib.urlencode(args)
+        return self.raw_request(uri, post_args)
+
+    def fql(self, query, args=None, post_args=None):
+        """FQL query.
+
+        Example query: "SELECT affiliations FROM user WHERE uid = me()"
+
+        """
+        args, post_data = self._process_args(args, post_args)
+        args['q'] = query
+        args['format'] = 'json'
+
+        uri = self.base_uri + 'fql?' + urllib.urlencode(args)
+        return self.raw_request(uri, post_data)
+
+    def raw_request(self, uri, post_data=None):
+        """Send a raw request using pre-made URI.
+
+        URI should contain the correct query string and all appropriate info
+        other than post_args. If post_args is given, we send a POST request to
+        the given path with the given arguments.
+
+        """
+        print "URI: %s" % uri
         try:
-            file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" +
-                                   urllib.urlencode(args),
-                                   post_data, timeout=self.timeout)
+            file = urllib2.urlopen(uri, post_data, timeout=self.timeout)
         except urllib2.HTTPError, e:
             response = _parse_json(e.read())
             raise GraphAPIError(response)
@@ -300,8 +370,7 @@ class GraphAPI(object):
             # Timeout support for Python <2.6
             if self.timeout:
                 socket.setdefaulttimeout(self.timeout)
-            file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" +
-                                   urllib.urlencode(args), post_data)
+            file = urllib2.urlopen(uri, post_data)
         try:
             fileInfo = file.info()
             if fileInfo.maintype == 'text':
@@ -320,49 +389,11 @@ class GraphAPI(object):
         if response and isinstance(response, dict) and response.get("error"):
             raise GraphAPIError(response["error"]["type"],
                                 response["error"]["message"])
-        return response
 
-    def fql(self, query, args=None, post_args=None):
-        """FQL query.
-
-        Example query: "SELECT affiliations FROM user WHERE uid = me()"
-
-        """
-        args = args or {}
-        if self.access_token:
-            if post_args is not None:
-                post_args["access_token"] = self.access_token
-            else:
-                args["access_token"] = self.access_token
-        post_data = None if post_args is None else urllib.urlencode(post_args)
-
-        args["q"] = query
-        args["format"] = "json"
-
-        try:
-            file = urllib2.urlopen("https://graph.facebook.com/fql?" +
-                                   urllib.urlencode(args),
-                                   post_data, timeout=self.timeout)
-        except TypeError:
-            # Timeout support for Python <2.6
-            if self.timeout:
-                socket.setdefaulttimeout(self.timeout)
-            file = urllib2.urlopen("https://graph.facebook.com/fql?" +
-                                   urllib.urlencode(args),
-                                   post_data)
-
-        try:
-            content = file.read()
-            response = _parse_json(content)
-            #Return a list if success, return a dictionary if failed
-            if type(response) is dict and "error_code" in response:
-                raise GraphAPIError(response)
-        except Exception, e:
-            raise e
-        finally:
-            file.close()
-
-        return response
+        if self.object_return:
+            return FacebookObject(response, self)
+        else:
+            return response
 
     def extend_access_token(self, app_id, app_secret):
         """
