@@ -108,7 +108,7 @@ class TestGetAppAccessToken(FacebookTestCase):
 
 class RawRequestTestCase(MockURLOpenTestCase):
     """
-    Sets up application ID and secret from environment.
+    Test the raw_request method of the GraphAPI
     """
 
     def test_simple_json(self):
