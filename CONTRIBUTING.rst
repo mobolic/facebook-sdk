@@ -7,8 +7,8 @@ Use Github Pull Requests
 
 All potential code changes should be submitted as pull requests on Github. A
 pull request should only include commits directly applicable to its change
-(e.g. a pull request that adds a new feature should include PEP8 changes in an
-unrelated area of the code).
+(e.g. a pull request that adds a new feature should not include PEP8 changes in
+an unrelated area of the code).
 
 Code Style
 ----------
