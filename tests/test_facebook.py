@@ -159,6 +159,19 @@ class RawRequestTestCase(MockURLOpenTestCase):
         self.urlopen_return = self.fake_file('{}', info={'maintype': 'bogus'})
         self.assertRaises(facebook.GraphAPIError, self.api.raw_request, [None])
 
+    def test_other_error(self):
+        """
+        GraphAPIError should be raised when there's error data in the JSON
+        """
+
+        self.urlopen_return = self.fake_file("""{
+            "error": {
+                "type": "a thing",
+                "message": "move along"
+            }
+        }""")
+        self.assertRaises(facebook.GraphAPIError, self.api.raw_request, [None])
+
 
 if __name__ == '__main__':
     unittest.main()
