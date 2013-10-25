@@ -293,7 +293,6 @@ class GraphAPI(object):
 
         return (args, post_data)
 
-
     def request(self, path, args=None, post_args=None):
         """Fetches the given path in the Graph API.
 
