@@ -191,13 +191,14 @@ class GraphAPI(object):
 
         conn.close()
 
-    def put_photo(self, image, message=None, album_id=None, **kwargs):
+    def put_photo(self, image, message=None, album_id=None, path='photos', **kwargs):
         """Uploads an image using multipart/form-data.
 
         image=File like object for the image
         message=Caption for your image
         album_id=None posts to /me/photos which uses or creates and uses
         an album for your application.
+        path=API endpoint location 
 
         """
         object_id = album_id or "me"
@@ -210,8 +211,8 @@ class GraphAPI(object):
         }
         post_args.update(kwargs)
         content_type, body = self._encode_multipart_form(post_args)
-        req = urllib2.Request(("https://graph.facebook.com/%s/photos" %
-                               object_id),
+        req = urllib2.Request(("https://graph.facebook.com/%s/%s" %
+                               (object_id, path)),
                               data=body)
         req.add_header('Content-Type', content_type)
         try:
