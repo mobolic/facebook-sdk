@@ -36,20 +36,19 @@ import os
 import jinja2
 import urllib2
 
-from google.appengine.ext import db
+from google.appengine.ext import ndb
 from webapp2_extras import sessions
 
 config = {}
 config['webapp2_extras.sessions'] = dict(secret_key='')
 
-
-class User(db.Model):
-    id = db.StringProperty(required=True)
-    created = db.DateTimeProperty(auto_now_add=True)
-    updated = db.DateTimeProperty(auto_now=True)
-    name = db.StringProperty(required=True)
-    profile_url = db.StringProperty(required=True)
-    access_token = db.StringProperty(required=True)
+class User(ndb.Model):
+    #id = ndb.StringProperty(required=True)
+    created = ndb.DateTimeProperty(auto_now_add=True)
+    updated = ndb.DateTimeProperty(auto_now=True)
+    name = ndb.StringProperty(required=True)
+    profile_url = ndb.StringProperty(required=True)
+    access_token = ndb.StringProperty(required=True)
 
 
 class BaseHandler(webapp2.RequestHandler):
@@ -74,13 +73,12 @@ class BaseHandler(webapp2.RequestHandler):
             if cookie:
                 # Okay so user logged in.
                 # Now, check to see if existing user
-                user = User.get_by_key_name(cookie["uid"])
+                user = User.get_by_id(cookie["uid"])
                 if not user:
                     # Not an existing user so get user info
                     graph = facebook.GraphAPI(cookie["access_token"])
                     profile = graph.get_object("me")
                     user = User(
-                        key_name=str(profile["id"]),
                         id=str(profile["id"]),
                         name=profile["name"],
                         profile_url=profile["link"],
