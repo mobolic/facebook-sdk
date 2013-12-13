@@ -246,22 +246,12 @@ class GraphAPI(object):
         self.request("fql", {"q": query})
 
     def get_app_access_token(self, app_id, app_secret):
-        """Get the access_token for the app.
-
-        This token can be used for insights and creating test users.
-
-        app_id = retrieved from the developer page
-        app_secret = retrieved from the developer page
-
-        Returns the application access_token.
-
-        """
-        # Get an app access token
+        """Get the application's access token as a string."""
         args = {'grant_type': 'client_credentials',
                 'client_id': app_id,
                 'client_secret': app_secret}
 
-        return self.request("oauth/access_token", args=args)
+        return self.request("oauth/access_token", args=args)["access_token"]
 
     def get_access_token_from_code(
             self, code, redirect_uri, app_id, app_secret):
