@@ -38,16 +38,7 @@ import hashlib
 import hmac
 import base64
 import requests
-
-# Find a JSON parser
-try:
-    import simplejson as json
-except ImportError:
-    try:
-        from django.utils import simplejson as json
-    except ImportError:
-        import json
-_parse_json = json.loads
+import json
 
 # Find a query string parser
 try:
@@ -211,7 +202,7 @@ class GraphAPI(object):
                                         data=post_args,
                                         files=files)
         except requests.HTTPError, e:
-            response = _parse_json(e.read())
+            response = json.loads(e.read())
             raise GraphAPIError(response)
 
         headers = response.headers
@@ -368,7 +359,7 @@ def parse_signed_request(signed_request, app_secret):
         # Signed request had a corrupted payload.
         return False
 
-    data = _parse_json(data)
+    data = json.loads(data)
     if data.get('algorithm', '').upper() != 'HMAC-SHA256':
         return False
 
