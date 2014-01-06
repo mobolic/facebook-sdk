@@ -285,7 +285,12 @@ class GraphAPI(object):
 
         if self.access_token:
             if post_args is not None:
-                post_args["access_token"] = self.access_token
+                """
+                    Some endpoints (e.g. `notifications`) require an app access_token
+                    which is passed by application
+                """
+                if 'access_token' not in post_args:
+                    post_args["access_token"] = self.access_token
             else:
                 args["access_token"] = self.access_token
         post_data = None if post_args is None else urllib.urlencode(post_args)
