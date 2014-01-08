@@ -24,6 +24,9 @@ Facebook authentication. You can read more about the Graph API by accessing its
 Installation
 ============
 
+The SDK currently supports Python 2.5, 2.6, and 2.7. No external packages are
+required.
+
 We recommend using `pip`_ and `virtualenv`_ to install the SDK:
 
     virtualenv facebookenv
