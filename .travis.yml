@@ -6,5 +6,6 @@ install:
   - "pip install . --use-mirrors"
 script: pytest
 env:
-  - secure: "fMcBUM5+gIqqhLUIoBcy4ErV/F6BLIajyLR4Jff7VMVqEXJzfJ7yh/T9C+K2cnCyAODg0PgOuZNdobiW/wM+HUnknB7/K/6EzeLG4JwYEWNtoL6QI/oMw2wDYD8X5FYsIAzKhJHfbXkv0DzmX16ksPbHJ5d89azwoPYLpA6lA1U="
-  - secure: "nIkW8qKCSZMiyxISWoL74x08Z6/tcAfor9hvuuD0804KYqgK98EdFQWaGOnp3loPCqLTbTcmxggUgIlPgCAdkMUrur0WBE23FgbDuguBbWwOn+A984pFp6k1p+fY7/z4is3vBU8y+qLTAXQuUQxdvh9D9qJXQsp6mOyAMS8LWHM="
+      global:
+      - secure: "fMcBUM5+gIqqhLUIoBcy4ErV/F6BLIajyLR4Jff7VMVqEXJzfJ7yh/T9C+K2cnCyAODg0PgOuZNdobiW/wM+HUnknB7/K/6EzeLG4JwYEWNtoL6QI/oMw2wDYD8X5FYsIAzKhJHfbXkv0DzmX16ksPbHJ5d89azwoPYLpA6lA1U="
+      - secure: "nIkW8qKCSZMiyxISWoL74x08Z6/tcAfor9hvuuD0804KYqgK98EdFQWaGOnp3loPCqLTbTcmxggUgIlPgCAdkMUrur0WBE23FgbDuguBbWwOn+A984pFp6k1p+fY7/z4is3vBU8y+qLTAXQuUQxdvh9D9qJXQsp6mOyAMS8LWHM="
