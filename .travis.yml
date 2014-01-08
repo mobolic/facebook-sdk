@@ -4,7 +4,7 @@ python:
   - "2.6"
 install:
   - "pip install . --use-mirrors"
-script: pytest
+script: python pytest.py
 env:
       global:
       - secure: "fMcBUM5+gIqqhLUIoBcy4ErV/F6BLIajyLR4Jff7VMVqEXJzfJ7yh/T9C+K2cnCyAODg0PgOuZNdobiW/wM+HUnknB7/K/6EzeLG4JwYEWNtoL6QI/oMw2wDYD8X5FYsIAzKhJHfbXkv0DzmX16ksPbHJ5d89azwoPYLpA6lA1U="
