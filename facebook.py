@@ -107,9 +107,13 @@ class GraphAPI(object):
         args["ids"] = ",".join(ids)
         return self.request("", args)
 
-    def get_connections(self, id, connection_name, **args):
+    def get_connections(self, id, connection_name, search=False, **args):
         """Fetchs the connections for given object."""
-        return self.request(id + "/" + connection_name, args)
+        if search is True:
+            keyword = urllib.quote(id.encode('utf8'))
+            return self.request(connection_name, args, q=keyword)
+        else:
+            return self.request(id + "/" + connection_name, args)
 
     def put_object(self, parent_object, connection_name, **data):
         """Writes the given object to the graph, connected to the given parent.
@@ -273,7 +277,7 @@ class GraphAPI(object):
         content_type = 'multipart/form-data; boundary=%s' % BOUNDARY
         return content_type, body
 
-    def request(self, path, args=None, post_args=None):
+    def request(self, path, args=None, post_args=None, q=None):
         """Fetches the given path in the Graph API.
 
         We translate args to a valid query string. If post_args is
@@ -289,10 +293,13 @@ class GraphAPI(object):
             else:
                 args["access_token"] = self.access_token
         post_data = None if post_args is None else urllib.urlencode(post_args)
+        url = "https://graph.facebook.com/" + path + "?"
+        if q is not None:
+            url += 'q=' + q + '&' + urllib.urlencode(args)
+        else:
+            url += urllib.urlencode(args)
         try:
-            file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" +
-                                   urllib.urlencode(args),
-                                   post_data, timeout=self.timeout)
+            file = urllib2.urlopen(url, post_data, timeout=self.timeout)
         except urllib2.HTTPError, e:
             response = _parse_json(e.read())
             raise GraphAPIError(response)
@@ -300,8 +307,7 @@ class GraphAPI(object):
             # Timeout support for Python <2.6
             if self.timeout:
                 socket.setdefaulttimeout(self.timeout)
-            file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" +
-                                   urllib.urlencode(args), post_data)
+            file = urllib2.urlopen(url, post_data)
         try:
             fileInfo = file.info()
             if fileInfo.maintype == 'text':
