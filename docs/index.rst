@@ -25,7 +25,7 @@ Installation
 The SDK currently supports Python 2.5, 2.6, and 2.7. No external packages are
 required.
 
-We recommend using `pip`_ and `virtualenv`_ to install the SDK:
+We recommend using `pip`_ and `virtualenv`_ to install the SDK: ::
 
     virtualenv facebookenv
     source facebook/bin/activate
