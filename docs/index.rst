@@ -6,8 +6,6 @@
 Welcome to Facebook SDK for Python's documentation!
 ===================================================
 
-Contents:
-
 .. toctree::
    :maxdepth: 2
 
@@ -35,12 +33,4 @@ We recommend using `pip`_ and `virtualenv`_ to install the SDK:
 
 .. _pip: http://www.pip-installer.org/
 .. _virtualenv: http://www.virtualenv.org/
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 
