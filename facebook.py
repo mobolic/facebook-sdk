@@ -111,7 +111,7 @@ class GraphAPI(object):
         """Fetchs the connections for given object."""
         return self.request(id + "/" + connection_name, args)
 
-    def put_object(self, parent_object, connection_name, **data):
+    def put_object(self, parent_object, connection_name, post_args=None, **data):
         """Writes the given object to the graph, connected to the given parent.
 
         For example,
@@ -128,6 +128,25 @@ class GraphAPI(object):
         See http://developers.facebook.com/docs/api#publishing for all
         of the supported writeable objects.
 
+        Some parameters that can be sent to the Facebook API can not be passed
+        to the method using kwargs, for example 'fb:explicitly_shared'. These
+        needs to be set using the post_args argument dict. If the same key is
+        used both in the post_arg dict and passed in as a kwarg, the kwarg will
+        take precedence.
+
+        Usage example,
+
+            graph.put_object(
+                "me",
+                "nyccookbook:cook",
+                recipe="http://www.sugarmedia.com/nyccookbook/cookie.html",
+                post_args={"fb:explicitly_shared": True}
+            )
+
+        will share the object as a post as described in the docs. See
+        https://developers.facebook.com/docs/opengraph/guides/explicit-sharing/
+        for details.
+
         Certain write operations require extended permissions. For
         example, publishing to a user's feed requires the
         "publish_actions" permission. See
@@ -136,8 +155,11 @@ class GraphAPI(object):
 
         """
         assert self.access_token, "Write operations require an access token"
+        if post_args is None:
+            post_args = {}
+        post_args.update(data)
         return self.request(parent_object + "/" + connection_name,
-                            post_args=data)
+                            post_args=post_args)
 
     def put_wall_post(self, message, attachment={}, profile_id="me"):
         """Writes a wall post to the given profile's wall.
@@ -500,6 +522,7 @@ def auth_url(app_id, canvas_url, perms=None, **kwargs):
         kvps['scope'] = ",".join(perms)
     kvps.update(kwargs)
     return url + urllib.urlencode(kvps)
+
 
 def get_access_token_from_code(code, redirect_uri, app_id, app_secret):
     """Get an access token from the "code" returned from an OAuth dialog.
