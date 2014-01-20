@@ -391,7 +391,7 @@ class GraphAPI(object):
                 result["expires"] = query_str["expires"][0]
             return result
         else:
-            response = json.loads(response)
+            response = _parse_json(response)
             raise GraphAPIError(response)
 
 
@@ -529,7 +529,7 @@ def get_access_token_from_code(code, redirect_uri, app_id, app_secret):
             result["expires"] = query_str["expires"][0]
         return result
     else:
-        response = json.loads(response)
+        response = _parse_json(response)
         raise GraphAPIError(response)
 
 
