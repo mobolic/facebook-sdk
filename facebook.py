@@ -46,12 +46,16 @@ import socket
 
 # Find a JSON parser
 try:
-    import simplejson as json
+    import json
 except ImportError:
     try:
-        from django.utils import simplejson as json
+        import simplejson as json
     except ImportError:
-        import json
+        try:
+            from django.utils import simplejson as json
+        except ImportError:
+            raise Exception("Unable to import some form of a json library")
+
 _parse_json = json.loads
 
 # Find a query string parser
@@ -387,7 +391,7 @@ class GraphAPI(object):
                 result["expires"] = query_str["expires"][0]
             return result
         else:
-            response = json.loads(response)
+            response = _parse_json(response)
             raise GraphAPIError(response)
 
 
@@ -525,7 +529,7 @@ def get_access_token_from_code(code, redirect_uri, app_id, app_secret):
             result["expires"] = query_str["expires"][0]
         return result
     else:
-        response = json.loads(response)
+        response = _parse_json(response)
         raise GraphAPIError(response)
 
 
