@@ -501,6 +501,7 @@ def auth_url(app_id, canvas_url, perms=None, **kwargs):
     kvps.update(kwargs)
     return url + urllib.urlencode(kvps)
 
+
 def get_access_token_from_code(code, redirect_uri, app_id, app_secret):
     """Get an access token from the "code" returned from an OAuth dialog.
 
@@ -550,6 +551,53 @@ def get_app_access_token(app_id, app_secret):
 
     try:
         result = file.read().split("=")[1]
+    finally:
+        file.close()
+
+    return result
+
+
+def create_test_user(app_id, app_access_token, **kwargs):
+    """Creates test user for the app.
+
+    app_id = retrieved from the developer page
+    app_access_token = retrieved from result of get_app_access_token
+
+    For more options in kwargs part, see
+    https://developers.facebook.com/docs/test_users/
+
+    Returns the dict of created test user.
+
+    """
+    args = {'access_token': app_access_token, 'method': 'post'}
+    args.update(kwargs)
+    file = urllib2.urlopen("https://graph.facebook.com/" + app_id +
+                           "/accounts/test-users?" + urllib.urlencode(args))
+
+    try:
+        result = _parse_json(file.read())
+    finally:
+        file.close()
+
+    return result
+
+
+def get_test_users(app_id, app_access_token, **kwargs):
+    """Access all test users created for the app.
+
+    app_id = retrieved from the developer page
+    app_access_token = retrieved from result of get_app_access_token
+
+    Returns the dict of app's test users, in array format.
+
+    """
+    args = {'access_token': app_access_token}
+    args.update(kwargs)
+    file = urllib2.urlopen("https://graph.facebook.com/" + app_id +
+                           "/accounts/test-users?" + urllib.urlencode(args))
+
+    try:
+        result = _parse_json(file.read())
     finally:
         file.close()
 
