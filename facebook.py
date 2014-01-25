@@ -42,9 +42,9 @@ import json
 
 # Find a query string parser
 try:
-    from urlparse import parse_qs
+    from urllib.parse import parse_qs
 except ImportError:
-    from cgi import parse_qs
+    from urlparse import parse_qs
 
 
 class GraphAPI(object):
@@ -201,7 +201,7 @@ class GraphAPI(object):
                                         params=args,
                                         data=post_args,
                                         files=files)
-        except requests.HTTPError, e:
+        except requests.HTTPError as e:
             response = json.loads(e.read())
             raise GraphAPIError(response)
 
