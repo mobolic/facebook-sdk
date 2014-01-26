@@ -262,7 +262,7 @@ class GraphAPI(object):
         access_token = either app_access_token from get_app_access_token
                        or access_token of the test user.
 
-        Returns True is succeed.
+        Returns True if succeed.
         """
         args = {'access_token': access_token, 'method': 'delete'}
         return self.request(user_id, args=args)
