@@ -244,6 +244,38 @@ class GraphAPI(object):
 
         return self.request("oauth/access_token", args=args)["access_token"]
 
+    def create_test_user(self, app_id, app_access_token, **kwargs):
+        """Creates test user for the app."""
+        args = {'access_token': app_access_token, 'method': 'post'}
+        args.update(kwargs)
+        return self.request(app_id + "/accounts/test-users", args=args)
+
+    def get_test_users(self, app_id, app_access_token, **kwargs):
+        """Access all test users created for the app."""
+        args = {'access_token': app_access_token}
+        args.update(kwargs)
+        return self.request(app_id + "/accounts/test-users", args=args)
+
+    def edit_test_user(self, user_id, app_access_token, **kwargs):
+        """Changed given test user's name or password.
+
+        Returns True if succeed.
+        """
+        args = {'access_token': app_access_token, 'method': 'post'}
+        args.update(kwargs)
+        return self.request(user_id, args=args)
+
+    def delete_test_user(self, user_id, access_token):
+        """Deletes given test user.
+
+        access_token = either app_access_token from get_app_access_token
+                       or access_token of the test user.
+
+        Returns True if succeed.
+        """
+        args = {'access_token': access_token, 'method': 'delete'}
+        return self.request(user_id, args=args)
+
     def get_access_token_from_code(
             self, code, redirect_uri, app_id, app_secret):
         """Get an access token from the "code" returned from an OAuth dialog.
