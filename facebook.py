@@ -256,6 +256,15 @@ class GraphAPI(object):
         args.update(kwargs)
         return self.request(app_id + "/accounts/test-users", args=args)
 
+    def edit_test_user(self, user_id, app_access_token, **kwargs):
+        """Changed given test user's name or password.
+
+        Returns True if succeed.
+        """
+        args = {'access_token': app_access_token, 'method': 'post'}
+        args.update(kwargs)
+        return self.request(user_id, args=args)
+
     def delete_test_user(self, user_id, access_token):
         """Deletes given test user.
 
