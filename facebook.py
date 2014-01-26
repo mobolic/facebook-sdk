@@ -425,11 +425,3 @@ def get_access_token_from_code(code, redirect_uri, app_id, app_secret):
 
 def get_app_access_token(app_id, app_secret):
     return GraphAPI().get_app_access_token(app_id, app_secret)
-
-
-def create_test_user(app_id, app_access_token, **kwargs):
-    return GraphAPI().create_test_user(app_id, app_access_token, **kwargs)
-
-
-def get_test_users(app_id, app_access_token, **kwargs):
-    return GraphAPI().get_test_users(app_id, app_access_token, **kwargs)
