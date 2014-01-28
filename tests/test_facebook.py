@@ -16,6 +16,9 @@
 import facebook
 import os
 import unittest
+import urllib2
+
+from StringIO import StringIO
 
 
 class FacebookTestCase(unittest.TestCase):
@@ -25,8 +28,69 @@ class FacebookTestCase(unittest.TestCase):
             self.app_id = os.environ["FACEBOOK_APP_ID"]
             self.secret = os.environ["FACEBOOK_SECRET"]
         except KeyError:
-            raise Exception("FACEBOOK_APP_ID and FACEBOOK_SECRET "
-                            "must be set as environmental variables.")
+            self.skipTest("FACEBOOK_APP_ID and FACEBOOK_SECRET must be set as "
+                          "environmental variables.")
+
+
+class FakeFileInfo(object):
+    """
+    File info that can be returned with the a call to a stream's info method
+    """
+    attrs = {
+        'maintype': 'text',
+        'content-type': 'application/json',
+    }
+
+    def __getitem__(self, name):
+        return getattr(self, name)
+
+    def __init__(self, attrs=None):
+        self.__dict__.update(self.attrs)
+        if attrs:
+            self.__dict__.update(attrs)
+
+
+class FakeHTTPError(StringIO, urllib2.HTTPError):
+    """
+    Mocks out HTTPError with a StringIO so that we can make it look like an
+    HTTP stream
+    """
+    pass
+
+
+class MockURLOpenTestCase(unittest.TestCase):
+    """
+    Mocks out URLOpen so that there are no external deps for the test
+    """
+
+    urlopen_args = None
+    urlopen_kwargs = None
+    urlopen_raise = None
+    urlopen_return = None
+
+    def fake_file(self, string='{}', url='http://bogus', info=None):
+        sio = StringIO(string)
+        sio.info = lambda: FakeFileInfo(info)
+        sio.url = url
+        return sio
+
+    def fake_httperror(self, string='{}'):
+        return FakeHTTPError(string)
+
+    def setUp(self):
+        self.api = facebook.GraphAPI('bogustoken')
+        self.urlopen = urllib2.urlopen
+
+        def urlopen(*args, **kwargs):
+            self.urlopen_args = args
+            self.urlopen_kwargs = kwargs
+
+            if self.urlopen_raise:
+                raise self.urlopen_raise
+
+            return self.urlopen_return
+
+        urllib2.urlopen = urlopen
 
 
 class TestGetAppAccessToken(FacebookTestCase):
@@ -40,6 +104,101 @@ class TestGetAppAccessToken(FacebookTestCase):
     def test_get_app_access_token(self):
         assert(isinstance(facebook.get_app_access_token(
             self.app_id, self.secret), str))
+
+
+class RawRequestTestCase(MockURLOpenTestCase):
+    """
+    Test the raw_request method of the GraphAPI
+    """
+
+    def test_simple_json(self):
+        """
+        Simple JSON return
+        """
+
+        self.urlopen_return = self.fake_file("""{
+            "message": "here"
+        }""")
+        self.assertEqual(self.api.raw_request(None), {'message': 'here'})
+
+    def test_image(self):
+        """
+        Image returned
+        """
+
+        self.urlopen_return = self.fake_file('bogus image',
+                                             info={'maintype': 'image'})
+        self.assertEqual(self.api.raw_request(None),
+                         {'data': 'bogus image',
+                          'mime-type': 'application/json',
+                          'url': 'http://bogus'})
+
+    def test_timeout(self):
+        """
+        Make sure timout is set as expected.
+        """
+
+        self.urlopen_return = self.fake_file()
+        self.api.timeout = 33
+        self.api.raw_request(None)
+        self.assertEqual(self.urlopen_kwargs['timeout'], 33)
+
+    def test_http_error(self):
+        """
+        GraphAPIError should be raised to wrap HTTPError
+        """
+
+        self.urlopen_raise = self.fake_httperror()
+        self.assertRaises(facebook.GraphAPIError, self.api.raw_request, [None])
+
+    def test_bad_maintype(self):
+        """
+        Return with unknown maintype
+        """
+
+        self.urlopen_return = self.fake_file('{}', info={'maintype': 'bogus'})
+        self.assertRaises(facebook.GraphAPIError, self.api.raw_request, [None])
+
+    def test_other_error(self):
+        """
+        GraphAPIError should be raised when there's error data in the JSON
+        """
+
+        self.urlopen_return = self.fake_file("""{
+            "error": {
+                "type": "a thing",
+                "message": "move along"
+            }
+        }""")
+        self.assertRaises(facebook.GraphAPIError, self.api.raw_request, [None])
+
+
+class ProcessArgsTestCase(MockURLOpenTestCase):
+    """
+    Test the _process_args method of the GraphAPI
+    """
+
+    def test_defaults(self):
+        """
+        When given no args, access_token should be included in return args
+        """
+        self.assertEqual(self.api._process_args(),
+                         ({'access_token': 'bogustoken'}, None))
+
+    def test_token_in_args(self):
+        """
+        When given args, access_token should be merged in with the values
+        """
+        self.assertEqual(self.api._process_args(args={'key': 'val'}),
+                         ({'access_token': 'bogustoken', 'key': 'val'}, None))
+
+    def test_token_in_post(self):
+        """
+        When given post args, access_token is added and dict is urlencoded to a
+        query string
+        """
+        self.assertEqual(self.api._process_args(post_args={'key': '&val'}),
+                         ({}, 'access_token=bogustoken&key=%26val'))
 
 
 if __name__ == '__main__':
