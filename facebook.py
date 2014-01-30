@@ -201,9 +201,17 @@ class GraphAPI(object):
                                         params=args,
                                         data=post_args,
                                         files=files)
+            response.raise_for_status()
         except requests.HTTPError, e:
-            response = json.loads(e.read())
-            raise GraphAPIError(response)
+            try:
+                raise GraphAPIError(response.json())
+            except ValueError:
+                pass
+            try:
+                raise GraphAPIError(json.loads(e.read()))
+            except:
+                pass
+            raise GraphAPIError
 
         headers = response.headers
         if 'json' in headers['content-type']:
