@@ -318,8 +318,7 @@ class GraphAPI(object):
         finally:
             file.close()
         if response and isinstance(response, dict) and response.get("error"):
-            raise GraphAPIError(response["error"]["type"],
-                                response["error"]["message"])
+            raise GraphAPIError(response)
         return response
 
     def fql(self, query, args=None, post_args=None):
@@ -396,10 +395,20 @@ class GraphAPIError(Exception):
         #Exception.__init__(self, message)
         #self.type = type
         self.result = result
+
+        self.type = ""
+
+        # FQL query's response
         try:
             self.type = result["error_code"]
         except:
-            self.type = ""
+            pass
+
+        # Graph API request's response
+        try:
+            self.type = result["error"]["code"]
+        except:
+            pass
 
         # OAuth 2.0 Draft 10
         try:
