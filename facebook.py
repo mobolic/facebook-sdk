@@ -33,8 +33,6 @@ if user:
 
 """
 
-import cgi
-import time
 import urllib
 import urllib2
 import httplib
@@ -110,6 +108,15 @@ class GraphAPI(object):
     def get_connections(self, id, connection_name, **args):
         """Fetchs the connections for given object."""
         return self.request(id + "/" + connection_name, args)
+
+    def search(self, query, type, **kwargs):
+        """Search for provided query and type"""
+        args = {
+            'q': query,
+            'type': type,
+        }
+        kwargs.update(args)
+        return self.request('search', kwargs)
 
     def put_object(self, parent_object, connection_name, **data):
         """Writes the given object to the graph, connected to the given parent.
@@ -501,6 +508,7 @@ def auth_url(app_id, canvas_url, perms=None, **kwargs):
     kvps.update(kwargs)
     return url + urllib.urlencode(kvps)
 
+
 def get_access_token_from_code(code, redirect_uri, app_id, app_secret):
     """Get an access token from the "code" returned from an OAuth dialog.
 
@@ -516,8 +524,11 @@ def get_access_token_from_code(code, redirect_uri, app_id, app_secret):
     }
     # We would use GraphAPI.request() here, except for that the fact
     # that the response is a key-value pair, and not JSON.
-    response = urllib2.urlopen("https://graph.facebook.com/oauth/access_token" +
-                               "?" + urllib.urlencode(args)).read()
+    response = urllib2.urlopen(
+        "https://graph.facebook.com/oauth/access_token?%s" %
+        urllib.urlencode(args)
+    ).read()
+
     query_str = parse_qs(response)
     if "access_token" in query_str:
         result = {"access_token": query_str["access_token"][0]}
