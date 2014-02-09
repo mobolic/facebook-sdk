@@ -14,8 +14,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-__version__ = "1.0.0-alpha"
-
 """Python client library for the Facebook Platform.
 
 This client library is designed to support the Graph API and the
@@ -47,6 +45,11 @@ try:
     from urllib.parse import parse_qs
 except ImportError:
     from urlparse import parse_qs
+
+from . import version
+
+
+__version__ = version.__version__
 
 
 class GraphAPI(object):

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from setuptools import setup
 
-from facebook import __version__
+exec(open("facebook/version.py").read())
 
 setup(
     name='facebook-sdk',
@@ -14,9 +14,7 @@ setup(
     maintainer_email='facebook-sdk@marteydodoo.com',
     url='https://github.com/pythonforfacebook/facebook-sdk',
     license='Apache',
-    py_modules=[
-        'facebook',
-    ],
+    package_dir={'': 'facebook'},
     long_description=open("README.rst").read(),
     classifiers=[
         'License :: OSI Approved :: Apache Software License',
