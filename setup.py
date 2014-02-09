@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 from setuptools import setup
 
+from facebook import __version__
+
 setup(
     name='facebook-sdk',
-    version='1.0.0-alpha',
+    version=__version__,
     description='This client library is designed to support the Facebook '
                 'Graph API and the official Facebook JavaScript SDK, which '
                 'is the canonical way to implement Facebook authentication.',
