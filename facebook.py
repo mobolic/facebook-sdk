@@ -43,6 +43,7 @@ import hmac
 import base64
 import logging
 import socket
+import inspect
 
 # Find a JSON parser
 try:
@@ -93,6 +94,7 @@ class GraphAPI(object):
     def __init__(self, access_token=None, timeout=None):
         self.access_token = access_token
         self.timeout = timeout
+        self.urllib2_supports_timeout = 'timeout' in inspect.getargspec(urllib2.urlopen).args
 
     def get_object(self, id, **args):
         """Fetchs the given object from the graph."""
@@ -288,33 +290,49 @@ class GraphAPI(object):
                 post_args["access_token"] = self.access_token
             else:
                 args["access_token"] = self.access_token
+        etags = args.pop('etag', None)
+        headers = {}
+        if etags:
+            headers['If-None-Match'] = etags
+
         post_data = None if post_args is None else urllib.urlencode(post_args)
         try:
-            file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" +
-                                   urllib.urlencode(args),
-                                   post_data, timeout=self.timeout)
+            request = urllib2.Request("https://graph.facebook.com/" + path + "?" +
+                                      urllib.urlencode(args),
+                                      post_data,
+                                      headers)
+
+            if self.urllib2_supports_timeout:
+                file = urllib2.urlopen(request, timeout=self.timeout)
+            else:
+                if self.timeout:
+                    socket.setdefaulttimeout(self.timeout)
+                file = urllib2.urlopen(request)
         except urllib2.HTTPError, e:
-            response = _parse_json(e.read())
-            raise GraphAPIError(response)
-        except TypeError:
-            # Timeout support for Python <2.6
-            if self.timeout:
-                socket.setdefaulttimeout(self.timeout)
-            file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" +
-                                   urllib.urlencode(args), post_data)
+            if e.getcode() == 304:
+                file = e.fp # its OK, just grab the FP
+            else:
+                response = _parse_json(e.read())
+                raise GraphAPIError(response)
+
         try:
             fileInfo = file.info()
-            if fileInfo.maintype == 'text':
-                response = _parse_json(file.read())
-            elif fileInfo.maintype == 'image':
-                mimetype = fileInfo['content-type']
-                response = {
-                    "data": file.read(),
-                    "mime-type": mimetype,
-                    "url": file.url,
-                }
-            else:
-                raise GraphAPIError('Maintype was not text or image')
+            response = {} 
+            if (file.code == 200): # regular response, parse the json
+                if fileInfo.maintype == 'text':
+                    response = _parse_json(file.read())
+                elif fileInfo.maintype == 'image':
+                    mimetype = fileInfo['content-type']
+                    response.update({
+                        "data": file.read(),
+                        "mime-type": mimetype,
+                        "url": file.url,
+                    })
+                else:
+                    raise GraphAPIError('Maintype was not text or image')
+
+            response['etag'] = fileInfo.getheader('etag')
+            response['code'] = file.code
         finally:
             file.close()
         if response and isinstance(response, dict) and response.get("error"):
