@@ -46,6 +46,11 @@ try:
 except ImportError:
     from urlparse import parse_qs
 
+from . import version
+
+
+__version__ = version.__version__
+
 
 class GraphAPI(object):
     """A client for the Facebook Graph API.
