@@ -1,9 +1,11 @@
 #!/usr/bin/env python
-from distutils.core import setup
+from setuptools import setup
+
+from facebook import __version__
 
 setup(
     name='facebook-sdk',
-    version='0.4.0',
+    version=__version__,
     description='This client library is designed to support the Facebook '
                 'Graph API and the official Facebook JavaScript SDK, which '
                 'is the canonical way to implement Facebook authentication.',
@@ -18,8 +20,11 @@ setup(
     long_description=open("README.rst").read(),
     classifiers=[
         'License :: OSI Approved :: Apache Software License',
-        'Programming Language :: Python :: 2.5',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.3',
+    ],
+    install_requires=[
+        'requests',
     ],
 )

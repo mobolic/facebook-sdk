@@ -38,8 +38,8 @@ class TestGetAppAccessToken(FacebookTestCase):
 
     """
     def test_get_app_access_token(self):
-        assert(isinstance(facebook.get_app_access_token(
-            self.app_id, self.secret), str))
+        token = facebook.get_app_access_token(self.app_id, self.secret)
+        assert(isinstance(token, str) or isinstance(token, unicode))
 
 
 if __name__ == '__main__':
