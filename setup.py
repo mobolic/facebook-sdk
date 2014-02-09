@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='facebook-sdk',
-    version='0.4.0',
+    version='1.0.0-alpha',
     description='This client library is designed to support the Facebook '
                 'Graph API and the official Facebook JavaScript SDK, which '
                 'is the canonical way to implement Facebook authentication.',
