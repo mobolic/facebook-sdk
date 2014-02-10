@@ -14,7 +14,7 @@ setup(
     maintainer_email='facebook-sdk@marteydodoo.com',
     url='https://github.com/pythonforfacebook/facebook-sdk',
     license='Apache',
-    package_dir={'': 'facebook'},
+    packages=["facebook"],
     long_description=open("README.rst").read(),
     classifiers=[
         'License :: OSI Approved :: Apache Software License',
