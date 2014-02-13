@@ -227,7 +227,11 @@ class GraphAPI(object):
             else:
                 raise GraphAPIError(response.json())
         else:
-            raise GraphAPIError('Maintype was not text, image, or querystring')
+            # Unknown content type, trying JSON
+            try:
+                result = response.json()
+            except ValueError:
+                raise GraphAPIError('Maintype was not text, image, or querystring')
 
         if result and isinstance(result, dict) and result.get("error"):
             raise GraphAPIError(result)
@@ -279,7 +283,7 @@ class GraphAPI(object):
             "fb_exchange_token": self.access_token,
         }
 
-        return self.request("access_token", args=args)
+        return self.request("oauth/access_token", args=args)
 
 
 class GraphAPIError(Exception):
