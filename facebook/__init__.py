@@ -287,7 +287,7 @@ class GraphAPI(object):
                                                headers,
                                                response['body'])
                 responses.append(result)
-            except Exception, e:
+            except Exception as e:
                 responses.append(e)
         return responses
 
