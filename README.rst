@@ -28,6 +28,18 @@ Photo uploads:
     tags = json.dumps([{'x':50, 'y':50, 'tag_uid':12345}, {'x':10, 'y':60, 'tag_text':'a turtle'}])
     graph.put_photo(open('img.jpg'), 'Look at this cool photo!', album_id_or_None, tags=tags)
 
+Batch requests:
+
+::
+
+    graph = facebook.GraphAPI(oauth_access_token)
+    with graph as batch:
+        batch.get_object("me")
+        batch.get_connections("me", "friends")
+        batch.put_object("me", "feed", message="I am writing on my wall!")
+    me, my_friends, wall_write_result = batch.execute()
+
+
 If you are using the module within a web application with the JavaScript SDK,
 you can also use the module to use Facebook for login, parsing the cookie set
 by the JavaScript SDK for logged in users. For example, in Google AppEngine,
