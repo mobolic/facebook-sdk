@@ -46,10 +46,8 @@ try:
 except ImportError:
     from urlparse import parse_qs
 
-from . import version
 
-
-__version__ = version.__version__
+__version__ = "1.0.0-alpha"
 
 
 class GraphAPI(object):
