@@ -9,6 +9,8 @@ Welcome to Facebook SDK for Python's documentation!
 .. toctree::
    :maxdepth: 2
 
+   install
+
 This client library is designed to support the `Facebook Graph API`_ and the
 official `Facebook JavaScript SDK`_, which is the canonical way to implement
 Facebook authentication. You can read more about the Graph API by accessing its
@@ -17,21 +19,3 @@ Facebook authentication. You can read more about the Graph API by accessing its
 .. _Facebook Graph API: https://developers.facebook.com/docs/reference/api/
 .. _Facebook JavaScript SDK: https://developers.facebook.com/docs/reference/javascript/
 .. _official documentation: https://developers.facebook.com/docs/reference/api/
-
-============
-Installation
-============
-
-The SDK currently supports Python 2.6, 2.7, and 3.3. The `requests`_ package is
-required.
-
-We recommend using `pip`_ and `virtualenv`_ to install the SDK: ::
-
-    virtualenv facebookenv
-    source facebook/bin/activate
-    pip install facebook-sdk
-
-.. _requests: https://pypi.python.org/pypi/requests
-.. _pip: http://www.pip-installer.org/
-.. _virtualenv: http://www.virtualenv.org/
-
