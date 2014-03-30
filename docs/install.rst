@@ -8,7 +8,7 @@ required.
 We recommend using `pip`_ and `virtualenv`_ to install the SDK: ::
 
     virtualenv facebookenv
-    source facebook/bin/activate
+    source facebookenv/bin/activate
     pip install facebook-sdk
 
 .. _requests: https://pypi.python.org/pypi/requests
