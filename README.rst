@@ -15,6 +15,7 @@ Basic usage:
 
 ::
 
+    import facebook
     graph = facebook.GraphAPI(oauth_access_token)
     profile = graph.get_object("me")
     friends = graph.get_connections("me", "friends")
