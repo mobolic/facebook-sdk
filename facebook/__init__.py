@@ -279,7 +279,7 @@ class GraphAPI(object):
             "fb_exchange_token": self.access_token,
         }
 
-        return self.request("access_token", args=args)
+        return self.request("oauth/access_token", args=args)
 
 
 class GraphAPIError(Exception):
