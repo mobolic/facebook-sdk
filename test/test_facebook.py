@@ -41,6 +41,19 @@ class TestGetAppAccessToken(FacebookTestCase):
         token = facebook.get_app_access_token(self.app_id, self.secret)
         assert(isinstance(token, str) or isinstance(token, unicode))
 
+class TestExtendAccessToken(FacebookTestCase):
+    """
+    Test if extend_access_token requests the correct endpoint.
+
+    Note that this only tests whether extend_access_token returns the correct 
+    error message when called without a proper user-access token.
+    """
+    def test_extend_access_token(self):    
+        try:
+            facebook.extend_access_token(self.app_id, self.secret)
+        except facebook.GraphAPIError, e:
+            assert e.message == 'No user access token specified'
+        
 
 if __name__ == '__main__':
     unittest.main()
