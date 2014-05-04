@@ -83,10 +83,10 @@ class GraphAPI(object):
     for the active user from the cookie saved by the SDK.
 
     """
-    def __init__(self, access_token=None, timeout=None):
+    def __init__(self, access_token=None, timeout=None, version=None):
         self.access_token = access_token
         self.timeout = timeout
-        self.version = None
+        self.version = version
 
     def get_object(self, id, **args):
         """Fetchs the given object from the graph."""
