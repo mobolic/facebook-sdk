@@ -39,6 +39,8 @@ import hmac
 import base64
 import requests
 import json
+import numbers
+import posixpath
 
 # Find a query string parser
 try:
@@ -84,6 +86,7 @@ class GraphAPI(object):
     def __init__(self, access_token=None, timeout=None):
         self.access_token = access_token
         self.timeout = timeout
+        self.version = None
 
     def get_object(self, id, **args):
         """Fetchs the given object from the graph."""
@@ -182,8 +185,8 @@ class GraphAPI(object):
                      files={"file": image},
                      method="POST")
 
-    def request(
-            self, path, args=None, post_args=None, files=None, method=None):
+    def request(self, path, args=None, post_args=None, files=None, method=None,
+                version=None):
         """Fetches the given path in the Graph API.
 
         We translate args to a valid query string. If post_args is
@@ -192,6 +195,12 @@ class GraphAPI(object):
 
         """
         args = args or {}
+        version = version or self.version
+
+        if version:
+            if isinstance(version, numbers.Real):
+                version = "v%.1f" % version
+            path = posixpath.join(version, path.lstrip('/'))
 
         if self.access_token:
             if post_args is not None:
