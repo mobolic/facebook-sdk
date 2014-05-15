@@ -130,6 +130,18 @@ class GraphAPI(object):
         return self.request(parent_object + "/" + connection_name,
                             post_args=data,
                             method="POST")
+                            
+    def get_access_token_for_page(self, profile_id="me", page_id=None):
+        """
+        Retrive access token of user as admin of Page
+        """
+        if not page_id:
+            return None
+        response = self.request(profile_id + "/accounts")
+        for token in response['data']:
+            if str(page_id) in token['id']:
+                return token['access_token']
+        return None
 
     def put_wall_post(self, message, attachment={}, profile_id="me"):
         """Writes a wall post to the given profile's wall.
