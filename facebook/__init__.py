@@ -49,6 +49,9 @@ except ImportError:
 from . import version
 
 
+BASE_URL = "https://graph.facebook.com"
+
+
 __version__ = version.__version__
 
 
@@ -84,6 +87,15 @@ class GraphAPI(object):
     def __init__(self, access_token=None, timeout=None):
         self.access_token = access_token
         self.timeout = timeout
+        self._batch_request = False
+
+    def __enter__(self):
+        self._batch_request = True
+        self._requests_stack = []
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._batch_request = False
 
     def get_object(self, id, **args):
         """Fetchs the given object from the graph."""
@@ -182,6 +194,35 @@ class GraphAPI(object):
                      files={"file": image},
                      method="POST")
 
+    def _handle_response(self, status_code, headers, body, url=None):
+        if status_code >= 400:
+            result = json.loads(body)
+            raise GraphAPIError(result)
+        if 'json' in headers.get('content-type', ''):
+            result = json.loads(body)
+        elif 'image/' in headers.get('content-type', ''):
+            mimetype = headers['content-type']
+            result = {"data": body,
+                      "mime-type": mimetype,
+                      "url": url}
+        elif "access_token" in parse_qs(body):
+            query_str = parse_qs(body)
+            if "access_token" in query_str:
+                result = {"access_token": query_str["access_token"][0]}
+                if "expires" in query_str:
+                    result["expires"] = query_str["expires"][0]
+            else:
+                raise GraphAPIError(json.loads(body))
+        else:
+            # Unknown content type, trying JSON
+            try:
+                result = json.loads(body)
+            except ValueError:
+                raise GraphAPIError('Maintype was not text, image, or querystring')
+        if result and isinstance(result, dict) and result.get("error"):
+            raise GraphAPIError(result)
+        return result
+
     def request(
             self, path, args=None, post_args=None, files=None, method=None):
         """Fetches the given path in the Graph API.
@@ -198,40 +239,58 @@ class GraphAPI(object):
                 post_args["access_token"] = self.access_token
             else:
                 args["access_token"] = self.access_token
+        method = method or "GET"
 
+        if self._batch_request:
+            # TODO: Support for binary data
+            # https://developers.facebook.com/docs/graph-api/making-multiple-requests/#binary
+            request = {'method': method}
+            if method in ("POST", "PUT") and post_args:
+                request['body'] = urllib.urlencode(post_args)
+            if args:
+                path += ('?' in path and '&' or '?')
+                path += urllib.urlencode(args)
+            request['relative_url'] = path
+            self._requests_stack.append(request)
+            return
+
+        response = requests.request(method,
+                                    BASE_URL + '/' + path,
+                                    timeout=self.timeout,
+                                    params=args,
+                                    data=post_args,
+                                    files=files)
+        return self._handle_response(response.status_code,
+                                     response.headers,
+                                     response.content,
+                                     response.url)
+
+    def execute(self):
+        post_args = {'batch': json.dumps(self._requests_stack)}
+        if self.access_token:
+            post_args['access_token'] = self.access_token
         try:
-            response = requests.request(method or "GET",
-                                        "https://graph.facebook.com/" + path,
-                                        timeout=self.timeout,
-                                        params=args,
-                                        data=post_args,
-                                        files=files)
+            batch_response = requests.post(BASE_URL,
+                                           post_args,
+                                           timeout=self.timeout)
+            batch_response.raise_for_status()
         except requests.HTTPError as e:
-            response = json.loads(e.read())
-            raise GraphAPIError(response)
+            batch_response = json.loads(e.read())
+            raise GraphAPIError(batch_response)
+        responses = []
+        for response in batch_response.json():
+            try:
+                headers = {}
+                for header in response.get('headers', []):
+                    headers[header['name']] = header['value']
+                result = self._handle_response(response['code'],
+                                               headers,
+                                               response['body'])
+                responses.append(result)
+            except Exception as e:
+                responses.append(e)
+        return responses
 
-        headers = response.headers
-        if 'json' in headers['content-type']:
-            result = response.json()
-        elif 'image/' in headers['content-type']:
-            mimetype = headers['content-type']
-            result = {"data": response.content,
-                      "mime-type": mimetype,
-                      "url": response.url}
-        elif "access_token" in parse_qs(response.text):
-            query_str = parse_qs(response.text)
-            if "access_token" in query_str:
-                result = {"access_token": query_str["access_token"][0]}
-                if "expires" in query_str:
-                    result["expires"] = query_str["expires"][0]
-            else:
-                raise GraphAPIError(response.json())
-        else:
-            raise GraphAPIError('Maintype was not text, image, or querystring')
-
-        if result and isinstance(result, dict) and result.get("error"):
-            raise GraphAPIError(result)
-        return result
 
     def fql(self, query):
         """FQL query.
