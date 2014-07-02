@@ -8,5 +8,5 @@ install:
 script: python -m test.test_facebook
 env:
       global:
-      - secure: "fMcBUM5+gIqqhLUIoBcy4ErV/F6BLIajyLR4Jff7VMVqEXJzfJ7yh/T9C+K2cnCyAODg0PgOuZNdobiW/wM+HUnknB7/K/6EzeLG4JwYEWNtoL6QI/oMw2wDYD8X5FYsIAzKhJHfbXkv0DzmX16ksPbHJ5d89azwoPYLpA6lA1U="
-      - secure: "nIkW8qKCSZMiyxISWoL74x08Z6/tcAfor9hvuuD0804KYqgK98EdFQWaGOnp3loPCqLTbTcmxggUgIlPgCAdkMUrur0WBE23FgbDuguBbWwOn+A984pFp6k1p+fY7/z4is3vBU8y+qLTAXQuUQxdvh9D9qJXQsp6mOyAMS8LWHM="
+      - FACEBOOK_APP_ID=198798870326423
+      - FACEBOOK_SECRET=2db4d76fe8a336cf292470c20a5a5684
