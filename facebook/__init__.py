@@ -84,6 +84,10 @@ class GraphAPI(object):
     def __init__(self, access_token=None, timeout=None):
         self.access_token = access_token
         self.timeout = timeout
+        self.session = self._get_session()
+
+    def _get_session(self):
+        return requests.Session()
 
     def get_object(self, id, **args):
         """Fetchs the given object from the graph."""
@@ -200,12 +204,14 @@ class GraphAPI(object):
                 args["access_token"] = self.access_token
 
         try:
-            response = requests.request(method or "GET",
-                                        "https://graph.facebook.com/" + path,
-                                        timeout=self.timeout,
-                                        params=args,
-                                        data=post_args,
-                                        files=files)
+            response = self.session.request(
+                method or "GET",
+                "https://graph.facebook.com/" + path,
+                timeout=self.timeout,
+                params=args,
+                data=post_args,
+                files=files
+            )
         except requests.HTTPError as e:
             response = json.loads(e.read())
             raise GraphAPIError(response)
