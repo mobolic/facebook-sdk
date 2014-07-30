@@ -19,15 +19,7 @@ import unittest
 
 
 class FacebookTestCase(unittest.TestCase):
-    """Sets up application ID and secret from environment."""
-    def setUp(self):
-        try:
-            self.app_id = os.environ["FACEBOOK_APP_ID"]
-            self.secret = os.environ["FACEBOOK_SECRET"]
-        except KeyError:
-            raise Exception("FACEBOOK_APP_ID and FACEBOOK_SECRET "
-                            "must be set as environmental variables.")
-
+   pass
 
 class TestGetAppAccessToken(FacebookTestCase):
     """
@@ -37,10 +29,56 @@ class TestGetAppAccessToken(FacebookTestCase):
     whether it is valid.
 
     """
+    def setUp(self):
+        """Sets up application ID and secret from environment."""
+        try:
+            self.app_id = os.environ["FACEBOOK_APP_ID"]
+            self.secret = os.environ["FACEBOOK_SECRET"]
+        except KeyError:
+            raise Exception("FACEBOOK_APP_ID and FACEBOOK_SECRET "
+                            "must be set as environmental variables.")
     def test_get_app_access_token(self):
         token = facebook.get_app_access_token(self.app_id, self.secret)
-        assert(isinstance(token, str) or isinstance(token, unicode))
+        self.assertTrue(isinstance(token, str) or isinstance(token, unicode))
 
+
+class TestGetMe(FacebookTestCase):
+    def test_get_me(self):
+        access_token = os.environ["FACEBOOK_ACCESS_TOKEN"]
+        graph_api = facebook.GraphAPI(access_token)
+        me = graph_api.get_object("me")
+        self.assertTrue("name" in me)
+
+class TestVersioning(FacebookTestCase):
+    def test_version_as_number(self):
+        access_token = os.environ["FACEBOOK_ACCESS_TOKEN"]
+        graph_api = facebook.GraphAPI(access_token, api_version=1)
+        self.assertEqual("v1.0/", graph_api.api_version)
+        me = graph_api.get_object("me")
+        self.assertTrue("name" in me)
+
+        graph_api = facebook.GraphAPI(access_token, api_version=2.0)
+        self.assertEqual("v2.0/", graph_api.api_version)
+        me = graph_api.get_object("me")
+        self.assertTrue("name" in me)
+
+    def test_version_as_string(self):
+        access_token = os.environ["FACEBOOK_ACCESS_TOKEN"]
+
+        graph_api = facebook.GraphAPI(access_token, api_version="1")
+        self.assertEqual("v1.0/", graph_api.api_version)
+        me = graph_api.get_object("me")
+        self.assertTrue("name" in me)
+        
+        graph_api = facebook.GraphAPI(access_token, api_version="v1")
+        self.assertEqual("v1.0/", graph_api.api_version)
+        me = graph_api.get_object("me")
+        self.assertTrue("name" in me)
+
+        graph_api = facebook.GraphAPI(access_token, api_version="v2.0")
+        self.assertEqual("v2.0/", graph_api.api_version)
+        me = graph_api.get_object("me")
+        self.assertTrue("name" in me)
 
 if __name__ == '__main__':
     unittest.main()
