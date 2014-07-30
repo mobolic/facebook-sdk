@@ -81,9 +81,22 @@ class GraphAPI(object):
     for the active user from the cookie saved by the SDK.
 
     """
-    def __init__(self, access_token=None, timeout=None):
+    def __init__(self, access_token=None, timeout=None, api_version=None):
         self.access_token = access_token
         self.timeout = timeout
+        if api_version is not None:
+            # 'api_version' can be string ("2", "2.0", "v2.0"), int (2), or float (2.0)
+            # and this will interpret it correctly.
+            if isinstance(api_version, basestring):
+                if api_version.startswith('v'):
+                    api_version = api_version[1:]
+
+                self.api_version = "v%.1f/" % (float(api_version))
+            else:
+                self.api_version = "v%.1f/" % (api_version)
+        else:
+            # If unset, it will use the default API version for this app.
+            self.api_version = ''
 
     def get_object(self, id, **args):
         """Fetchs the given object from the graph."""
@@ -201,7 +214,7 @@ class GraphAPI(object):
 
         try:
             response = requests.request(method or "GET",
-                                        "https://graph.facebook.com/" + path,
+                                        "https://graph.facebook.com/" + self.api_version + path,
                                         timeout=self.timeout,
                                         params=args,
                                         data=post_args,
