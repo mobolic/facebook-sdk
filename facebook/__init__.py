@@ -238,6 +238,8 @@ class GraphAPI(object):
 
         Example query: "SELECT affiliations FROM user WHERE uid = me()"
 
+        FQL is not supported for API versions greater than 2.0
+
         """
         self.request("fql", {"q": query})
 

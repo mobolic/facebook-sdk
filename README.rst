@@ -21,6 +21,15 @@ Basic usage:
     friends = graph.get_connections("me", "friends")
     graph.put_object("me", "feed", message="I am writing on my wall!")
 
+Filtering fields:
+
+::
+    
+    import facebook
+    facebookParams = {'fields' : 'id,likes.limit(1000000),first_name',}
+    graph = facebook.GraphAPI(oauth_access_token)
+    profile = graph.get_object("me", **facebookParams)
+
 Photo uploads:
 
 ::
