@@ -44,39 +44,31 @@ class TestGetAppAccessToken(FacebookTestCase):
 
 class TestAPIVersion(FacebookTestCase):
     """Test if using the correct version of Graph API."""
-    def setUp(self):
-        try:
-            super(self.__class__, self).setUp()
-            self.access_token = facebook.get_app_access_token(self.app_id,
-                                                              self.secret)
-        except Exception:
-            raise Exception("Could not get app access token")
-
     def test_version_1_0(self):
-        graph = facebook.GraphAPI(self.access_token, version=1.0)
+        graph = facebook.GraphAPI(version=1.0)
         self.assertEqual(graph.get_version(), 1.0)
 
     def test_version_2_0(self):
-        graph = facebook.GraphAPI(self.access_token, version=2.0)
+        graph = facebook.GraphAPI(version=2.0)
         self.assertEqual(graph.get_version(), 2.0)
 
     def test_version_2_1(self):
-        graph = facebook.GraphAPI(self.access_token, version=2.1)
+        graph = facebook.GraphAPI(version=2.1)
         self.assertEqual(graph.get_version(), 2.1)
 
     def test_invalid_version(self):
         self.assertRaises(facebook.GraphAPIError,
-                          facebook.GraphAPI, self.access_token, version=1.2)
+                          facebook.GraphAPI, version=1.2)
 
     def test_invalid_format(self):
         self.assertRaises(facebook.GraphAPIError,
-                          facebook.GraphAPI, self.access_token, version="1.a")
+                          facebook.GraphAPI, version="1.a")
         self.assertRaises(facebook.GraphAPIError,
-                          facebook.GraphAPI, self.access_token, version="a.1")
+                          facebook.GraphAPI, version="a.1")
         self.assertRaises(facebook.GraphAPIError,
-                          facebook.GraphAPI, self.access_token, version=1.23)
+                          facebook.GraphAPI, version=1.23)
         self.assertRaises(facebook.GraphAPIError,
-                          facebook.GraphAPI, self.access_token, version="1.23")
+                          facebook.GraphAPI, version="1.23")
 
 if __name__ == '__main__':
     unittest.main()
