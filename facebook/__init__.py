@@ -199,6 +199,26 @@ class GraphAPI(object):
                      files={"file": image},
                      method="POST")
 
+    def get_version(self):
+        """Fetches the current version number of the Graph API being used"""
+        args = {"access_token" : self.access_token}
+        try:
+            response = requests.request("GET",
+                                        "https://graph.facebook.com/" +
+                                        self.version + "/me",
+                                        params=args,
+                                        timeout=self.timeout)
+        except requests.HTTPError as e:
+            response = json.loads(e.read())
+            raise GraphAPIError(response)
+
+        try:
+            headers = response.headers
+            version = headers["facebook-api-version"].replace("v", "")
+            return float(version)
+        except Exception:
+            raise GraphAPIError("API version number not available")
+
     def request(
             self, path, args=None, post_args=None, files=None, method=None):
         """Fetches the given path in the Graph API.
