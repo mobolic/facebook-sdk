@@ -42,14 +42,15 @@ class TestGetAppAccessToken(FacebookTestCase):
         assert(isinstance(token, str) or isinstance(token, unicode))
 
 
-class TestAPIVersion(unittest.TestCase):
+class TestAPIVersion(FacebookTestCase):
     """Test if using the correct version of Graph API."""
     def setUp(self):
         try:
-            self.access_token = os.environ["FACEBOOK_ACCESS_TOKEN"]
-        except KeyError:
-            raise Exception("FACEBOOK_ACCESS_TOKEN must be set as"
-                            " environmental variables.")
+            super(self.__class__, self).setUp()
+            self.access_token = facebook.get_app_access_token(self.app_id,
+                                                              self.secret)
+        except Exception:
+            raise Exception("Could not get app access token")
 
     def test_version_1_0(self):
         graph = facebook.GraphAPI(self.access_token, version=1.0)
