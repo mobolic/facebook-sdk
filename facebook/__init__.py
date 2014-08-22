@@ -200,8 +200,8 @@ class GraphAPI(object):
                      method="POST")
 
     def get_version(self):
-        """Fetches the current version number of the Graph API being used"""
-        args = {"access_token" : self.access_token}
+        """Fetches the current version number of the Graph API being used."""
+        args = {"access_token": self.access_token}
         try:
             response = requests.request("GET",
                                         "https://graph.facebook.com/" +
