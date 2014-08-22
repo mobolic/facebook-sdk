@@ -92,10 +92,10 @@ class GraphAPI(object):
             match = version_regex.search(str(version))
             if match is not None:
                 if str(version) not in valid_API_versions:
-                    raise GraphAPIError("Valid API versions are 1.0, 2.0,"
-                                        " and 2.1.")
+                    raise GraphAPIError("Valid API versions are " +
+                                        str(valid_API_versions).strip('[]'))
                 else:
-                    self.version = "/v" + str(version)
+                    self.version = "v" + str(version)
             else:
                 raise GraphAPIError("Version number should be in the"
                                     " following format: #.# (e.g. 1.0).")
