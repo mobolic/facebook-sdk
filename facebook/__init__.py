@@ -39,6 +39,7 @@ import hmac
 import base64
 import requests
 import json
+import re
 
 # Find a query string parser
 try:
@@ -81,9 +82,25 @@ class GraphAPI(object):
     for the active user from the cookie saved by the SDK.
 
     """
-    def __init__(self, access_token=None, timeout=None):
+    def __init__(self, access_token=None, timeout=None, version=None):
         self.access_token = access_token
         self.timeout = timeout
+
+        valid_API_versions = ["1.0", "2.0", "2.1"]
+        if version:
+            version_regex = re.compile("^\d\.\d$")
+            match = version_regex.search(str(version))
+            if match is not None:
+                if str(version) not in valid_API_versions:
+                    raise GraphAPIError("Valid API versions are " +
+                                        str(valid_API_versions).strip('[]'))
+                else:
+                    self.version = "v" + str(version)
+            else:
+                raise GraphAPIError("Version number should be in the"
+                                    " following format: #.# (e.g. 1.0).")
+        else:
+            self.version = ""
 
     def get_object(self, id, **args):
         """Fetchs the given object from the graph."""
@@ -182,6 +199,26 @@ class GraphAPI(object):
                      files={"file": image},
                      method="POST")
 
+    def get_version(self):
+        """Fetches the current version number of the Graph API being used."""
+        args = {"access_token": self.access_token}
+        try:
+            response = requests.request("GET",
+                                        "https://graph.facebook.com/" +
+                                        self.version + "/me",
+                                        params=args,
+                                        timeout=self.timeout)
+        except requests.HTTPError as e:
+            response = json.loads(e.read())
+            raise GraphAPIError(response)
+
+        try:
+            headers = response.headers
+            version = headers["facebook-api-version"].replace("v", "")
+            return float(version)
+        except Exception:
+            raise GraphAPIError("API version number not available")
+
     def request(
             self, path, args=None, post_args=None, files=None, method=None):
         """Fetches the given path in the Graph API.
@@ -201,7 +238,8 @@ class GraphAPI(object):
 
         try:
             response = requests.request(method or "GET",
-                                        "https://graph.facebook.com/" + path,
+                                        "https://graph.facebook.com/" +
+                                        self.version + path,
                                         timeout=self.timeout,
                                         params=args,
                                         data=post_args,
