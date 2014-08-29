@@ -11,6 +11,9 @@ Facebook authentication. You can read more about the Graph API by accessing its
 .. _Facebook JavaScript SDK: https://developers.facebook.com/docs/reference/javascript/
 .. _official documentation: https://developers.facebook.com/docs/reference/api/
 
+Examples
+========
+
 Basic usage:
 
 ::
@@ -44,6 +47,14 @@ you could get the profile of the logged in user with:
 
 
 You can see a full AppEngine example application in examples/appengine.
+
+Licensing
+=========
+
+This library uses the `Apache License, version 2.0`_. Please see the library's
+individual files for more information.
+
+.. _Apache License, version 2.0: http://www.apache.org/licenses/LICENSE-2.0.html
 
 Reporting Issues
 ================
