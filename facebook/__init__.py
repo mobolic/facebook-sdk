@@ -242,7 +242,6 @@ class GraphAPI(object):
                 url = GRAPH_URL + self.version + '/' + path
             else:
                 url = GRAPH_URL + path
-            print url
             response = requests.request(method or "GET",
                                         url,
                                         timeout=self.timeout,
