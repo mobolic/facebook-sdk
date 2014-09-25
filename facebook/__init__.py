@@ -237,9 +237,14 @@ class GraphAPI(object):
                 args["access_token"] = self.access_token
 
         try:
+            GRAPH_URL = "https://graph.facebook.com/"
+            if self.version is not "":
+                url = GRAPH_URL + self.version + '/' + path
+            else:
+                url = GRAPH_URL + path
+            print url
             response = requests.request(method or "GET",
-                                        "https://graph.facebook.com/" +
-                                        self.version + path,
+                                        url,
                                         timeout=self.timeout,
                                         params=args,
                                         data=post_args,
