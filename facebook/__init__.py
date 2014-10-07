@@ -401,7 +401,8 @@ def parse_signed_request(signed_request, app_secret):
     except TypeError:
         # Signed request had a corrupted payload.
         return False
-
+    
+    data = data.decode(encoding='UTF-8') # converts data from bytes to string 
     data = json.loads(data)
     if data.get('algorithm', '').upper() != 'HMAC-SHA256':
         return False
