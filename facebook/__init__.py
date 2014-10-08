@@ -38,8 +38,8 @@ import hashlib
 import hmac
 import base64
 import requests
+import json
 import re
-import logging
 
 # Find a query string parser
 try:
@@ -51,23 +51,6 @@ from . import version
 
 
 __version__ = version.__version__
-
-
-from django.core.cache import cache as cache
-from dfcommon import graphite
-
-# Find a JSON parser
-try:
-    import json
-    _parse_json = lambda s: json.loads(s)
-except ImportError:
-    try:
-        import simplejson
-        _parse_json = lambda s: simplejson.loads(s)
-    except ImportError:
-        # For Google AppEngine
-        from django.utils import simplejson
-        _parse_json = lambda s: simplejson.loads(s)
 
 
 class GraphAPI(object):
@@ -101,15 +84,7 @@ class GraphAPI(object):
     """
     def __init__(self, access_token=None, timeout=None, version=None):
         self.access_token = access_token
-
-        # Default our timeouts to 600ms
-        if not timeout:
-            timeout = 0.6
         self.timeout = timeout
-
-        # Default our version to 2.1
-        if not version:
-            version = "2.1"
 
         valid_API_versions = ["1.0", "2.0", "2.1"]
         if version:
@@ -394,24 +369,11 @@ def get_user_from_cookie(cookies, app_id, app_secret):
     parsed_request = parse_signed_request(cookie, app_secret)
     if not parsed_request:
         return None
-
-    # now we have to exchange the code for an access token.
-    # we should keep the code, so that we can get another access token when the
-    # first access token expires.
-    cache_key = 'fbuid_{}'.format(parsed_request['user_id'])
-    access_token = cache.get(cache_key)
-    if access_token:
-        return dict(uid=parsed_request['user_id'], access_token=access_token)
-
     try:
         result = get_access_token_from_code(parsed_request["code"], "",
                                             app_id, app_secret)
-        graphite.Client().increment('fbconnect.get_user_from_cookie', sample_rate=0.1, delta=10)
     except GraphAPIError:
-        graphite.Client().increment('fbconnect.get_user_from_cookie_fail', sample_rate=0.1, delta=10)
-        logging.exception('Exception getting access token')
         return None
-    cache.set(cache_key, result["access_token"], result["expires"]) # cache by the FB user_id
     result["uid"] = parsed_request["user_id"]
     return result
 
@@ -435,11 +397,9 @@ def parse_signed_request(signed_request, app_secret):
                                         ((4 - len(payload) % 4) % 4))
     except IndexError:
         # Signed request was malformed.
-        graphite.Client().increment('fbconnect.get_user_from_cookie_parse_fail', sample_rate=1, delta=1)
         return False
     except TypeError:
         # Signed request had a corrupted payload.
-        graphite.Client().increment('fbconnect.get_user_from_cookie_parse_fail', sample_rate=1, delta=1)
         return False
 
     data = json.loads(data)
