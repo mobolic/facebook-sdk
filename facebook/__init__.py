@@ -194,7 +194,7 @@ class GraphAPI(object):
         """
         object_id = album_id or "me"
         kwargs.update({"message": message})
-        self.request(object_id,
+        return self.request(object_id,
                      post_args=kwargs,
                      files={"file": image},
                      method="POST")
