@@ -283,7 +283,7 @@ class GraphAPI(object):
         Example query: "SELECT affiliations FROM user WHERE uid = me()"
 
         """
-        self.request(self.version + "/" + "fql", {"q": query})
+        return self.request(self.version + "/" + "fql", {"q": query})
 
     def get_app_access_token(self, app_id, app_secret):
         """Get the application's access token as a string."""
