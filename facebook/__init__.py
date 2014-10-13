@@ -82,11 +82,15 @@ class GraphAPI(object):
     for the active user from the cookie saved by the SDK.
 
     """
+
     def __init__(self, access_token=None, timeout=None, version=None):
+        # The default version is only used if the version kwarg does not exist.
+        default_version = "1.0"
+        valid_API_versions = ["1.0", "2.0", "2.1"]
+
         self.access_token = access_token
         self.timeout = timeout
 
-        valid_API_versions = ["1.0", "2.0", "2.1"]
         if version:
             version_regex = re.compile("^\d\.\d$")
             match = version_regex.search(str(version))
@@ -100,7 +104,7 @@ class GraphAPI(object):
                 raise GraphAPIError("Version number should be in the"
                                     " following format: #.# (e.g. 1.0).")
         else:
-            self.version = ""
+            self.version = "v" + default_version
 
     def get_object(self, id, **args):
         """Fetchs the given object from the graph."""
