@@ -293,23 +293,20 @@ class GraphAPI(object):
 
         return self.request("oauth/access_token", args=args)["access_token"]
 
-    def create_app_test_user(self, app_id, app_access_token, **kwargs):
+    def create_test_user(self, app_id, app_access_token, **kwargs):
         """Creates test user for the app."""
         args = {'access_token': app_access_token, 'method': 'post'}
         args.update(kwargs)
         return self.request(app_id + "/accounts/test-users", args=args)
 
-    def get_app_test_users(self, app_id, app_access_token, **kwargs):
-        """Access all test users created for the app."""
+    def get_test_users(self, app_id, app_access_token, **kwargs):
+        """Get all test users created for the app."""
         args = {'access_token': app_access_token}
         args.update(kwargs)
         return self.request(app_id + "/accounts/test-users", args=args)
 
-    def edit_app_test_user(self, user_id, app_access_token, **kwargs):
-        """Changed given test user's name or password.
-
-        Returns True if succeed.
-        """
+    def edit_test_user(self, user_id, app_access_token, **kwargs):
+        """Changed given test user's name or password."""
         args = {'access_token': app_access_token, 'method': 'post'}
         args.update(kwargs)
         return self.request(user_id, args=args)
