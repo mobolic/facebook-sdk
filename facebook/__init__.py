@@ -314,17 +314,6 @@ class GraphAPI(object):
         args.update(kwargs)
         return self.request(user_id, args=args)
 
-    def delete_test_user(self, user_id, access_token):
-        """Deletes given test user.
-
-        access_token = either app_access_token from get_app_access_token
-                       or access_token of the test user.
-
-        Returns True if succeed.
-        """
-        args = {'access_token': access_token, 'method': 'delete'}
-        return self.request(user_id, args=args)
-
     def get_access_token_from_code(
             self, code, redirect_uri, app_id, app_secret):
         """Get an access token from the "code" returned from an OAuth dialog.
