@@ -62,6 +62,10 @@ class TestAPIVersion(FacebookTestCase):
         graph = facebook.GraphAPI(version=2.1)
         self.assertEqual(graph.get_version(), 2.1)
 
+    def test_version_2_2(self):
+        graph = facebook.GraphAPI(version=2.2)
+        self.assertEqual(graph.get_version(), 2.2)
+
     def test_invalid_version(self):
         self.assertRaises(facebook.GraphAPIError,
                           facebook.GraphAPI, version=1.2)
