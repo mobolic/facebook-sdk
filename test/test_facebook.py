@@ -49,6 +49,13 @@ class TestGetAppAccessToken(FacebookTestCase):
         # the following line with flake8 (hence the noqa comment).
         assert(isinstance(token, str) or isinstance(token, unicode))    # noqa
 
+    def test_get_deleted_app_access_token(self):
+        deleted_app_id = '174236045938435'
+        deleted_secret = '0073dce2d95c4a5c2922d1827ea0cca6'
+        self.assertRaisesRegexp(facebook.GraphAPIError,
+                                'Error validating application. Application has been deleted.',
+                                facebook.get_app_access_token,
+                                deleted_app_id, deleted_secret)
 
 class TestAPIVersion(FacebookTestCase):
     """Test if using the correct version of Graph API."""
@@ -133,6 +140,30 @@ class TestExtendAccessToken(FacebookTestCase):
             self.assertEqual(
                 e.message, "fb_exchange_token parameter not specified")
 
+
+class TestGraphApi(FacebookTestCase):
+    def test_bogus_access_token(self):
+        graph = facebook.GraphAPI(access_token='wrong_token')
+        self.assertRaisesRegexp(facebook.GraphAPIError, 'Invalid OAuth access token.', graph.get_object, 'me')
+
+    def test_access_with_expired_access_token(self):
+        expired_token = 'AAABrFmeaJjgBAIshbq5ZBqZBICsmveZCZBi6O4w9HSTkFI73VMtmkL9j' \
+                        'LuWsZBZC9QMHvJFtSulZAqonZBRIByzGooCZC8DWr0t1M4BL9FARdQwPWPnIqCiFQ'
+        graph = facebook.GraphAPI(access_token=expired_token)
+        self.assertRaisesRegexp(facebook.GraphAPIError,
+                                'Error validating access token: The session was '
+                                'invalidated explicitly using an API call.',
+                                graph.get_object, 'me')
+
+    def test_with_only_params(self):
+        graph = facebook.GraphAPI()
+        jerry = graph.get_object('jerry')
+        self.assertTrue(jerry['id'], 'User ID should be public.')
+        self.assertTrue(jerry['name'], 'User\'s name should be public.')
+        self.assertTrue(jerry['first_name'], 'User\'s first name should be public.')
+        self.assertTrue(jerry['last_name'], 'User\'s last name should be public.')
+        self.assertTrue(jerry['link'], 'User\'s link should be public.')
+        self.assertTrue(jerry['username'], 'User\'s username should be public.')
 
 if __name__ == '__main__':
     unittest.main()
