@@ -36,7 +36,6 @@ class FacebookTestCase(unittest.TestCase):
             try:
                 callable_obj(*args)
             except facebook.GraphAPIError as error:
-                pass
                 self.assertEqual(error.message, expected_regexp)
         elif sys.version < '3':
             return self.assertRaisesRegexp(expected_exception, expected_regexp, callable_obj, *args, **kwargs)
