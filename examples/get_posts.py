@@ -12,7 +12,7 @@ def some_action(post):
     post's message (post['message']) or the post's picture (post['picture']).
     In this implementation we just print the post's created time.
     """
-    print post['created_time']
+    print(post['created_time'])
 
 
 # You'll need an access token here to do anything.  You can get a temporary one
