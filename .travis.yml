@@ -7,8 +7,8 @@ install:
   - "pip install flake8 --use-mirrors"
   - "pip install . --use-mirrors"
 before_script:
-    flake8 --ignore=F401 examples
-    flake8 facebook
+  - "flake8 --ignore=F401 examples"
+  - "flake8 facebook"
 script: python -m test.test_facebook
 env:
       global:
