@@ -52,3 +52,21 @@ Returns the given object from the graph as a dict. A list of `supported objects 
 
     post = graph.get_object(id='post_id')
     print post['message']
+
+get_objects(id, **args)
+----------------------
+Returns all of the given objects from the graph as a dict. Each given ID maps to an object.
+
+**Parameters**
+
+* *ids (required)* – A list containing ids for multiple resources.
+
+**Example**
+
+.. code-block:: python
+
+    post_ids = ['post_id_1', 'post_id_2']
+    posts = graph.get_objects(ids=post_ids)
+
+    for post_id in post_ids:
+        print posts[post_id]['created_time']
