@@ -164,3 +164,40 @@ Writes the given message as a comment on an object.
 .. code-block:: python
 
     graph.put_comment(object_id='post_id', message='Great post...')
+
+
+put_like(object_id)
+-------------------
+Writes a like to the given object.
+
+**Parameters**
+
+* ``object_id`` - A ``string`` that is a unique id for a particular resource.
+
+**Example**
+
+.. code-block:: python
+
+    graph.put_like(object_id='comment_id')
+
+
+put_photo(image, message, album_id, **kwargs)
+--------------------------------------------------
+Uploads an image using multipart/form-data.
+
+**Parameters**
+
+* ``image`` -  An image of the ``file`` type
+* ``message`` - A ``string`` that will caption the image
+* ``album_id`` - A ``string`` that is a unique id for an album. If no ``album_id`` is provided, the photo posts to /me/photos which uses, or creates and uses, an album for your application.
+
+**Example**
+
+.. code-block:: python
+
+    tags = json.dumps([
+        {'x':50, 'y':50, 'tag_uid':12345},
+        {'x':10, 'y':60, 'tag_text':'a turtle'}
+    ])
+    graph.put_photo(image=open('img.jpg'), message='Look at this cool photo!',
+                    tags=tags)
