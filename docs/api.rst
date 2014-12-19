@@ -70,3 +70,22 @@ Returns all of the given objects from the graph as a dict. Each given ID maps to
 
     for post_id in post_ids:
         print posts[post_id]['created_time']
+
+get_connections(id, connection_name, **args)
+----------------------
+Returns all connections for given object as a dict.
+
+**Parameters**
+
+* *id (required)* – A string that is a unique id for that particular resource.
+* *connection_name* - A string that specifies the connection or edge between objects, e.g., feed, friends, groups, likes, posts. If left empty, get_connections will simply return the authenticated user's basic information.
+
+**Example**
+
+.. code-block:: python
+
+    # Get all of the authenticated user's friends
+    friends = graph.get_connections(id='me', connection_name='friends')
+
+    # Get all the comments from a post
+    comments = graph.get_connections(id='post_id', connection_name='comments')
