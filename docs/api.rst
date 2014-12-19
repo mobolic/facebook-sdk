@@ -114,3 +114,36 @@ Writes the given object to the graph, connected to the given parent.
     # Writes a comment on a post
     graph.put_object(parent_object='post_id', connection_name='comments',
                      message='First!')
+
+put_wall_post(message, attachment, profile_id)
+----------------------
+Writes a wall post to the given profile's wall. It defaults to writing to the authenticated user's wall if no ``profile_id`` is specified.
+
+**Parameters**
+
+* ``message`` - A ``string`` that will be posted to the user's wall.
+* ``attachment`` - A ``dict`` that adds a structured attachment to the message being posted to the Wall. If you are sharing a URL, you will want to use the ``attachment`` parameter so that a thumbnail preview appears in the post. It should be a ``dict`` of the form:
+.. code-block:: python
+
+    attachment =  {
+        'name': ''
+        'link': '',
+        'caption': '',
+        'description': '',
+        'picture': ''
+   }
+* ``profile_id`` - A ``string`` that is a unique id for that particular user. Defaults to the authenticated user's wall.
+
+**Example**
+
+.. code-block:: python
+
+    attachment =  {
+        'name': 'Link name'
+        'link': 'http://www.example.com/',
+        'caption': 'Check out this example',
+        'description': 'This is a longer description of the attachment',
+        'picture': 'http://www.example.com/thumbnail.jpg'
+    }
+
+    graph.put_wall_post(message='Check this out...', attachment=attachment)
