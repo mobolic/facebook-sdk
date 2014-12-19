@@ -115,6 +115,7 @@ Writes the given object to the graph, connected to the given parent.
     graph.put_object(parent_object='post_id', connection_name='comments',
                      message='First!')
 
+
 put_wall_post(message, attachment, profile_id)
 ----------------------
 Writes a wall post to the given profile's wall. It defaults to writing to the authenticated user's wall if no ``profile_id`` is specified.
@@ -147,3 +148,19 @@ Writes a wall post to the given profile's wall. It defaults to writing to the au
     }
 
     graph.put_wall_post(message='Check this out...', attachment=attachment)
+
+
+put_comment(object_id, message)
+----------------------
+Writes the given message as a comment on an object.
+
+**Parameters**
+
+* ``object_id`` - A ``string`` that is a unique id for a particular resource.
+* ``message`` - A ``string`` that will be posted as the comment.
+
+**Example**
+
+.. code-block:: python
+
+    graph.put_comment(object_id='post_id', message='Great post...')
