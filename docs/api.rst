@@ -53,6 +53,7 @@ Returns the given object from the graph as a dict. A list of `supported objects 
     post = graph.get_object(id='post_id')
     print post['message']
 
+
 get_objects(id, **args)
 ----------------------
 Returns all of the given objects from the graph as a dict. Each given ID maps to an object.
@@ -70,6 +71,7 @@ Returns all of the given objects from the graph as a dict. Each given ID maps to
 
     for post_id in post_ids:
         print posts[post_id]['created_time']
+
 
 get_connections(id, connection_name, **args)
 ----------------------
@@ -89,3 +91,23 @@ Returns all connections for given object as a dict.
 
     # Get all the comments from a post
     comments = graph.get_connections(id='post_id', connection_name='comments')
+
+
+put_object(parent_object, connection_name, **data)
+----------------------
+Writes the given object to the graph, connected to the given parent.
+
+**Parameters**
+
+* *parent_object (required)* – A string that is a unique id for that particular resource. The parent_object is parent of a connection or edge. E.g., profile is a parent of a feed, and a post is a parent of a comment.
+* *connection_name* - A string that specifies the connection or edge between objects, e.g., feed, friends, groups, likes, posts. If left empty, get_connections will simply return the authenticated user's basic information.
+
+**Example**
+
+.. code-block:: python
+
+    # Writes 'Hello, world' to the active user's wall.
+    graph.put_object('me', 'feed', message='Hello, world')
+
+    # Writes a comment on a post
+    graph.put_object('post_id', 'comments', message='First!')
