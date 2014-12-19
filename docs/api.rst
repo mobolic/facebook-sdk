@@ -201,3 +201,17 @@ Uploads an image using multipart/form-data.
     ])
     graph.put_photo(image=open('img.jpg'), message='Look at this cool photo!',
                     tags=tags)
+
+delete_object(id)
+-----------------
+Deletes the object with the given id from the graph.
+
+**Parameters**
+
+* ``id`` - A ``string`` that is a unique id for a particular resource.
+
+**Example**
+
+.. code-block:: python
+
+    graph.delete_object(id='post_id')
