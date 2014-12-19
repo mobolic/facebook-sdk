@@ -5,7 +5,7 @@ API Reference
 This page contains specific information on the SDK's classes, methods and functions.
 
 class facebook.GraphAPI
-========
+=======================
 A client for the Facebook Graph API. The Graph API is made up of the objects or
 nodes in Facebook (e.g., people, pages, events, photos) and the connections or
 edges between them (e.g., friends, photo tags, and event RSVPs). This client
@@ -32,3 +32,23 @@ You can read more about `Facebook's Graph API here`_.
    import facebook
 
    graph = facebook.GraphAPI(access_token='your_token', version='2.2')
+
+Methods
+=======
+
+get_object(id, **args)
+----------------------
+Returns the given object from the graph as a dict. A list of `supported objects can be found here`_.
+
+.. _supported objects can be found here: https://developers.facebook.com/docs/graph-api/reference/v2.2
+
+**Parameters**
+
+* *id (required)* –  A string that is a unique ID for that particular resource.
+
+**Example**
+
+.. code-block:: python
+
+    post = graph.get_object(id='post_id')
+    print post['message']
