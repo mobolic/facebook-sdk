@@ -33,7 +33,7 @@ if user:
 
 """
 
-import urllib
+import urllib  # noqa
 import hashlib
 import hmac
 import base64
