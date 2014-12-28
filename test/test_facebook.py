@@ -96,5 +96,25 @@ class TestFQL(FacebookTestCase):
             self.assertEqual(fql_result["data"][0]["app_id"], str(self.app_id))
 
 
+class TestAuthURL(FacebookTestCase):
+    def test_auth_url(self):
+
+        try:
+            from urllib.parse import urlencode
+        except ImportError:
+            from urllib import urlencode
+
+        perms = ['email', 'birthday']
+        redirect_url = 'https://localhost/facebook/callback/'
+
+        expected_url = 'https://www.facebook.com/dialog/oauth?' + urlencode(
+            dict(client_id=self.app_id,
+                 redirect_uri=redirect_url,
+                 scope=','.join(perms)))
+        actual_url = facebook.auth_url(self.app_id, redirect_url, perms=perms)
+
+        self.assertEqual(actual_url, expected_url)
+
+
 if __name__ == '__main__':
     unittest.main()
