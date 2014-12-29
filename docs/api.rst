@@ -1,11 +1,12 @@
-=====================
+=============
 API Reference
-=====================
+=============
 
 This page contains specific information on the SDK's classes, methods and functions.
 
 class facebook.GraphAPI
 =======================
+
 A client for the Facebook Graph API. The Graph API is made up of the objects or
 nodes in Facebook (e.g., people, pages, events, photos) and the connections or
 edges between them (e.g., friends, photo tags, and event RSVPs). This client
@@ -34,10 +35,11 @@ You can read more about `Facebook's Graph API here`_.
     graph = facebook.GraphAPI(access_token='your_token', version='2.2')
 
 Methods
-=======
+-------
 
 get_object(id, **args)
-----------------------
+^^^^^^^^^^^^^^^^^^^^^^
+
 Returns the given object from the graph as a ``dict``. A list of `supported objects can be found here`_.
 
 .. _supported objects can be found here: https://developers.facebook.com/docs/graph-api/reference/v2.2
@@ -55,7 +57,8 @@ Returns the given object from the graph as a ``dict``. A list of `supported obje
 
 
 get_objects(id, **args)
------------------------
+^^^^^^^^^^^^^^^^^^^^^^^
+
 Returns all of the given objects from the graph as a ``dict``. Each given id maps to an object.
 
 **Parameters**
@@ -75,7 +78,8 @@ Returns all of the given objects from the graph as a ``dict``. Each given id map
 
 
 get_connections(id, connection_name, **args)
---------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Returns all connections for given object as a ``dict``.
 
 **Parameters**
@@ -95,7 +99,8 @@ Returns all connections for given object as a ``dict``.
 
 
 put_object(parent_object, connection_name, **data)
---------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Writes the given object to the graph, connected to the given parent.
 
 **Parameters**
@@ -117,7 +122,8 @@ Writes the given object to the graph, connected to the given parent.
 
 
 put_wall_post(message, attachment, profile_id)
-----------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Writes a wall post to the given profile's wall. It defaults to writing to the authenticated user's wall if no ``profile_id`` is specified.
 
 **Parameters**
@@ -151,7 +157,8 @@ Writes a wall post to the given profile's wall. It defaults to writing to the au
 
 
 put_comment(object_id, message)
--------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Writes the given message as a comment on an object.
 
 **Parameters**
@@ -167,7 +174,8 @@ Writes the given message as a comment on an object.
 
 
 put_like(object_id)
--------------------
+^^^^^^^^^^^^^^^^^^^
+
 Writes a like to the given object.
 
 **Parameters**
@@ -182,7 +190,8 @@ Writes a like to the given object.
 
 
 put_photo(image, message, album_id, **kwargs)
----------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Uploads an image using multipart/form-data.
 
 **Parameters**
@@ -203,7 +212,8 @@ Uploads an image using multipart/form-data.
                     tags=tags)
 
 delete_object(id)
------------------
+^^^^^^^^^^^^^^^^^
+
 Deletes the object with the given id from the graph.
 
 **Parameters**
