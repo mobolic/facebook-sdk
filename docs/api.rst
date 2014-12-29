@@ -50,7 +50,7 @@ get_object(id, \*\*args)
 Returns the given object from the graph as a ``dict``. A list of
 `supported objects can be found here`_.
 
-.. _supported objects can be found here: https://developers.facebook.com/docs/graph-api/reference/v2.2
+.. _supported objects can be found here: https://developers.facebook.com/docs/graph-api/reference/
 
 **Parameters**
 
