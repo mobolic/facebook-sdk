@@ -37,8 +37,8 @@ You can read more about `Facebook's Graph API here`_.
 Methods
 -------
 
-get_object(id, **args)
-^^^^^^^^^^^^^^^^^^^^^^
+get_object(id, \*\*args)
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 Returns the given object from the graph as a ``dict``. A list of `supported objects can be found here`_.
 
@@ -56,8 +56,8 @@ Returns the given object from the graph as a ``dict``. A list of `supported obje
     print post['message']
 
 
-get_objects(id, **args)
-^^^^^^^^^^^^^^^^^^^^^^^
+get_objects(id, \*\*args)
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Returns all of the given objects from the graph as a ``dict``. Each given id maps to an object.
 
@@ -77,8 +77,8 @@ Returns all of the given objects from the graph as a ``dict``. Each given id map
         print posts[post_id]['created_time']
 
 
-get_connections(id, connection_name, **args)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+get_connections(id, connection_name, \*\*args)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Returns all connections for given object as a ``dict``.
 
@@ -98,8 +98,8 @@ Returns all connections for given object as a ``dict``.
     comments = graph.get_connections(id='post_id', connection_name='comments')
 
 
-put_object(parent_object, connection_name, **data)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+put_object(parent_object, connection_name, \*\*data)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Writes the given object to the graph, connected to the given parent.
 
@@ -189,8 +189,8 @@ Writes a like to the given object.
     graph.put_like(object_id='comment_id')
 
 
-put_photo(image, message, album_id, **kwargs)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+put_photo(image, message, album_id, \*\*kwargs)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Uploads an image using multipart/form-data.
 
