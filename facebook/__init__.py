@@ -33,7 +33,6 @@ if user:
 
 """
 
-import urllib  # noqa
 import hashlib
 import hmac
 import base64
@@ -41,15 +40,10 @@ import requests
 import json
 import re
 
-# Find a query string parser
 try:
-    from urllib.parse import parse_qs
+    from urllib.parse import parse_qs, urlencode
 except ImportError:
     from urlparse import parse_qs
-
-try:
-    from urllib.parse import urlencode
-except ImportError:
     from urllib import urlencode
 
 from . import version

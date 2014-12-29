@@ -17,6 +17,11 @@ import facebook
 import os
 import unittest
 
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
+
 
 class FacebookTestCase(unittest.TestCase):
     """Sets up application ID and secret from environment."""
@@ -98,12 +103,6 @@ class TestFQL(FacebookTestCase):
 
 class TestAuthURL(FacebookTestCase):
     def test_auth_url(self):
-
-        try:
-            from urllib.parse import urlencode
-        except ImportError:
-            from urllib import urlencode
-
         perms = ['email', 'birthday']
         redirect_url = 'https://localhost/facebook/callback/'
 
