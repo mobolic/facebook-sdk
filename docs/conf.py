@@ -13,7 +13,7 @@
 
 import sys, os
 
-from facebook import __version__
+exec(open("../facebook/version.py").read())
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
