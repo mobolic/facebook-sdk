@@ -22,9 +22,8 @@ You can read more about `Facebook's Graph API here`_.
 * ``access_token`` – A ``string`` that identifies a user, app, or page and can
   be used by the app to make graph API calls.
   `Read more about access tokens here`_.
-* ``timeout`` - A ``float`` describing the timeout of the request in seconds.
-  I.e., you can tell the client to stop waiting for a response after a given
-  number of seconds with the timeout parameter. `See more here`_.
+* ``timeout`` - A ``float`` describing (in seconds) how long the client will
+  waiting for a response from Facebook's servers. `See more here`_.
 * ``version`` - A ``string`` describing the `version of Facebook's Graph API to
   use`_. Valid API versions are ``1.0``, ``2.0``, ``2.1`` and ``2.2``. The
   default version is ``1.0`` and is used if the version keyword argument is not
@@ -55,7 +54,7 @@ Returns the given object from the graph as a ``dict``. A list of
 
 **Parameters**
 
-* ``id`` –  A ``string`` that is a unique id for that particular resource.
+* ``id`` –  A ``string`` that is a unique ID for that particular resource.
 
 **Example**
 
@@ -68,12 +67,12 @@ Returns the given object from the graph as a ``dict``. A list of
 get_objects(id, \*\*args)
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Returns all of the given objects from the graph as a ``dict``. Each given id
+Returns all of the given objects from the graph as a ``dict``. Each given ID
 maps to an object.
 
 **Parameters**
 
-* ``ids`` – A ``list`` containing ids for multiple resources.
+* ``ids`` – A ``list`` containing IDs for multiple resources.
 
 **Example**
 
@@ -90,11 +89,11 @@ maps to an object.
 get_connections(id, connection_name, \*\*args)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Returns all connections for given object as a ``dict``.
+Returns all connections for a given object as a ``dict``.
 
 **Parameters**
 
-* ``id`` – A ``string`` that is a unique id for that particular resource.
+* ``id`` – A ``string`` that is a unique ID for that particular resource.
 * ``connection_name`` - A ``string`` that specifies the connection or edge
   between objects, e.g., feed, friends, groups, likes, posts. If left empty,
   ``get_connections`` will simply return the authenticated user's basic
@@ -118,9 +117,9 @@ Writes the given object to the graph, connected to the given parent.
 
 **Parameters**
 
-* ``parent_object`` – A ``string`` that is a unique id for that particular
-  resource. The ``parent_object`` is parent of a connection or edge. E.g.,
-  profile is a parent of a feed, and a post is a parent of a comment.
+* ``parent_object`` – A ``string`` that is a unique ID for that particular
+  resource. The ``parent_object`` is the parent of a connection or edge. E.g.,
+  profile is the parent of a feed, and a post is the parent of a comment.
 * ``connection_name`` - A ``string`` that specifies the connection or edge
   between objects, e.g., feed, friends, groups, likes, posts.
 
@@ -161,7 +160,7 @@ authenticated user's wall if no ``profile_id`` is specified.
         'picture': ''
    }
 
-* ``profile_id`` - A ``string`` that is a unique id for that particular user.
+* ``profile_id`` - A ``string`` that is a unique ID for that particular user.
   Defaults to the authenticated user's wall.
 
 **Example**
@@ -239,11 +238,11 @@ Uploads an image using multipart/form-data.
 delete_object(id)
 ^^^^^^^^^^^^^^^^^
 
-Deletes the object with the given id from the graph.
+Deletes the object with the given ID from the graph.
 
 **Parameters**
 
-* ``id`` - A ``string`` that is a unique id for a particular resource.
+* ``id`` - A ``string`` that is a unique ID for a particular resource.
 
 **Example**
 
