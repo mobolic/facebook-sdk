@@ -16,6 +16,7 @@
 import facebook
 import os
 import unittest
+import sys
 
 
 class FacebookTestCase(unittest.TestCase):
@@ -28,6 +29,18 @@ class FacebookTestCase(unittest.TestCase):
             raise Exception("FACEBOOK_APP_ID and FACEBOOK_SECRET "
                             "must be set as environmental variables.")
 
+    def assert_raises_multi_regex(self, expected_exception, expected_regexp, callable_obj=None, *args, **kwargs):
+        if sys.version < '2.7':
+            # There is no assertRaisesRegexp method in Python 2.6 unittest, so there is need to check it manually
+            self.assertRaises(expected_exception, callable_obj, *args, **kwargs)
+            try:
+                callable_obj(*args)
+            except facebook.GraphAPIError as error:
+                self.assertEqual(error.message, expected_regexp)
+        elif sys.version < '3':
+            return self.assertRaisesRegexp(expected_exception, expected_regexp, callable_obj, *args, **kwargs)
+        else:
+            return self.assertRaisesRegex(expected_exception, expected_regexp, callable_obj, *args, **kwargs)
 
 class TestGetAppAccessToken(FacebookTestCase):
     """
@@ -39,8 +52,15 @@ class TestGetAppAccessToken(FacebookTestCase):
     """
     def test_get_app_access_token(self):
         token = facebook.get_app_access_token(self.app_id, self.secret)
-        assert(isinstance(token, str) or isinstance(token, unicode))
+        assert (isinstance(token, str) or isinstance(token, unicode))
 
+    def test_get_deleted_app_access_token(self):
+        deleted_app_id = '174236045938435'
+        deleted_secret = '0073dce2d95c4a5c2922d1827ea0cca6'
+        self.assert_raises_multi_regex(facebook.GraphAPIError,
+                                       'Error validating application. Application has been deleted.',
+                                       facebook.get_app_access_token,
+                                       deleted_app_id, deleted_secret)
 
 class TestAPIVersion(FacebookTestCase):
     """Test if using the correct version of Graph API."""
@@ -95,6 +115,30 @@ class TestFQL(FacebookTestCase):
                 self.app_id)
             self.assertEqual(fql_result["data"][0]["app_id"], str(self.app_id))
 
+
+class TestGraphApi(FacebookTestCase):
+    def test_bogus_access_token(self):
+        graph = facebook.GraphAPI(access_token='wrong_token')
+        self.assert_raises_multi_regex(facebook.GraphAPIError, 'Invalid OAuth access token.', graph.get_object, 'me')
+
+    def test_access_with_expired_access_token(self):
+        expired_token = 'AAABrFmeaJjgBAIshbq5ZBqZBICsmveZCZBi6O4w9HSTkFI73VMtmkL9j' \
+                        'LuWsZBZC9QMHvJFtSulZAqonZBRIByzGooCZC8DWr0t1M4BL9FARdQwPWPnIqCiFQ'
+        graph = facebook.GraphAPI(access_token=expired_token)
+        self.assert_raises_multi_regex(facebook.GraphAPIError,
+                                       'Error validating access token: The session was '
+                                       'invalidated explicitly using an API call.',
+                                        graph.get_object, 'me')
+
+    def test_with_only_params(self):
+        graph = facebook.GraphAPI()
+        jerry = graph.get_object('jerry')
+        self.assertTrue(jerry['id'], 'User ID should be public.')
+        self.assertTrue(jerry['name'], 'User\'s name should be public.')
+        self.assertTrue(jerry['first_name'], 'User\'s first name should be public.')
+        self.assertTrue(jerry['last_name'], 'User\'s last name should be public.')
+        self.assertTrue(jerry['link'], 'User\'s link should be public.')
+        self.assertTrue(jerry['username'], 'User\'s username should be public.')
 
 if __name__ == '__main__':
     unittest.main()
