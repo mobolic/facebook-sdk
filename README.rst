@@ -24,6 +24,7 @@ Basic usage:
     friends = graph.get_connections("me", "friends")
     graph.put_object("me", "feed", message="I am writing on my wall!")
 
+
 Photo uploads:
 
 .. code-block:: python
