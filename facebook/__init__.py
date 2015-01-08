@@ -198,11 +198,11 @@ class GraphAPI(object):
         """
         object_id = where or "me/videos"
         kwargs.update({"description": description, "title": title})
-        self.request(object_id,
-                     post_args=kwargs,
-                     files={"source": video},
-                     method="POST",
-                     video=True)
+        return self.request(object_id,
+                            post_args=kwargs,
+                            files={"source": video},
+                            method="POST",
+                            video=True)
 
     def put_photo(self, image, message=None, album_id=None, **kwargs):
         """Uploads an image using multipart/form-data.
