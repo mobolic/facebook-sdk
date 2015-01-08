@@ -7,6 +7,7 @@ Facebook SDK for Python
 
    install
    support
+   api
 
 This client library is designed to support the `Facebook Graph API`_ and the
 official `Facebook JavaScript SDK`_, which is the canonical way to implement
