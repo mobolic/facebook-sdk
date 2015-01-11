@@ -9,6 +9,7 @@ install:
 before_script:
   - "flake8 --ignore=F401 examples"
   - "flake8 facebook"
+  - "flake8 test"
 script: python -m test.test_facebook
 env:
       global:
