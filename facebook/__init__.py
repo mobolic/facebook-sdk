@@ -33,7 +33,6 @@ if user:
 
 """
 
-import urllib
 import hashlib
 import hmac
 import base64
@@ -41,11 +40,11 @@ import requests
 import json
 import re
 
-# Find a query string parser
 try:
-    from urllib.parse import parse_qs
+    from urllib.parse import parse_qs, urlencode
 except ImportError:
     from urlparse import parse_qs
+    from urllib import urlencode
 
 from . import version
 
@@ -432,7 +431,7 @@ def auth_url(app_id, canvas_url, perms=None, **kwargs):
     if perms:
         kvps['scope'] = ",".join(perms)
     kvps.update(kwargs)
-    return url + urllib.urlencode(kvps)
+    return url + urlencode(kvps)
 
 
 def get_access_token_from_code(code, redirect_uri, app_id, app_secret):

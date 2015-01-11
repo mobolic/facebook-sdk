@@ -17,6 +17,11 @@ import facebook
 import os
 import unittest
 
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
+
 
 class FacebookTestCase(unittest.TestCase):
     """Sets up application ID and secret from environment."""
@@ -94,6 +99,20 @@ class TestFQL(FacebookTestCase):
                 "SELECT app_id from application where app_id = %s" %
                 self.app_id)
             self.assertEqual(fql_result["data"][0]["app_id"], str(self.app_id))
+
+
+class TestAuthURL(FacebookTestCase):
+    def test_auth_url(self):
+        perms = ['email', 'birthday']
+        redirect_url = 'https://localhost/facebook/callback/'
+
+        expected_url = 'https://www.facebook.com/dialog/oauth?' + urlencode(
+            dict(client_id=self.app_id,
+                 redirect_uri=redirect_url,
+                 scope=','.join(perms)))
+        actual_url = facebook.auth_url(self.app_id, redirect_url, perms=perms)
+
+        self.assertEqual(actual_url, expected_url)
 
 
 if __name__ == '__main__':
