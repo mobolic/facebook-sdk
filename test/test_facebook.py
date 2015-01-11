@@ -18,8 +18,9 @@ import os
 import unittest
 
 try:
-    from urllib.parse import urlencode
+    from urllib.parse import parse_qs, urlencode, urlparse
 except ImportError:
+    from urlparse import parse_qs, urlparse
     from urllib import urlencode
 
 
@@ -112,7 +113,19 @@ class TestAuthURL(FacebookTestCase):
                  scope=','.join(perms)))
         actual_url = facebook.auth_url(self.app_id, redirect_url, perms=perms)
 
-        self.assertEqual(actual_url, expected_url)
+        # Since the order of the query string parameters might be
+        # different in each URL, we cannot just compare them to each
+        # other.
+        expected_url_result = urlparse(expected_url)
+        actual_url_result = urlparse(actual_url)
+        expected_query = parse_qs(expected_url_result.query)
+        actual_query = parse_qs(actual_url_result.query)
+
+        self.assertEqual(actual_url_result.scheme, expected_url_result.scheme)
+        self.assertEqual(actual_url_result.netloc, expected_url_result.netloc)
+        self.assertEqual(actual_url_result.path, expected_url_result.path)
+        self.assertEqual(actual_url_result.params, expected_url_result.params)
+        self.assertEqual(actual_query, expected_query)
 
 
 if __name__ == '__main__':
