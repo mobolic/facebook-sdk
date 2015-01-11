@@ -45,7 +45,9 @@ class TestGetAppAccessToken(FacebookTestCase):
     """
     def test_get_app_access_token(self):
         token = facebook.get_app_access_token(self.app_id, self.secret)
-        assert(isinstance(token, str) or isinstance(token, unicode))
+        # Since "unicode" does not exist in Python 3, we cannot check
+        # the following line with flake8 (hence the noqa comment).
+        assert(isinstance(token, str) or isinstance(token, unicode))    # noqa
 
 
 class TestAPIVersion(FacebookTestCase):
