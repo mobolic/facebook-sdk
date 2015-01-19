@@ -188,6 +188,21 @@ class GraphAPI(object):
         """Deletes the Request with the given ID for the given user."""
         self.request("%s_%s" % (request_id, user_id), method="DELETE")
 
+    def put_video(
+            self, video, where=None, description=None, title=None, **kwargs):
+        """Uploads an image using multipart/form-data.
+
+        video=File like object for the video
+
+        """
+        object_id = where or "me/videos"
+        kwargs.update({"description": description, "title": title})
+        return self.request(object_id,
+                            post_args=kwargs,
+                            files={"source": video},
+                            method="POST",
+                            video=True)
+
     def put_photo(self, image, message=None, album_id=None, **kwargs):
         """Uploads an image using multipart/form-data.
 
@@ -224,8 +239,8 @@ class GraphAPI(object):
         except Exception:
             raise GraphAPIError("API version number not available")
 
-    def request(
-            self, path, args=None, post_args=None, files=None, method=None):
+    def request(self, path, args=None, post_args=None,
+                files=None, method=None, video=False):
         """Fetches the given path in the Graph API.
 
         We translate args to a valid query string. If post_args is
@@ -243,8 +258,9 @@ class GraphAPI(object):
 
         try:
             response = requests.request(method or "GET",
-                                        "https://graph.facebook.com/" +
-                                        path,
+                                        ("https://graph.facebook.com/"
+                                         if not video else
+                                         "https://graph-video.facebook.com/") + path,
                                         timeout=self.timeout,
                                         params=args,
                                         data=post_args,
