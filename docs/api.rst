@@ -44,8 +44,8 @@ You can read more about `Facebook's Graph API here`_.
 Methods
 -------
 
-get_object(id, \*\*args)
-^^^^^^^^^^^^^^^^^^^^^^^^
+get_object
+^^^^^^^^^^
 
 Returns the given object from the graph as a ``dict``. A list of
 `supported objects can be found here`_.
@@ -64,8 +64,8 @@ Returns the given object from the graph as a ``dict``. A list of
     print post['message']
 
 
-get_objects(id, \*\*args)
-^^^^^^^^^^^^^^^^^^^^^^^^^
+get_objects
+^^^^^^^^^^^
 
 Returns all of the given objects from the graph as a ``dict``. Each given ID
 maps to an object.
@@ -86,8 +86,8 @@ maps to an object.
         print posts[post_id]['created_time']
 
 
-get_connections(id, connection_name, \*\*args)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+get_connections
+^^^^^^^^^^^^^^^
 
 Returns all connections for a given object as a ``dict``.
 
@@ -110,8 +110,8 @@ Returns all connections for a given object as a ``dict``.
     comments = graph.get_connections(id='post_id', connection_name='comments')
 
 
-put_object(parent_object, connection_name, \*\*data)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+put_object
+^^^^^^^^^^
 
 Writes the given object to the graph, connected to the given parent.
 
@@ -136,8 +136,8 @@ Writes the given object to the graph, connected to the given parent.
                      message='First!')
 
 
-put_wall_post(message, attachment, profile_id)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+put_wall_post
+^^^^^^^^^^^^^
 
 Writes a wall post to the given profile's wall. It defaults to writing to the
 authenticated user's wall if no ``profile_id`` is specified.
@@ -178,8 +178,8 @@ authenticated user's wall if no ``profile_id`` is specified.
     graph.put_wall_post(message='Check this out...', attachment=attachment)
 
 
-put_comment(object_id, message)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+put_comment
+^^^^^^^^^^^
 
 Writes the given message as a comment on an object.
 
@@ -195,8 +195,8 @@ Writes the given message as a comment on an object.
     graph.put_comment(object_id='post_id', message='Great post...')
 
 
-put_like(object_id)
-^^^^^^^^^^^^^^^^^^^
+put_like
+^^^^^^^^
 
 Writes a like to the given object.
 
@@ -211,8 +211,8 @@ Writes a like to the given object.
     graph.put_like(object_id='comment_id')
 
 
-put_photo(image, album_path, \*\*kwargs)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+put_photo
+^^^^^^^^^
 
 https://developers.facebook.com/docs/graph-api/reference/user/photos#publish
 
@@ -237,8 +237,8 @@ photo and its post.
     # Upload a profile photo for a Page.
     graph.put_photo(image=open("img.jpg"), album_path=page_id + "/picture")
 
-delete_object(id)
-^^^^^^^^^^^^^^^^^
+delete_object
+^^^^^^^^^^^^^
 
 Deletes the object with the given ID from the graph.
 
