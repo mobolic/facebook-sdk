@@ -211,7 +211,7 @@ Writes a like to the given object.
     graph.put_like(object_id='comment_id')
 
 
-put_photo(image, message, path, \*\*kwargs)
+put_photo(image, album_path, \*\*kwargs)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 https://developers.facebook.com/docs/graph-api/reference/user/photos#publish
