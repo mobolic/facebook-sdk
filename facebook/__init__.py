@@ -199,10 +199,11 @@ class GraphAPI(object):
         """
         object_id = album_id or "me"
         kwargs.update({"message": message})
-        self.request(self.version + "/" + object_id,
-                     post_args=kwargs,
-                     files={"file": image},
-                     method="POST")
+        return self.request(
+            self.version + "/" + object_id,
+            post_args=kwargs,
+            files={"file": image},
+            method="POST")
 
     def get_version(self):
         """Fetches the current version number of the Graph API being used."""
