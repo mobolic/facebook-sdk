@@ -11,43 +11,6 @@ Facebook authentication. You can read more about the Graph API by accessing its
 .. _Facebook JavaScript SDK: https://developers.facebook.com/docs/reference/javascript/
 .. _official documentation: https://developers.facebook.com/docs/reference/api/
 
-Examples
-========
-
-Basic usage:
-
-.. code-block:: python
-
-    import facebook
-    graph = facebook.GraphAPI(oauth_access_token)
-    profile = graph.get_object("me")
-    friends = graph.get_connections("me", "friends")
-    graph.put_object("me", "feed", message="I am writing on my wall!")
-
-Photo uploads:
-
-.. code-block:: python
-
-    graph = facebook.GraphAPI(oauth_access_token)
-    tags = json.dumps([{'x':50, 'y':50, 'tag_uid':12345}, {'x':10, 'y':60, 'tag_text':'a turtle'}])
-    graph.put_photo(open('img.jpg'), 'Look at this cool photo!', album_id_or_None, tags=tags)
-
-If you are using the module within a web application with the JavaScript SDK,
-you can also use the module to use Facebook for login, parsing the cookie set
-by the JavaScript SDK for logged in users. For example, in Google AppEngine,
-you could get the profile of the logged in user with:
-
-.. code-block:: python
-
-    user = facebook.get_user_from_cookie(self.request.cookies, key, secret)
-    if user:
-        graph = facebook.GraphAPI(user["access_token"])
-        profile = graph.get_object("me")
-        friends = graph.get_connections("me", "friends")
-
-
-You can see a full AppEngine example application in examples/appengine.
-
 Licensing
 =========
 

@@ -211,29 +211,31 @@ Writes a like to the given object.
     graph.put_like(object_id='comment_id')
 
 
-put_photo(image, message, album_id, \*\*kwargs)
+put_photo(image, message, path, \*\*kwargs)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Uploads an image using multipart/form-data.
+https://developers.facebook.com/docs/graph-api/reference/user/photos#publish
+
+Upload an image using multipart/form-data. Returns JSON with the IDs of the
+photo and its post.
 
 **Parameters**
 
-* ``image`` -  An image of the ``file`` type
-* ``message`` - A ``string`` that will caption the image
-* ``album_id`` - A ``string`` that is a unique id for an album. If no
-  ``album_id`` is provided, the photo posts to /me/photos which uses, or
-  creates and uses, an album for your application.
+  * ``image`` - A file object representing the image to be uploaded.
+  * ``album_path`` - A path representing where the image should be uploaded.
+    Defaults to `/me/photos` which creates/uses a custom album for each
+    Facebook application.
 
 **Example**
 
 .. code-block:: python
 
-    tags = json.dumps([
-        {'x':50, 'y':50, 'tag_uid':12345},
-        {'x':10, 'y':60, 'tag_text':'a turtle'}
-    ])
-    graph.put_photo(image=open('img.jpg'), message='Look at this cool photo!',
-                    tags=tags)
+    # Upload an image with a caption.
+    graph.put_photo(image=open('img.jpg'), message='Look at this cool photo!')
+    # Upload a photo to an album.
+    graph.put_photo(image=open("img.jpg"), album_path=album_id + "/photos")
+    # Upload a profile photo for a Page.
+    graph.put_photo(image=open("img.jpg"), album_path=page_id + "/picture")
 
 delete_object(id)
 ^^^^^^^^^^^^^^^^^

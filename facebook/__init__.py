@@ -188,21 +188,19 @@ class GraphAPI(object):
         """Deletes the Request with the given ID for the given user."""
         self.request("%s_%s" % (request_id, user_id), method="DELETE")
 
-    def put_photo(self, image, message=None, album_id=None, **kwargs):
-        """Uploads an image using multipart/form-data.
+    def put_photo(self, image, album_path="me/photos", **kwargs):
+        """
+        Upload an image using multipart/form-data.
 
-        image=File like object for the image
-        message=Caption for your image
-        album_id=None posts to /me/photos which uses or creates and uses
-        an album for your application.
+        image - A file object representing the image to be uploaded.
+        album_path - A path representing where the image should be uploaded.
 
         """
-        object_id = album_id or "me"
-        kwargs.update({"message": message})
-        self.request(self.version + "/" + object_id,
-                     post_args=kwargs,
-                     files={"file": image},
-                     method="POST")
+        return self.request(
+            self.version + "/" + album_path,
+            post_args=kwargs,
+            files={"source": image},
+            method="POST")
 
     def get_version(self):
         """Fetches the current version number of the Graph API being used."""
