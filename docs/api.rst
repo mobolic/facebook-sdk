@@ -61,7 +61,7 @@ Returns the given object from the graph as a ``dict``. A list of
 .. code-block:: python
 
     post = graph.get_object(id='post_id')
-    print post['message']
+    print(post['message'])
 
 
 get_objects
@@ -83,7 +83,7 @@ maps to an object.
 
     # Each given id maps to an object.
     for post_id in post_ids:
-        print posts[post_id]['created_time']
+        print(posts[post_id]['created_time'])
 
 
 get_connections
