@@ -27,9 +27,6 @@ A barebones AppEngine application that uses Facebook for login.
 5.  Change the application name in app.yaml.
 
 """
-FACEBOOK_APP_ID = "your app id"
-FACEBOOK_APP_SECRET = "your app secret"
-
 import facebook
 import webapp2
 import os
@@ -38,6 +35,10 @@ import urllib2
 
 from google.appengine.ext import db
 from webapp2_extras import sessions
+
+
+FACEBOOK_APP_ID = "your app id"
+FACEBOOK_APP_SECRET = "your app secret"
 
 config = {}
 config['webapp2_extras.sessions'] = dict(secret_key='')
