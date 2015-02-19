@@ -15,10 +15,6 @@
 # under the License.
 
 """A Facebook stream client written against the Facebook Graph API."""
-
-FACEBOOK_APP_ID = "your app id"
-FACEBOOK_APP_SECRET = "your app secret"
-
 import datetime
 import facebook
 import os
@@ -29,6 +25,10 @@ from google.appengine.ext import db
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 from google.appengine.ext.webapp import template
+
+
+FACEBOOK_APP_ID = "your app id"
+FACEBOOK_APP_SECRET = "your app secret"
 
 
 class User(db.Model):
