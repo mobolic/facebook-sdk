@@ -322,16 +322,16 @@ class GraphAPI(object):
 
         return self.request("oauth/access_token", args=args)
     
-    def debug_access_token(self, token, app_id, app_secret):
+    def debug_access_token(self, app_id, app_secret):
         """
-        Gets information about an access token. See
+        Gets information about the access token. See
         <https://developers.facebook.com/docs/facebook-login/access-tokens
         #debug>
         
         """
         
         args = {
-            "input_token": token,
+            "input_token": self.access_token,
             "access_token": "%s|%s" % (app_id, app_secret)
         }
         return self.request("/debug_token", args=args)
