@@ -130,5 +130,16 @@ class TestAuthURL(FacebookTestCase):
         self.assertEqual(actual_query, expected_query)
 
 
+class TestGetObject(FacebookTestCase):
+    def test_get_object(self):
+        graph = facebook.GraphAPI(access_token=facebook.get_app_access_token(
+            self.app_id, self.secret), version=2.0)
+
+        graph_obj = graph.get_object(
+            '', id='http://facebook.com', fields='og_object{comments}')
+
+        self.assertIsNotNone(graph_obj)
+
+
 if __name__ == '__main__':
     unittest.main()
