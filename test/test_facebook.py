@@ -133,8 +133,9 @@ class TestAuthURL(FacebookTestCase):
 class TestGetObject(FacebookTestCase):
     def test_get_object(self):
         # The value we are passing as 'fields' is valid only in 2.1+.
-        graph = facebook.GraphAPI(access_token=facebook.get_app_access_token(
-            self.app_id, self.secret), version=2.1)
+        graph = facebook.GraphAPI(version=2.1)
+        graph.access_token = graph.get_app_access_token(
+            self.app_id, self.secret)
         # We should be able to use 'id' as a keyword argument.
         graph_obj = graph.get_object(
             '', id='http://facebook.com', fields='og_object{comments}')
