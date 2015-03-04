@@ -329,10 +329,9 @@ class GraphAPI(object):
         #debug>
         
         """
-        
         args = {
             "input_token": self.access_token,
-            "access_token": "%s|%s" % (app_id, app_secret)
+            "access_token": self.get_app_access_token(app_id, app_secret)
         }
         return self.request("/debug_token", args=args)
 
