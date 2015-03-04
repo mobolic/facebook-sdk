@@ -322,7 +322,7 @@ class GraphAPI(object):
 
         return self.request("oauth/access_token", args=args)
     
-    def debug_access_token(self, app_id, app_secret):
+    def debug_access_token(self, token, app_id, app_secret):
         """
         Gets information about the access token. See
         <https://developers.facebook.com/docs/facebook-login/access-tokens
@@ -330,8 +330,8 @@ class GraphAPI(object):
         
         """
         args = {
-            "input_token": self.access_token,
-            "access_token": self.get_app_access_token(app_id, app_secret)
+            "input_token": token,
+            "access_token": "%s|%s" % (app_id, app_secret)
         }
         return self.request("/debug_token", args=args)
 
@@ -451,3 +451,6 @@ def get_access_token_from_code(code, redirect_uri, app_id, app_secret):
 
 def get_app_access_token(app_id, app_secret):
     return GraphAPI().get_app_access_token(app_id, app_secret)
+
+def debug_access_token(token, app_id, app_secret):
+    return GraphAPI().debug_access_token(token, app_id, app_secret)
