@@ -338,6 +338,7 @@ class GraphAPIError(Exception):
             # OAuth 2.0 Draft 00
             try:
                 self.message = result["error"]["message"]
+                self.type = result["error"]["code"]
             except:
                 # REST server style
                 try:
