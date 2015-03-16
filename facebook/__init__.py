@@ -82,7 +82,8 @@ class GraphAPI(object):
 
     """
 
-    def __init__(self, access_token=None, timeout=None, version=None, session=None):
+    def __init__(self, access_token=None, timeout=None,
+                 version=None, session=None):
         # The default version is only used if the version kwarg does not exist.
         default_version = "1.0"
         valid_API_versions = ["1.0", "2.0", "2.1", "2.2"]
@@ -232,7 +233,7 @@ class GraphAPI(object):
         arguments.
 
         """
-        
+
         if self.access_token:
             if post_args is not None:
                 post_args["access_token"] = self.access_token
