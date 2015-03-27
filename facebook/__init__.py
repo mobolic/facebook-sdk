@@ -85,7 +85,7 @@ class GraphAPI(object):
     def __init__(self, access_token=None, timeout=None, version=None):
         # The default version is only used if the version kwarg does not exist.
         default_version = "1.0"
-        valid_API_versions = ["1.0", "2.0", "2.1", "2.2"]
+        valid_API_versions = ["1.0", "2.0", "2.1", "2.2", "2.3"]
 
         self.access_token = access_token
         self.timeout = timeout
