@@ -233,6 +233,9 @@ class GraphAPI(object):
         """
         args = args or {}
 
+        if post_args is not None:
+            method="POST"
+
         if self.access_token:
             if post_args is not None:
                 post_args["access_token"] = self.access_token
