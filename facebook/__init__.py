@@ -35,6 +35,7 @@ if user:
 
 import hashlib
 import hmac
+import binascii
 import base64
 import requests
 import json
@@ -407,8 +408,11 @@ def parse_signed_request(signed_request, app_secret):
     except TypeError:
         # Signed request had a corrupted payload.
         return False
+    except binascii.Error:
+        # Signed request had a corrupted payload.
+        return False
 
-    data = json.loads(data)
+    data = json.loads(data.decode('ascii'))
     if data.get('algorithm', '').upper() != 'HMAC-SHA256':
         return False
 
