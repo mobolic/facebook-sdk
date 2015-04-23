@@ -134,5 +134,43 @@ class TestAuthURL(FacebookTestCase):
         self.assertEqual(actual_query, expected_query)
 
 
+class TestParseSignedRequest(FacebookTestCase):
+    # TODO: Should use the one we have in `self.secret` but I dont have access
+    #       to the app to create a cookie for the test.
+    secret_key = 'd482b58553dec8c1b48153ff3d34b75a'
+    cookie = (
+        'DmRwJTeQlACNNyt_JAb_53dRqNh7tsC53Sb4nZlOycc.eyJhbGdvcml0aG0iOiJITUFDL'
+        'VNIQTI1NiIsImNvZGUiOiJBUUFEMkIyb3ZhU293bURmRXM4RDZfdjRId2FhUnp6R21fTk'
+        '9ZSVc2eHUwakk1aE1jSW5rRkg0aW1wdF9UUGd4QkZ5Q0F6LWhvMG1TVDB0SzFyRlpRODZ'
+        'uUnprWFNoM0tnX2tUWnkyTE96N01QQ0p0OXhvYkF2YjNwTUZVYXBxYkdLekhsVmtnS3ls'
+        'THFVSllRbzZXalROU0ZCdkN3SkU5M2lEejhiT2pVM2hYdlc0dU51S0ZpaWFSMU1CQ0tuT'
+        '0NXeUtqVzhtRGJOUXkzQUNrWWJRRGc0TlBqSGhCaWJhREJCQ0M1NjR3X3IycUNiSExDbE'
+        'ZMMXRBRTRxVlprSV9KOXV0RHp3T2ZoRTZPNUZZRmsxWFNSQjBNRlkwNDhfRVpWaHQwWnF'
+        '0cFFtdGV1RmJuRnhCQkJXS1VGU2ZkblhLNk5NZ0tBdzRHdEdIdFpMcXgwSDNhb1NEUSIs'
+        'Imlzc3VlZF9hdCI6MTQyOTc4NDMzNywidXNlcl9pZCI6IjEzODY5NzY4MzgyNzQyOTMif'
+        'Q'
+    )
+
+    def test_parse_signed_request_when_erroneous(self):
+        result = facebook.parse_signed_request(
+            signed_request='corrupted.payload',
+            # TODO: We should use the one defined in environment
+            app_secret=self.secret_key
+        )
+        self.assertFalse(result)
+
+    def test_parse_signed_request_when_correct(self):
+        result = facebook.parse_signed_request(
+            signed_request=self.cookie,
+            # TODO: We should use the one defined in environment
+            app_secret=self.secret_key
+        )
+
+        self.assertTrue('issued_at' in result)
+        self.assertTrue('code' in result)
+        self.assertTrue('user_id' in result)
+        self.assertTrue('algorithm' in result)
+
+
 if __name__ == '__main__':
     unittest.main()
