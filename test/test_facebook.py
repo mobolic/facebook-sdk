@@ -80,13 +80,13 @@ class TestAPIVersion(FacebookTestCase):
 
     def test_invalid_format(self):
         self.assertRaises(facebook.GraphAPIError,
-                          facebook.GraphAPI, version="1.a")
+                          facebook.GraphAPI, version="2.a")
         self.assertRaises(facebook.GraphAPIError,
                           facebook.GraphAPI, version="a.1")
         self.assertRaises(facebook.GraphAPIError,
-                          facebook.GraphAPI, version=1.23)
+                          facebook.GraphAPI, version=2.23)
         self.assertRaises(facebook.GraphAPIError,
-                          facebook.GraphAPI, version="1.23")
+                          facebook.GraphAPI, version="2.23")
 
 
 class TestFQL(FacebookTestCase):
