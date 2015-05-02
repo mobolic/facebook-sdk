@@ -58,10 +58,6 @@ class TestAPIVersion(FacebookTestCase):
         self.assertNotEqual(
             graph.version, "", "Version should not be an empty string.")
 
-    def test_version_1_0(self):
-        graph = facebook.GraphAPI(version=1.0)
-        self.assertEqual(graph.get_version(), 1.0)
-
     def test_version_2_0(self):
         graph = facebook.GraphAPI(version=2.0)
         self.assertEqual(graph.get_version(), 2.0)
