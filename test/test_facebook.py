@@ -143,9 +143,10 @@ class TestExtendAccessToken(FacebookTestCase):
     """
     def test_extend_access_token(self):
         try:
-            facebook.extend_access_token(self.app_id, self.secret)
+            facebook.GraphAPI().extend_access_token(self.app_id, self.secret)
         except facebook.GraphAPIError as e:
-            assert e.message == 'No user access token specified'
+            self.assertEqual(
+                e.message, "fb_exchange_token parameter not specified")
 
 
 if __name__ == '__main__':
