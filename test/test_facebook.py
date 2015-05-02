@@ -134,5 +134,20 @@ class TestAuthURL(FacebookTestCase):
         self.assertEqual(actual_query, expected_query)
 
 
+class TestExtendAccessToken(FacebookTestCase):
+    """
+    Test if extend_access_token requests the correct endpoint.
+
+    Note that this only tests whether extend_access_token returns the correct
+    error message when called without a proper user-access token.
+    """
+    def test_extend_access_token(self):
+        try:
+            facebook.GraphAPI().extend_access_token(self.app_id, self.secret)
+        except facebook.GraphAPIError as e:
+            self.assertEqual(
+                e.message, "fb_exchange_token parameter not specified")
+
+
 if __name__ == '__main__':
     unittest.main()
