@@ -84,8 +84,8 @@ class GraphAPI(object):
 
     def __init__(self, access_token=None, timeout=None, version=None):
         # The default version is only used if the version kwarg does not exist.
-        default_version = "1.0"
-        valid_API_versions = ["1.0", "2.0", "2.1", "2.2", "2.3"]
+        default_version = "2.0"
+        valid_API_versions = ["2.0", "2.1", "2.2", "2.3"]
 
         self.access_token = access_token
         self.timeout = timeout
@@ -101,7 +101,7 @@ class GraphAPI(object):
                     self.version = "v" + str(version)
             else:
                 raise GraphAPIError("Version number should be in the"
-                                    " following format: #.# (e.g. 1.0).")
+                                    " following format: #.# (e.g. 2.0).")
         else:
             self.version = "v" + default_version
 
