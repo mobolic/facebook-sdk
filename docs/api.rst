@@ -25,8 +25,8 @@ You can read more about `Facebook's Graph API here`_.
 * ``timeout`` - A ``float`` describing (in seconds) how long the client will
   waiting for a response from Facebook's servers. `See more here`_.
 * ``version`` - A ``string`` describing the `version of Facebook's Graph API to
-  use`_. Valid API versions are ``1.0``, ``2.0``, ``2.1`` and ``2.2``. The
-  default version is ``1.0`` and is used if the version keyword argument is not
+  use`_. Valid API versions are ``2.0``, ``2.1`` and ``2.2``. The
+  default version is ``2.0`` and is used if the version keyword argument is not
   provided.
 
 .. _Read more about access tokens here: https://developers.facebook.com/docs/facebook-login/access-tokens
