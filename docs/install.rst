@@ -2,8 +2,8 @@
 Installation
 ============
 
-The SDK currently supports Python 2.6, 2.7, and 3.3. The `requests`_ package is
-required.
+The SDK currently supports Python 2.6, 2.7, 3.3, and 3.4. The `requests`_
+package is required.
 
 We recommend using `pip`_ and `virtualenv`_ to install the SDK. Please note
 that the SDK's Python package is called **facebook-sdk**: ::
