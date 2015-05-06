@@ -1,16 +1,17 @@
 language: python
 python:
+  - "3.4"
   - "3.3"
   - "2.7"
   - "2.6"
 install:
   - "pip install flake8"
   - "pip install ."
-before_script:
+script:
+  - "python -m test.test_facebook"
   - "flake8 --ignore=E402,F401 examples"
   - "flake8 facebook"
   - "flake8 test"
-script: python -m test.test_facebook
 env:
       global:
       - FACEBOOK_APP_ID=198798870326423
