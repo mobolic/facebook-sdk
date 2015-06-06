@@ -182,11 +182,15 @@ class GraphAPI(object):
 
     def edit_post(self, object_id, message):
         """Edits message of the given post."""
-        return self.request(self.version + "/" + object_id, post_args={'message': message}, method="POST")
+        return self.request(self.version + "/" + object_id,
+                            post_args={'message': message},
+                            method="POST")
 
     def edit_comment(self, object_id, message):
         """Edits message of the given comment."""
-        return self.request(self.version + "/" + object_id, post_args={'message': message}, method="POST")
+        return self.request(self.version + "/" + object_id,
+                            post_args={'message': message},
+                            method="POST")
 
     def delete_object(self, id):
         """Deletes the object with the given ID from the graph."""
@@ -194,11 +198,13 @@ class GraphAPI(object):
 
     def delete_request(self, user_id, request_id):
         """Deletes the Request with the given ID for the given user."""
-        self.request("%s_%s" % (request_id, user_id), method="DELETE")
+        self.request("%s_%s" % (request_id, user_id),
+                     method="DELETE")
 
     def delete_likes_object(self, object_id):
         """Deletes the likes of the given object."""
-        self.request(self.version + "/" + object_id + "/likes", method="DELETE")
+        self.request(self.version + "/" + object_id + "/likes",
+                     method="DELETE")
 
     def put_photo(self, image, album_path="me/photos", **kwargs):
         """
