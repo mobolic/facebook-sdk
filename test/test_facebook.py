@@ -150,46 +150,43 @@ class TestPostCommentEditing(FacebookTestCase):
     Test post and comment editing functions
     """
 
-    post = None
-    graph = None
-
-    def __init__(self):
-        super(FacebookTestCase, self).setUp()
-        self.graph = facebook.GraphAPI(access_token=
-                                       facebook.get_app_access_token(
-                                       self.app_id, self.secret),
-                                       version=2.0)
-
     def test_edit_post(self):
         orig_msg = "Hello World!"
         mod_msg = "Hello World! (mod)"
+        graph = facebook.GraphAPI(access_token=
+                                  facebook.get_app_access_token(
+                                  self.app_id, self.secret),
+                                  version=2.0)
         # Create post
-        self.post = self.graph.put_wall_post(orig_msg)
-        self.assertEqual(self.post["message"], orig_msg)
+        post = graph.put_wall_post(orig_msg)
+        self.assertEqual(post["message"], orig_msg)
         # Edit message of created post
-        mod_post = self.graph.edit_post(object_id=self.post["id"],
-                                        message=mod_msg)
+        mod_post = graph.edit_post(object_id=post["id"], message=mod_msg)
         self.assertEqual(mod_post["message"], mod_msg)
         # Delete testing post
-        self.graph.delete_object(self.post['id'])
+        graph.delete_object(post['id'])
 
     def test_edit_comment(self):
         post_msg = "Hello World!"
         comment_msg = "Nice post!"
         comment_mod_msg = "Nice post! (mod)"
+        graph = facebook.GraphAPI(access_token=
+                                  facebook.get_app_access_token(
+                                  self.app_id, self.secret),
+                                  version=2.0)
         # Create post
-        self.post = self.graph.put_wall_post(post_msg)
-        self.assertEqual(self.post["message"], post_msg)
+        post = graph.put_wall_post(post_msg)
+        self.assertEqual(post["message"], post_msg)
         # Add comment to post
-        orig_comment = self.graph.put_comment(object_id=self.post['id'],
-                                              message=comment_msg)
+        orig_comment = graph.put_comment(object_id=post['id'],
+                                         message=comment_msg)
         self.assertEqual(orig_comment['message'], comment_msg)
         # Edit message of comment
-        mod_comment = self.graph.edit_comment(object_id=orig_comment['id'],
-                                              message=comment_mod_msg)
+        mod_comment = graph.edit_comment(object_id=orig_comment['id'],
+                                         message=comment_mod_msg)
         self.assertEqual(mod_comment['message'], comment_mod_msg)
         # Delete testing post
-        self.graph.delete_object(self.post['id'])
+        graph.delete_object(post['id'])
 
 
 class TestDeleteLikes(FacebookTestCase):
