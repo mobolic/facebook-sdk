@@ -145,5 +145,72 @@ class TestExtendAccessToken(FacebookTestCase):
                 e.message, "fb_exchange_token parameter not specified")
 
 
+class TestPostCommentEditing(FacebookTestCase):
+    """
+    Test post and comment editing functions
+    """
+
+    post = None
+    graph = None
+
+    def __init__(self):
+        super(FacebookTestCase, self).setUp()
+        self.graph = facebook.GraphAPI(access_token=
+                                       facebook.get_app_access_token(
+                                       self.app_id, self.secret),
+                                       version=2.0)
+
+    def test_edit_post(self):
+        orig_msg = "Hello World!"
+        mod_msg = "Hello World! (mod)"
+        # Create post
+        self.post = self.graph.put_wall_post(orig_msg)
+        self.assertEqual(self.post["message"], orig_msg)
+        # Edit message of created post
+        mod_post = self.graph.edit_post(object_id=self.post["id"],
+                                        message=mod_msg)
+        self.assertEqual(mod_post["message"], mod_msg)
+        # Delete testing post
+        self.graph.delete_object(self.post['id'])
+
+    def test_edit_comment(self):
+        post_msg = "Hello World!"
+        comment_msg = "Nice post!"
+        comment_mod_msg = "Nice post! (mod)"
+        # Create post
+        self.post = self.graph.put_wall_post(post_msg)
+        self.assertEqual(self.post["message"], post_msg)
+        # Add comment to post
+        orig_comment = self.graph.put_comment(object_id=self.post['id'],
+                                              message=comment_msg)
+        self.assertEqual(orig_comment['message'], comment_msg)
+        # Edit message of comment
+        mod_comment = self.graph.edit_comment(object_id=orig_comment['id'],
+                                              message=comment_mod_msg)
+        self.assertEqual(mod_comment['message'], comment_mod_msg)
+        # Delete testing post
+        self.graph.delete_object(self.post['id'])
+
+
+class TestDeleteLikes(FacebookTestCase):
+    """
+    Test delete likes function
+    """
+    def test_delete_likes(self):
+        post_msg = "Hello World!"
+        graph = facebook.GraphAPI(access_token=facebook.get_app_access_token(
+                                  self.app_id, self.secret), version=2.0)
+        # Create a post
+        post = graph.put_wall_post(post_msg)
+        # Like created post
+        post = graph.put_like(object_id=post['id'])
+        self.assertEqual(post['like_count'], 1)
+        # Delete post likes
+        post = graph.delete_likes_object(object_id=post['id'])
+        self.assertEqual(post['like_count'], 0)
+        # Delete testing post
+        graph.delete_object(post['id'])
+
+
 if __name__ == '__main__':
     unittest.main()
