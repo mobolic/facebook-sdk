@@ -145,12 +145,12 @@ class TestExtendAccessToken(FacebookTestCase):
                 e.message, "fb_exchange_token parameter not specified")
 
 
-class TestPostCommentEditing(FacebookTestCase):
+class TestEditObject(FacebookTestCase):
     """
-    Test post and comment editing functions
+    Test object editing function
     """
 
-    def test_edit_post(self):
+    def test_edit_object(self):
         orig_msg = "Hello World!"
         mod_msg = "Hello World! (mod)"
         graph = facebook.GraphAPI(access_token=
@@ -161,30 +161,8 @@ class TestPostCommentEditing(FacebookTestCase):
         post = graph.put_wall_post(orig_msg)
         self.assertEqual(post["message"], orig_msg)
         # Edit message of created post
-        mod_post = graph.edit_post(object_id=post["id"], message=mod_msg)
+        mod_post = graph.edit_object(object_id=post["id"], message=mod_msg)
         self.assertEqual(mod_post["message"], mod_msg)
-        # Delete testing post
-        graph.delete_object(post['id'])
-
-    def test_edit_comment(self):
-        post_msg = "Hello World!"
-        comment_msg = "Nice post!"
-        comment_mod_msg = "Nice post! (mod)"
-        graph = facebook.GraphAPI(access_token=
-                                  facebook.get_app_access_token(
-                                  self.app_id, self.secret),
-                                  version=2.0)
-        # Create post
-        post = graph.put_wall_post(post_msg)
-        self.assertEqual(post["message"], post_msg)
-        # Add comment to post
-        orig_comment = graph.put_comment(object_id=post['id'],
-                                         message=comment_msg)
-        self.assertEqual(orig_comment['message'], comment_msg)
-        # Edit message of comment
-        mod_comment = graph.edit_comment(object_id=orig_comment['id'],
-                                         message=comment_mod_msg)
-        self.assertEqual(mod_comment['message'], comment_mod_msg)
         # Delete testing post
         graph.delete_object(post['id'])
 
