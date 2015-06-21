@@ -22,15 +22,6 @@ implement Facebook authentication. Read more about the Graph API at
 http://developers.facebook.com/docs/api. You can download the Facebook
 JavaScript SDK at http://github.com/facebook/connect-js/.
 
-If your application is using Google AppEngine's webapp framework, your
-usage of this module might look like this:
-
-user = facebook.get_user_from_cookie(self.request.cookies, key, secret)
-if user:
-    graph = facebook.GraphAPI(user["access_token"])
-    profile = graph.get_object("me")
-    friends = graph.get_connections("me", "friends")
-
 """
 
 import hashlib
