@@ -6,6 +6,7 @@ Facebook SDK for Python
    :maxdepth: 2
 
    install
+   integration
    support
    api
 
