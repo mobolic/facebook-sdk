@@ -180,9 +180,9 @@ class GraphAPI(object):
         """Likes the given post."""
         return self.put_object(object_id, "likes")
 
-    def edit_object(self, object_id, message):
-        """Edits message of the given object."""
-        return self.request(self.version + "/" + object_id,
+    def edit_message_post(self, post_id, message):
+        """Replaces the text of the post with the given POST_ID with MESSAGE."""
+        return self.request(self.version + "/" + post_id,
                             post_args={'message': message},
                             method="POST")
 
@@ -195,8 +195,8 @@ class GraphAPI(object):
         self.request("%s_%s" % (request_id, user_id),
                      method="DELETE")
 
-    def delete_likes_object(self, object_id):
-        """Deletes likes of the given object."""
+    def delete_like(self, object_id):
+        """Deletes the like previously posted on the object with the given OBJECT_ID."""
         self.request(self.version + "/" + object_id + "/likes",
                      method="DELETE")
 
