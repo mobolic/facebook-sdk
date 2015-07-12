@@ -43,6 +43,9 @@ from . import version
 __version__ = version.__version__
 
 
+VALID_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3", "2.4"]
+
+
 class GraphAPI(object):
     """A client for the Facebook Graph API.
 
@@ -76,7 +79,6 @@ class GraphAPI(object):
     def __init__(self, access_token=None, timeout=None, version=None):
         # The default version is only used if the version kwarg does not exist.
         default_version = "2.0"
-        valid_API_versions = ["2.0", "2.1", "2.2", "2.3"]
 
         self.access_token = access_token
         self.timeout = timeout
@@ -85,9 +87,9 @@ class GraphAPI(object):
             version_regex = re.compile("^\d\.\d$")
             match = version_regex.search(str(version))
             if match is not None:
-                if str(version) not in valid_API_versions:
+                if str(version) not in VALID_API_VERSIONS:
                     raise GraphAPIError("Valid API versions are " +
-                                        str(valid_API_versions).strip('[]'))
+                                        str(VALID_API_VERSIONS).strip('[]'))
                 else:
                     self.version = "v" + str(version)
             else:
