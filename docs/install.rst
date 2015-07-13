@@ -14,6 +14,7 @@ Installing from Git
 For the newest features, you should install the SDK directly from Git.
 
 .. code-block::
+
     virtualenv facebookenv
     source facebookenv/bin/activate
     pip install -e git+https://github.com/pythonforfacebook/facebook-sdk.git#egg=facebook-sdk
@@ -23,6 +24,8 @@ Installing a Released Version
 
 If your application requires maximum stability, you will want to use a version
 of the SDK that has been officially released.
+
+.. code-block::
 
     virtualenv facebookenv
     source facebookenv/bin/activate
