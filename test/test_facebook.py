@@ -34,6 +34,20 @@ class FacebookTestCase(unittest.TestCase):
             raise Exception("FACEBOOK_APP_ID and FACEBOOK_SECRET "
                             "must be set as environmental variables.")
 
+    def assert_raises_multi_regex(
+            self, expected_exception, expected_regexp, callable_obj=None,
+            *args, **kwargs):
+        """
+        Custom function to backport assertRaisesRegexp to all supported
+        versions of Python.
+
+        """
+        self.assertRaises(expected_exception, callable_obj, *args, **kwargs)
+        try:
+            callable_obj(*args)
+        except facebook.GraphAPIError as error:
+            self.assertEqual(error.message, expected_regexp)
+
 
 class TestGetAppAccessToken(FacebookTestCase):
     """
@@ -48,6 +62,19 @@ class TestGetAppAccessToken(FacebookTestCase):
         # Since "unicode" does not exist in Python 3, we cannot check
         # the following line with flake8 (hence the noqa comment).
         assert(isinstance(token, str) or isinstance(token, unicode))    # noqa
+
+    def test_get_deleted_app_access_token(self):
+        deleted_app_id = '174236045938435'
+        deleted_secret = '0073dce2d95c4a5c2922d1827ea0cca6'
+        deleted_error_message = (
+            "Error validating application. Application has been deleted.")
+
+        self.assert_raises_multi_regex(
+            facebook.GraphAPIError,
+            deleted_error_message,
+            facebook.get_app_access_token,
+            deleted_app_id,
+            deleted_secret)
 
 
 class TestAPIVersion(FacebookTestCase):
@@ -119,19 +146,37 @@ class TestAuthURL(FacebookTestCase):
         self.assertEqual(actual_query, expected_query)
 
 
-class TestExtendAccessToken(FacebookTestCase):
-    """
-    Test if extend_access_token requests the correct endpoint.
-
-    Note that this only tests whether extend_access_token returns the correct
-    error message when called without a proper user-access token.
-    """
+class TestAccessToken(FacebookTestCase):
     def test_extend_access_token(self):
+        """
+        Test if extend_access_token requests the correct endpoint.
+
+        Note that this only tests whether extend_access_token returns the
+        correct error message when called without a proper user-access token.
+
+        """
         try:
             facebook.GraphAPI().extend_access_token(self.app_id, self.secret)
         except facebook.GraphAPIError as e:
             self.assertEqual(
                 e.message, "fb_exchange_token parameter not specified")
+
+    def test_bogus_access_token(self):
+        invalid_token_error_message = "Invalid OAuth access token."
+
+        graph = facebook.GraphAPI(access_token='wrong_token')
+        self.assert_raises_multi_regex(
+            facebook.GraphAPIError,
+            invalid_token_error_message,
+            graph.get_object,
+            "me")
+
+    def test_access_with_expired_access_token(self):
+        expired_token = (
+            "AAABrFmeaJjgBAIshbq5ZBqZBICsmveZCZBi6O4w9HSTkFI73VMtmkL9jLuWs"
+            "ZBZC9QMHvJFtSulZAqonZBRIByzGooCZC8DWr0t1M4BL9FARdQwPWPnIqCiFQ")
+        graph = facebook.GraphAPI(access_token=expired_token)
+        self.assertRaises(facebook.GraphAPIError, graph.get_object, 'me')
 
 
 if __name__ == '__main__':
