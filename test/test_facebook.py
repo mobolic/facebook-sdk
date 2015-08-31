@@ -16,7 +16,6 @@
 import facebook
 import os
 import unittest
-import sys
 
 try:
     from urllib.parse import parse_qs, urlencode, urlparse
@@ -76,6 +75,7 @@ class TestGetAppAccessToken(FacebookTestCase):
             facebook.get_app_access_token,
             deleted_app_id,
             deleted_secret)
+
 
 class TestAPIVersion(FacebookTestCase):
     """Test if using the correct version of Graph API."""
@@ -172,8 +172,9 @@ class TestAccessToken(FacebookTestCase):
             "me")
 
     def test_access_with_expired_access_token(self):
-        expired_token = 'AAABrFmeaJjgBAIshbq5ZBqZBICsmveZCZBi6O4w9HSTkFI73VMtmkL9j' \
-                        'LuWsZBZC9QMHvJFtSulZAqonZBRIByzGooCZC8DWr0t1M4BL9FARdQwPWPnIqCiFQ'
+        expired_token = (
+            "AAABrFmeaJjgBAIshbq5ZBqZBICsmveZCZBi6O4w9HSTkFI73VMtmkL9jLuWs"
+            "ZBZC9QMHvJFtSulZAqonZBRIByzGooCZC8DWr0t1M4BL9FARdQwPWPnIqCiFQ")
         graph = facebook.GraphAPI(access_token=expired_token)
         self.assertRaises(facebook.GraphAPIError, graph.get_object, 'me')
 
