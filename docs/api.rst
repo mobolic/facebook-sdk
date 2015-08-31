@@ -251,3 +251,34 @@ Deletes the object with the given ID from the graph.
 .. code-block:: python
 
     graph.delete_object(id='post_id')
+
+delete_like
+^^^^^^^^^^^
+
+Deletes the like previously posted on the object with the given ID.
+
+**Parameters**
+
+* ``object_id`` - A ``string`` that is a unique ID for a particular object.
+
+**Example**
+
+.. code-block:: python
+
+    graph.delete_like(object_id='post_id')
+
+edit_message_post
+^^^^^^^^^^^^^^^^^
+
+Replaces the text of the post with the given ID with a new message.
+
+**Parameters**
+
+* ``post_id`` - A ``string`` that is a unique ID for a particular post.
+* ``message`` - A ``string`` containing the new message that is going to replace the current text of the post.
+
+**Example**
+
+.. code-block:: python
+
+    graph.edit_message_post(post_id='post_id', message='new message')

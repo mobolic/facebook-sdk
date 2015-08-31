@@ -179,5 +179,47 @@ class TestAccessToken(FacebookTestCase):
         self.assertRaises(facebook.GraphAPIError, graph.get_object, 'me')
 
 
+class TestEditObject(FacebookTestCase):
+    """
+    Test object editing function
+    """
+
+    def test_edit_object(self):
+        orig_msg = "Hello World!"
+        mod_msg = "Hello World! (mod)"
+        graph = facebook.GraphAPI(access_token=
+                                  facebook.get_app_access_token(
+                                  self.app_id, self.secret),
+                                  version=2.0)
+        # Create post
+        post = graph.put_wall_post(orig_msg)
+        self.assertEqual(post["message"], orig_msg)
+        # Edit message of created post
+        mod_post = graph.edit_object(object_id=post["id"], message=mod_msg)
+        self.assertEqual(mod_post["message"], mod_msg)
+        # Delete testing post
+        graph.delete_object(post['id'])
+
+
+class TestDeleteLikes(FacebookTestCase):
+    """
+    Test delete likes function
+    """
+    def test_delete_likes(self):
+        post_msg = "Hello World!"
+        graph = facebook.GraphAPI(access_token=facebook.get_app_access_token(
+                                  self.app_id, self.secret), version=2.0)
+        # Create a post
+        post = graph.put_wall_post(post_msg)
+        # Like created post
+        post = graph.put_like(object_id=post['id'])
+        self.assertEqual(post['like_count'], 1)
+        # Delete post likes
+        post = graph.delete_likes_object(object_id=post['id'])
+        self.assertEqual(post['like_count'], 0)
+        # Delete testing post
+        graph.delete_object(post['id'])
+
+
 if __name__ == '__main__':
     unittest.main()
