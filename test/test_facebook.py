@@ -146,22 +146,21 @@ class TestAuthURL(FacebookTestCase):
         self.assertEqual(actual_query, expected_query)
 
 
-class TestExtendAccessToken(FacebookTestCase):
-    """
-    Test if extend_access_token requests the correct endpoint.
-
-    Note that this only tests whether extend_access_token returns the correct
-    error message when called without a proper user-access token.
-    """
+class TestAccessToken(FacebookTestCase):
     def test_extend_access_token(self):
+        """
+        Test if extend_access_token requests the correct endpoint.
+
+        Note that this only tests whether extend_access_token returns the
+        correct error message when called without a proper user-access token.
+
+        """
         try:
             facebook.GraphAPI().extend_access_token(self.app_id, self.secret)
         except facebook.GraphAPIError as e:
             self.assertEqual(
                 e.message, "fb_exchange_token parameter not specified")
 
-
-class TestGraphApi(FacebookTestCase):
     def test_bogus_access_token(self):
         invalid_token_error_message = "Invalid OAuth access token."
 
@@ -178,15 +177,6 @@ class TestGraphApi(FacebookTestCase):
         graph = facebook.GraphAPI(access_token=expired_token)
         self.assertRaises(facebook.GraphAPIError, graph.get_object, 'me')
 
-    def test_with_only_params(self):
-        graph = facebook.GraphAPI()
-        jerry = graph.get_object('jerry')
-        self.assertTrue(jerry['id'], 'User ID should be public.')
-        self.assertTrue(jerry['name'], 'User\'s name should be public.')
-        self.assertTrue(jerry['first_name'], 'User\'s first name should be public.')
-        self.assertTrue(jerry['last_name'], 'User\'s last name should be public.')
-        self.assertTrue(jerry['link'], 'User\'s link should be public.')
-        self.assertTrue(jerry['username'], 'User\'s username should be public.')
 
 if __name__ == '__main__':
     unittest.main()
