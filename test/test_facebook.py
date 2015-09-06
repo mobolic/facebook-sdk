@@ -204,6 +204,7 @@ class TestParseSignedRequest(FacebookTestCase):
             signed_request=self.cookie,
             app_secret=self.secret)
 
+        self.assertTrue(result)
         self.assertTrue('issued_at' in result)
         self.assertTrue('code' in result)
         self.assertTrue('user_id' in result)
