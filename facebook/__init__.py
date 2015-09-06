@@ -76,12 +76,19 @@ class GraphAPI(object):
 
     """
 
-    def __init__(self, access_token=None, timeout=None, version=None):
+    def __init__(self, access_token=None, timeout=None, version=None, **kwargs):
         # The default version is only used if the version kwarg does not exist.
         default_version = "2.0"
 
         self.access_token = access_token
         self.timeout = timeout
+
+        app_secret = kwargs.get("app_secret", None)
+        if app_secret and self.access_token:
+            self._appsecret_proof = hmac.new(
+                app_secret, self.access_token, hashlib.sha256).hexdigest()
+        else:
+            self._appsecret_proof = None
 
         if version:
             version_regex = re.compile("^\d\.\d$")
@@ -235,6 +242,12 @@ class GraphAPI(object):
             else:
                 args["access_token"] = self.access_token
 
+        if self._appsecret_proof:
+            if post_args is not None:
+                post_args["appsecret_proof"] = self._appsecret_proof
+            else:
+                args["appsecret_proof"] = self._appsecret_proof
+
         try:
             response = requests.request(method or "GET",
                                         "https://graph.facebook.com/" +
@@ -320,6 +333,7 @@ class GraphAPI(object):
 
 
 class GraphAPIError(Exception):
+
     def __init__(self, result):
         self.result = result
         try:
