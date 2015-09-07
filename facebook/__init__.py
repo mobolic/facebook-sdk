@@ -77,12 +77,14 @@ class GraphAPI(object):
 
     """
 
-    def __init__(self, access_token=None, timeout=None, version=None):
+    def __init__(self, access_token=None, timeout=None,
+                 version=None, session=None):
         # The default version is only used if the version kwarg does not exist.
         default_version = "2.0"
 
         self.access_token = access_token
         self.timeout = timeout
+        self.session = session or requests.Session()
 
         if version:
             version_regex = re.compile("^\d\.\d$")
@@ -200,11 +202,11 @@ class GraphAPI(object):
         """Fetches the current version number of the Graph API being used."""
         args = {"access_token": self.access_token}
         try:
-            response = requests.request("GET",
-                                        "https://graph.facebook.com/" +
-                                        self.version + "/me",
-                                        params=args,
-                                        timeout=self.timeout)
+            response = self.session.request("GET",
+                                            "https://graph.facebook.com/" +
+                                            self.version + "/me",
+                                            params=args,
+                                            timeout=self.timeout)
         except requests.HTTPError as e:
             response = json.loads(e.read())
             raise GraphAPIError(response)
@@ -217,7 +219,7 @@ class GraphAPI(object):
             raise GraphAPIError("API version number not available")
 
     def request(
-            self, path, args=None, post_args=None, files=None, method=None):
+            self, path, args={}, post_args=None, files=None, method=None):
         """Fetches the given path in the Graph API.
 
         We translate args to a valid query string. If post_args is
@@ -225,7 +227,6 @@ class GraphAPI(object):
         arguments.
 
         """
-        args = args or {}
 
         if post_args is not None:
             method = "POST"
@@ -237,13 +238,13 @@ class GraphAPI(object):
                 args["access_token"] = self.access_token
 
         try:
-            response = requests.request(method or "GET",
-                                        "https://graph.facebook.com/" +
-                                        path,
-                                        timeout=self.timeout,
-                                        params=args,
-                                        data=post_args,
-                                        files=files)
+            response = self.session.request(method or "GET",
+                                            "https://graph.facebook.com/" +
+                                            path,
+                                            timeout=self.timeout,
+                                            params=args,
+                                            data=post_args,
+                                            files=files)
         except requests.HTTPError as e:
             response = json.loads(e.read())
             raise GraphAPIError(response)
