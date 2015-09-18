@@ -77,12 +77,14 @@ class GraphAPI(object):
 
     """
 
-    def __init__(self, access_token=None, timeout=None, version=None):
+    def __init__(self, access_token=None, timeout=None, version=None,
+                 proxies=None):
         # The default version is only used if the version kwarg does not exist.
         default_version = "2.0"
 
         self.access_token = access_token
         self.timeout = timeout
+        self.proxies = proxies
 
         if version:
             version_regex = re.compile("^\d\.\d$")
@@ -243,6 +245,7 @@ class GraphAPI(object):
                                         timeout=self.timeout,
                                         params=args,
                                         data=post_args,
+                                        proxies=self.proxies,
                                         files=files)
         except requests.HTTPError as e:
             response = json.loads(e.read())
