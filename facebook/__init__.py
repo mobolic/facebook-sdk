@@ -206,7 +206,8 @@ class GraphAPI(object):
                                         "https://graph.facebook.com/" +
                                         self.version + "/me",
                                         params=args,
-                                        timeout=self.timeout)
+                                        timeout=self.timeout,
+                                        proxies=self.proxies)
         except requests.HTTPError as e:
             response = json.loads(e.read())
             raise GraphAPIError(response)
