@@ -387,8 +387,8 @@ def get_user_from_cookie(cookies, app_id, app_secret):
     if not parsed_request:
         return None
     try:
-        result = get_access_token_from_code(parsed_request["code"], "",
-                                            app_id, app_secret)
+        result = GraphAPI().get_access_token_from_code(
+            parsed_request["code"], "", app_id, app_secret)
     except GraphAPIError:
         return None
     result["uid"] = parsed_request["user_id"]
@@ -447,16 +447,3 @@ def auth_url(app_id, canvas_url, perms=None, **kwargs):
         kvps['scope'] = ",".join(perms)
     kvps.update(kwargs)
     return url + urlencode(kvps)
-
-
-def get_access_token_from_code(code, redirect_uri, app_id, app_secret):
-    return GraphAPI().get_access_token_from_code(
-        code, redirect_uri, app_id, app_secret)
-
-
-def get_app_access_token(app_id, app_secret):
-    return GraphAPI().get_app_access_token(app_id, app_secret)
-
-
-def debug_access_token(token, app_id, app_secret):
-    return GraphAPI().debug_access_token(token, app_id, app_secret)
