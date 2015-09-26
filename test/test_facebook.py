@@ -58,7 +58,8 @@ class TestGetAppAccessToken(FacebookTestCase):
 
     """
     def test_get_app_access_token(self):
-        token = facebook.get_app_access_token(self.app_id, self.secret)
+        token = facebook.GraphAPI().get_app_access_token(
+            self.app_id, self.secret)
         # Since "unicode" does not exist in Python 3, we cannot check
         # the following line with flake8 (hence the noqa comment).
         assert(isinstance(token, str) or isinstance(token, unicode))    # noqa
@@ -72,7 +73,7 @@ class TestGetAppAccessToken(FacebookTestCase):
         self.assert_raises_multi_regex(
             facebook.GraphAPIError,
             deleted_error_message,
-            facebook.get_app_access_token,
+            facebook.GraphAPI().get_app_access_token,
             deleted_app_id,
             deleted_secret)
 
@@ -107,8 +108,10 @@ class TestAPIVersion(FacebookTestCase):
 
 class TestFQL(FacebookTestCase):
     def test_fql(self):
-        graph = facebook.GraphAPI(access_token=facebook.get_app_access_token(
-            self.app_id, self.secret), version=2.0)
+        graph = facebook.GraphAPI(version=2.0)
+        graph.access_token = graph.get_app_access_token(
+            self.app_id, self.secret)
+
         # Ensure that version is below 2.1. Facebook has stated that FQL is
         # not present in this or future versions of the Graph API.
         if graph.get_version() < 2.1:

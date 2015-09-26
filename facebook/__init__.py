@@ -323,6 +323,23 @@ class GraphAPI(object):
 
         return self.request("oauth/access_token", args=args)
 
+    def debug_access_token(self, token, app_id, app_secret):
+        """
+        Gets information about a user access token issued by an app. See
+        <https://developers.facebook.com/docs/facebook-login/access-tokens
+        #debug>
+
+        We can generate the app access token by concatenating the app
+        id and secret: <https://developers.facebook.com/docs/
+        facebook-login/access-tokens#apptokens>
+
+        """
+        args = {
+            "input_token": token,
+            "access_token": "%s|%s" % (app_id, app_secret)
+        }
+        return self.request("/debug_token", args=args)
+
 
 class GraphAPIError(Exception):
     def __init__(self, result):
@@ -376,8 +393,8 @@ def get_user_from_cookie(cookies, app_id, app_secret):
     if not parsed_request:
         return None
     try:
-        result = get_access_token_from_code(parsed_request["code"], "",
-                                            app_id, app_secret)
+        result = GraphAPI().get_access_token_from_code(
+            parsed_request["code"], "", app_id, app_secret)
     except GraphAPIError:
         return None
     result["uid"] = parsed_request["user_id"]
@@ -436,12 +453,3 @@ def auth_url(app_id, canvas_url, perms=None, **kwargs):
         kvps['scope'] = ",".join(perms)
     kvps.update(kwargs)
     return url + urlencode(kvps)
-
-
-def get_access_token_from_code(code, redirect_uri, app_id, app_secret):
-    return GraphAPI().get_access_token_from_code(
-        code, redirect_uri, app_id, app_secret)
-
-
-def get_app_access_token(app_id, app_secret):
-    return GraphAPI().get_app_access_token(app_id, app_secret)
