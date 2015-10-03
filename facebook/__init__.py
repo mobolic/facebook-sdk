@@ -78,13 +78,22 @@ class GraphAPI(object):
     """
 
     def __init__(self, access_token=None, timeout=None, version=None,
-                 proxies=None):
+                 proxies=None, app_secret=None):
         # The default version is only used if the version kwarg does not exist.
         default_version = "2.0"
 
         self.access_token = access_token
         self.timeout = timeout
         self.proxies = proxies
+
+        if app_secret and self.access_token:
+            # Generates an app secret hmac based on
+            # https://developers.facebook.com/docs/graph-api/securing-requests
+            self.app_secret_hmac = hmac.new(appsecret.encode('ascii'),
+                                            msg=access_token.encode('ascii'),
+                                            digestmod=hashlib.sha256)
+        else:
+            self.app_secret_hmac = None
 
         if version:
             version_regex = re.compile("^\d\.\d$")
@@ -238,6 +247,12 @@ class GraphAPI(object):
                 post_args["access_token"] = self.access_token
             else:
                 args["access_token"] = self.access_token
+
+        if self.app_secret_hmac:
+            if post_args is not None:
+                post_args["appsecret_proof"] = self.app_secret_hmac
+            else:
+                args["appsecret_proof"] = self.app_secret_hmac
 
         try:
             response = requests.request(method or "GET",
