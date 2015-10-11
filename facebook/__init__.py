@@ -44,7 +44,7 @@ from . import version
 __version__ = version.__version__
 
 
-VALID_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3", "2.4"]
+VALID_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3", "2.4", "2.5"]
 
 
 class GraphAPI(object):
