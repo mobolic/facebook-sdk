@@ -16,7 +16,9 @@ class Command(BaseCommand):
     @staticmethod
     def get_attachment(post):
         attachment = {
-            'link': 'http://www.example.com/{}'.format(post.get_absolute_url()),
+            'link': 'http://www.example.com/{}'.format(
+                post.get_absolute_url()
+            ),
         }
         return attachment
 
