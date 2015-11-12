@@ -14,6 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 import facebook
+import json
 import os
 import unittest
 
@@ -212,6 +213,47 @@ class TestParseSignedRequest(FacebookTestCase):
         self.assertTrue('code' in result)
         self.assertTrue('user_id' in result)
         self.assertTrue('algorithm' in result)
+
+
+class TestCreateExceptionForError(FacebookTestCase):
+    class HTTPErrorStub(object):
+        """Stub class used to create canned HTTP errors."""
+        class Response(object):
+            def __init__(self, status_code):
+                self.status_code = status_code
+
+        def __init__(self, content, status_code):
+            self.content = content
+            self.response = self.Response(status_code)
+
+        def read(self):
+            return self.content
+
+    def setUp(self):
+        super(TestCreateExceptionForError, self).setUp()
+        self.graph_api = facebook.GraphAPI('mock token')
+
+    def create_graph_api_error_stub(self, error_code, message):
+        error_data = {
+            'error_code': error_code,
+            'error_description': message
+        }
+        json_body = json.dumps(error_data)
+        return self.HTTPErrorStub(json_body, 500)
+
+    def test_create_when_invalid_json(self):
+        http_error = self.HTTPErrorStub('Internal Server Error', 500)
+        result = self.graph_api.create_exception_for_error(http_error)
+        self.assertIsInstance(result, facebook.GraphAPIResponseError)
+        self.assertEqual(
+            'HTTP 500 returned with body:\nInternal Server Error',
+            str(result))
+
+    def test_create_when_valid_json(self):
+        http_error = self.create_graph_api_error_stub(14, 'Test error message')
+        result = self.graph_api.create_exception_for_error(http_error)
+        self.assertIsInstance(result, facebook.GraphAPIError)
+        self.assertEqual('Test error message', str(result))
 
 
 if __name__ == '__main__':

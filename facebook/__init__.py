@@ -209,8 +209,7 @@ class GraphAPI(object):
                                         timeout=self.timeout,
                                         proxies=self.proxies)
         except requests.HTTPError as e:
-            response = json.loads(e.read())
-            raise GraphAPIError(response)
+            raise self.create_exception_for_error(e)
 
         try:
             headers = response.headers
@@ -249,8 +248,7 @@ class GraphAPI(object):
                                         proxies=self.proxies,
                                         files=files)
         except requests.HTTPError as e:
-            response = json.loads(e.read())
-            raise GraphAPIError(response)
+            raise self.create_exception_for_error(e)
 
         headers = response.headers
         if 'json' in headers['content-type']:
@@ -274,6 +272,22 @@ class GraphAPI(object):
         if result and isinstance(result, dict) and result.get("error"):
             raise GraphAPIError(result)
         return result
+
+    def create_exception_for_error(self, http_error):
+        """Converts an HTTP error into the appropriate library exception.
+
+        :param http_error: Exception raised when HTTP request failed.
+        :type http_error: requests.HTTPError
+        :return: An exception corresponding to the given HTTP error
+        :rtype: FacebookError
+        """
+        content = http_error.read()
+        try:
+            response = json.loads(content)
+        except ValueError:
+            return GraphAPIResponseError(
+                http_error.response.status_code, content)
+        return GraphAPIError(response)
 
     def fql(self, query):
         """FQL query.
@@ -341,7 +355,22 @@ class GraphAPI(object):
         return self.request("/debug_token", args=args)
 
 
-class GraphAPIError(Exception):
+class FacebookError(Exception):
+    """Base class for all exceptions raised by this SDK"""
+    pass
+
+
+class GraphAPIResponseError(FacebookError):
+    def __init__(self, status_code, content):
+        self.status_code = status_code
+        self.content = content
+        self.error_message = 'HTTP {} returned with body:\n{}'.format(
+            status_code, self.content
+        )
+        FacebookError.__init__(self, self.error_message)
+
+
+class GraphAPIError(FacebookError):
     def __init__(self, result):
         self.result = result
         try:
@@ -365,7 +394,7 @@ class GraphAPIError(Exception):
                 except:
                     self.message = result
 
-        Exception.__init__(self, self.message)
+        FacebookError.__init__(self, self.message)
 
 
 def get_user_from_cookie(cookies, app_id, app_secret):
