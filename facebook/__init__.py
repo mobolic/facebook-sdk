@@ -283,7 +283,7 @@ class GraphAPI(object):
         :rtype: FacebookError
         """
         try:
-            error_data = json.loads(response.content)
+            error_data = response.json()
         except ValueError:
             return GraphAPIResponseError(response.status_code,
                                          response.content)
@@ -365,8 +365,8 @@ class GraphAPIResponseError(FacebookError):
     def __init__(self, status_code, content):
         self.status_code = status_code
         self.content = content
-        self.error_message = 'HTTP %r returned with body:\n%s' % (
-            status_code, self.content)
+        self.error_message = 'HTTP %r returned with body:\n%r' % (status_code,
+                                                                  content)
         FacebookError.__init__(self, self.error_message)
 
 
