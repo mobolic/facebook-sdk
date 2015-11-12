@@ -16,7 +16,12 @@
 import facebook
 import json
 import os
-import unittest
+import sys
+
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
 
 try:
     from urllib.parse import parse_qs, urlencode, urlparse
