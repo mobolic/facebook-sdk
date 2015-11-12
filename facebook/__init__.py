@@ -285,8 +285,8 @@ class GraphAPI(object):
         try:
             response = json.loads(content)
         except ValueError:
-            return GraphAPIResponseError(
-                http_error.response.status_code, content)
+            return GraphAPIResponseError(http_error.response.status_code,
+                                         content)
         return GraphAPIError(response)
 
     def fql(self, query):
@@ -364,9 +364,8 @@ class GraphAPIResponseError(FacebookError):
     def __init__(self, status_code, content):
         self.status_code = status_code
         self.content = content
-        self.error_message = 'HTTP {} returned with body:\n{}'.format(
-            status_code, self.content
-        )
+        self.error_message = 'HTTP %r returned with body:\n%s' % (
+            status_code, self.content)
         FacebookError.__init__(self, self.error_message)
 
 

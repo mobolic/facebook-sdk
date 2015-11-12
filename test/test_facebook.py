@@ -244,7 +244,7 @@ class TestCreateExceptionForError(FacebookTestCase):
     def test_create_when_invalid_json(self):
         http_error = self.HTTPErrorStub('Internal Server Error', 500)
         result = self.graph_api.create_exception_for_error(http_error)
-        self.assertIsInstance(result, facebook.GraphAPIResponseError)
+        self.assertTrue(isinstance(result, facebook.GraphAPIResponseError))
         self.assertEqual(
             'HTTP 500 returned with body:\nInternal Server Error',
             str(result))
@@ -252,7 +252,7 @@ class TestCreateExceptionForError(FacebookTestCase):
     def test_create_when_valid_json(self):
         http_error = self.create_graph_api_error_stub(14, 'Test error message')
         result = self.graph_api.create_exception_for_error(http_error)
-        self.assertIsInstance(result, facebook.GraphAPIError)
+        self.assertTrue(isinstance(result, facebook.GraphAPIError))
         self.assertEqual('Test error message', str(result))
 
 
