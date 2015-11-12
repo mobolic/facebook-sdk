@@ -229,6 +229,9 @@ class TestCreateExceptionForError(FacebookTestCase):
             self.content = content
             self.status_code = status_code
 
+        def json(self):
+            return json.loads(self.content)
+
     def setUp(self):
         super(TestCreateExceptionForError, self).setUp()
         self.graph_api = facebook.GraphAPI('mock token')
@@ -246,7 +249,7 @@ class TestCreateExceptionForError(FacebookTestCase):
         result = self.graph_api.create_exception_for_error(http_error)
         self.assertTrue(isinstance(result, facebook.GraphAPIResponseError))
         self.assertEqual(
-            'HTTP 500 returned with body:\nInternal Server Error',
+            "HTTP 500 returned with body:\n'Internal Server Error'",
             str(result))
 
     def test_create_when_valid_json(self):
