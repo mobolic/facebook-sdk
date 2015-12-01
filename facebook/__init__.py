@@ -101,11 +101,14 @@ class GraphAPI(object):
         else:
             self.version = "v" + default_version
 
-    def get_object(self, id, args=None, post_args=None, files=None, method=None):
+    def get_object(self, id, args=None, post_args=None, files=None,
+                   method=None):
         """Fetchs the given object from the graph."""
-        return self.request(self.version + "/" + id, args, post_args, files, method)
+        return self.request(self.version + "/" + id, args, post_args, files,
+                            method)
 
-    def get_objects(self, ids, args=None, post_args=None, files=None, method=None):
+    def get_objects(self, ids, args=None, post_args=None, files=None,
+                    method=None):
         """Fetchs all of the given object from the graph.
 
         We return a map from ID to object. If any of the IDs are
