@@ -344,6 +344,7 @@ class GraphAPI(object):
 class GraphAPIError(Exception):
     def __init__(self, result):
         self.result = result
+        self.code = None
         try:
             self.type = result["error_code"]
         except:
@@ -356,8 +357,9 @@ class GraphAPIError(Exception):
             # OAuth 2.0 Draft 00
             try:
                 self.message = result["error"]["message"]
+                self.code = result["error"].get("code")
                 if not self.type:
-                    self.type = result["error"].get('type', '')
+                    self.type = result["error"].get("type", "")
             except:
                 # REST server style
                 try:
