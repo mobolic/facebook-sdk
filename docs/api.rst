@@ -22,7 +22,7 @@ You can read more about `Facebook's Graph API here`_.
 * ``access_token`` – A ``string`` that identifies a user, app, or page and can
   be used by the app to make graph API calls.
   `Read more about access tokens here`_.
-* ``timeout`` - A ``float`` describing (in seconds) how long the client will
+* ``timeout`` - A ``float`` describing (in seconds) how long the client will be
   waiting for a response from Facebook's servers. `See more here`_.
 * ``version`` - A ``string`` describing the `version of Facebook's Graph API to
   use`_. Valid API versions are ``2.0``, ``2.1`` and ``2.2``. The
