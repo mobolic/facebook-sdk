@@ -201,16 +201,16 @@ class GraphAPI(object):
     def get_version(self):
         """Fetches the current version number of the Graph API being used."""
         args = {"access_token": self.access_token}
-        try:
-            response = requests.request("GET",
-                                        "https://graph.facebook.com/" +
-                                        self.version + "/me",
-                                        params=args,
-                                        timeout=self.timeout,
-                                        proxies=self.proxies)
-        except requests.HTTPError as e:
-            response = json.loads(e.read())
-            raise GraphAPIError(response)
+
+        response = requests.request("GET",
+                                    "https://graph.facebook.com/" +
+                                    self.version + "/me",
+                                    params=args,
+                                    timeout=self.timeout,
+                                    proxies=self.proxies)
+
+        if not response.ok:
+            raise self.create_exception_for_error(response)
 
         try:
             headers = response.headers
@@ -239,18 +239,17 @@ class GraphAPI(object):
             else:
                 args["access_token"] = self.access_token
 
-        try:
-            response = requests.request(method or "GET",
-                                        "https://graph.facebook.com/" +
-                                        path,
-                                        timeout=self.timeout,
-                                        params=args,
-                                        data=post_args,
-                                        proxies=self.proxies,
-                                        files=files)
-        except requests.HTTPError as e:
-            response = json.loads(e.read())
-            raise GraphAPIError(response)
+        response = requests.request(method or "GET",
+                                    "https://graph.facebook.com/" +
+                                    path,
+                                    timeout=self.timeout,
+                                    params=args,
+                                    data=post_args,
+                                    proxies=self.proxies,
+                                    files=files)
+
+        if not response.ok:
+            raise self.create_exception_for_error(response)
 
         headers = response.headers
         if 'json' in headers['content-type']:
@@ -274,6 +273,22 @@ class GraphAPI(object):
         if result and isinstance(result, dict) and result.get("error"):
             raise GraphAPIError(result)
         return result
+
+    def create_exception_for_error(self, response):
+        """Converts an HTTP response into the appropriate library exception.
+
+        :param response: The response returned when HTTP request failed.
+        :type response: requests.Response
+        :return: An exception corresponding to the given HTTP error
+        :rtype: FacebookError
+        """
+        try:
+            error_data = response.json()
+        except ValueError:
+            return GraphAPIResponseError(response.status_code,
+                                         response.content)
+        else:
+            return GraphAPIError(error_data)
 
     def fql(self, query):
         """FQL query.
@@ -341,7 +356,21 @@ class GraphAPI(object):
         return self.request("/debug_token", args=args)
 
 
-class GraphAPIError(Exception):
+class FacebookError(Exception):
+    """Base class for all exceptions raised by this SDK"""
+    pass
+
+
+class GraphAPIResponseError(FacebookError):
+    def __init__(self, status_code, content):
+        self.status_code = status_code
+        self.content = content
+        self.error_message = 'HTTP %r returned with body:\n%r' % (status_code,
+                                                                  content)
+        FacebookError.__init__(self, self.error_message)
+
+
+class GraphAPIError(FacebookError):
     def __init__(self, result):
         self.result = result
         self.code = None
@@ -367,7 +396,7 @@ class GraphAPIError(Exception):
                 except:
                     self.message = result
 
-        Exception.__init__(self, self.message)
+        FacebookError.__init__(self, self.message)
 
 
 def get_user_from_cookie(cookies, app_id, app_secret):
