@@ -102,11 +102,11 @@ class GraphAPI(object):
             self.version = "v" + default_version
 
     def get_object(self, id, **args):
-        """Fetchs the given object from the graph."""
+        """Fetches the given object from the graph."""
         return self.request(self.version + "/" + id, args)
 
     def get_objects(self, ids, **args):
-        """Fetchs all of the given object from the graph.
+        """Fetches all of the given object from the graph.
 
         We return a map from ID to object. If any of the IDs are
         invalid, we raise an exception.
@@ -115,7 +115,7 @@ class GraphAPI(object):
         return self.request(self.version + "/", args)
 
     def get_connections(self, id, connection_name, **args):
-        """Fetchs the connections for given object."""
+        """Fetches the connections for given object."""
         return self.request(
             "%s/%s/%s" % (self.version, id, connection_name), args)
 
@@ -127,7 +127,7 @@ class GraphAPI(object):
             graph.put_object("me", "feed", message="Hello, world")
 
         writes "Hello, world" to the active user's wall. Likewise, this
-        will comment on a the first post of the active user's feed:
+        will comment on the first post of the active user's feed:
 
             feed = graph.get_connections("me", "feed")
             post = feed["data"][0]
