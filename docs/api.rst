@@ -155,7 +155,7 @@ authenticated user's wall if no ``profile_id`` is specified.
 .. code-block:: python
 
     attachment =  {
-        'name': ''
+        'name': '',
         'link': '',
         'caption': '',
         'description': '',
