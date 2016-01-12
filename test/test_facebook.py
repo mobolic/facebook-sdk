@@ -66,6 +66,7 @@ class TestGetUserPermissions(FacebookTestCase):
                             "must be set as an environment variable.")
         permissions = facebook.GraphAPI(token).get_permissions()
         assert permissions is not None
+        assert permissions["public_profile"] is True
 
 
 class TestGetAppAccessToken(FacebookTestCase):
