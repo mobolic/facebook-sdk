@@ -101,6 +101,10 @@ class GraphAPI(object):
         else:
             self.version = "v" + default_version
 
+    def get_permissions(self, **args):
+        """Fetches the permissions object from the graph."""
+        return self.request(self.version + "/me/permissions")["data"]
+
     def get_object(self, id, **args):
         """Fetches the given object from the graph."""
         return self.request(self.version + "/" + id, args)

@@ -49,6 +49,25 @@ class FacebookTestCase(unittest.TestCase):
             self.assertEqual(error.message, expected_regexp)
 
 
+class TestGetUserPermissions(FacebookTestCase):
+    """
+    Test if user permissions are retrieved correctly.
+    
+    Note that this only tests if the returned JSON object exists and is
+    structured as expected, not whether any specific scope is included
+    (other than the default `public_profile` scope).
+    
+    """
+    def test_get_user_permissions_node(self):
+        try:
+            token = os.environ["FACEBOOK_USER_ACCESS_TOKEN"]
+        except KeyError:
+            raise Exception("FACEBOOK_USER_ACCESS_TOKEN "
+                            "must be set as an environment variable.")
+        permissions = facebook.GraphAPI(token).get_permissions()
+        assert permissions is not None
+
+
 class TestGetAppAccessToken(FacebookTestCase):
     """
     Test if application access token is returned properly.
