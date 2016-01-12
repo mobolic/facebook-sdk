@@ -49,33 +49,6 @@ class FacebookTestCase(unittest.TestCase):
             self.assertEqual(error.message, expected_regexp)
 
 
-class TestGetUserPermissions(FacebookTestCase):
-    """
-    Test if user permissions are retrieved correctly.
-    
-    Note that this only tests if the returned JSON object exists and is
-    structured as expected, not whether any specific scope is included
-    (other than the default `public_profile` scope).
-    
-    """
-    token = None
-    
-    @classmethod
-    def setUpClass(cls):
-        super(TestGetUserPermissions, cls).setUpClass()
-        try:
-            cls.token = os.environ["FACEBOOK_USER_ACCESS_TOKEN"]
-        except KeyError:
-            pass
-    
-    @unittest.skipIf("FACEBOOK_USER_ACCESS_TOKEN" not in os.environ,
-                     "FACEBOOK_USER_ACCESS_TOKEN not set")
-    def test_get_user_permissions_node(self):
-        permissions = facebook.GraphAPI(self.token).get_permissions()
-        assert permissions is not None
-        assert permissions["public_profile"] is True
-
-
 class TestGetAppAccessToken(FacebookTestCase):
     """
     Test if application access token is returned properly.
@@ -239,6 +212,33 @@ class TestParseSignedRequest(FacebookTestCase):
         self.assertTrue('code' in result)
         self.assertTrue('user_id' in result)
         self.assertTrue('algorithm' in result)
+
+
+class TestGetUserPermissions(FacebookTestCase):
+    """
+    Test if user permissions are retrieved correctly.
+    
+    Note that this only tests if the returned JSON object exists and is
+    structured as expected, not whether any specific scope is included
+    (other than the default `public_profile` scope).
+    
+    """
+    token = None
+    
+    @classmethod
+    def setUpClass(cls):
+        super(TestGetUserPermissions, cls).setUpClass()
+        try:
+            cls.token = os.environ["FACEBOOK_USER_ACCESS_TOKEN"]
+        except KeyError:
+            pass
+    
+    @unittest.skipIf("FACEBOOK_USER_ACCESS_TOKEN" not in os.environ,
+                     "FACEBOOK_USER_ACCESS_TOKEN not set")
+    def test_get_user_permissions_node(self):
+        permissions = facebook.GraphAPI(self.token).get_permissions()
+        assert permissions is not None
+        assert permissions["public_profile"] is True
 
 
 if __name__ == '__main__':
