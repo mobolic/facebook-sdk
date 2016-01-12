@@ -58,13 +58,20 @@ class TestGetUserPermissions(FacebookTestCase):
     (other than the default `public_profile` scope).
     
     """
-    def test_get_user_permissions_node(self):
+    token = None
+    
+    @classmethod
+    def setUpClass(cls):
+        super(TestGetUserPermissions, cls).setUpClass()
         try:
-            token = os.environ["FACEBOOK_USER_ACCESS_TOKEN"]
+            cls.token = os.environ["FACEBOOK_USER_ACCESS_TOKEN"]
         except KeyError:
-            raise Exception("FACEBOOK_USER_ACCESS_TOKEN "
-                            "must be set as an environment variable.")
-        permissions = facebook.GraphAPI(token).get_permissions()
+            pass
+    
+    @unittest.skipIf("FACEBOOK_USER_ACCESS_TOKEN" not in os.environ,
+                     "FACEBOOK_USER_ACCESS_TOKEN not set")
+    def test_get_user_permissions_node(self):
+        permissions = facebook.GraphAPI(self.token).get_permissions()
         assert permissions is not None
         assert permissions["public_profile"] is True
 
