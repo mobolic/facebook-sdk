@@ -217,14 +217,14 @@ class TestParseSignedRequest(FacebookTestCase):
 class TestGetUserPermissions(FacebookTestCase):
     """
     Test if user permissions are retrieved correctly.
-    
+
     Note that this only tests if the returned JSON object exists and is
     structured as expected, not whether any specific scope is included
     (other than the default `public_profile` scope).
-    
+
     """
     token = None
-    
+
     @classmethod
     def setUpClass(cls):
         super(TestGetUserPermissions, cls).setUpClass()
@@ -232,7 +232,7 @@ class TestGetUserPermissions(FacebookTestCase):
             cls.token = os.environ["FACEBOOK_USER_ACCESS_TOKEN"]
         except KeyError:
             pass
-    
+
     @unittest.skipIf("FACEBOOK_USER_ACCESS_TOKEN" not in os.environ,
                      "FACEBOOK_USER_ACCESS_TOKEN not set")
     def test_get_user_permissions_node(self):
