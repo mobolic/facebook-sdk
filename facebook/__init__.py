@@ -297,7 +297,8 @@ class GraphAPI(object):
                     'client_id': app_id,
                     'client_secret': app_secret}
 
-            return self.request("oauth/access_token", args=args)["access_token"]
+            return self.request("oauth/access_token",
+                args=args)["access_token"]
 
     def get_access_token_from_code(
             self, code, redirect_uri, app_id, app_secret):
