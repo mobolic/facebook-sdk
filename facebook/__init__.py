@@ -283,13 +283,22 @@ class GraphAPI(object):
         """
         return self.request(self.version + "/" + "fql", {"q": query})
 
-    def get_app_access_token(self, app_id, app_secret):
-        """Get the application's access token as a string."""
-        args = {'grant_type': 'client_credentials',
-                'client_id': app_id,
-                'client_secret': app_secret}
+    def get_app_access_token(self, app_id, app_secret, offline=False):
+        """
+        Get the application's access token as a string.
+        If offline=True, use the concatenated app ID and secret
+        instead of making an API call.
+        <https://developers.facebook.com/docs/facebook-login/
+        access-tokens#apptokens>
+        """
+        if offline:
+            return "%s|%s" % (app_id, app_secret)
+        else:
+            args = {'grant_type': 'client_credentials',
+                    'client_id': app_id,
+                    'client_secret': app_secret}
 
-        return self.request("oauth/access_token", args=args)["access_token"]
+            return self.request("oauth/access_token", args=args)["access_token"]
 
     def get_access_token_from_code(
             self, code, redirect_uri, app_id, app_secret):
