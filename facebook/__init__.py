@@ -43,7 +43,8 @@ from . import version
 
 __version__ = version.__version__
 
-
+FACEBOOK_GRAPH_URL = "https://graph.facebook.com/"
+FACEBOOK_OAUTH_DIALOG_URL = "https://www.facebook.com/dialog/oauth?"
 VALID_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3", "2.4", "2.5"]
 
 
@@ -202,12 +203,12 @@ class GraphAPI(object):
         """Fetches the current version number of the Graph API being used."""
         args = {"access_token": self.access_token}
         try:
-            response = requests.request("GET",
-                                        "https://graph.facebook.com/" +
-                                        self.version + "/me",
-                                        params=args,
-                                        timeout=self.timeout,
-                                        proxies=self.proxies)
+            response = requests.request(
+                "GET",
+                FACEBOOK_GRAPH_URL + self.version + "/me",
+                params=args,
+                timeout=self.timeout,
+                proxies=self.proxies)
         except requests.HTTPError as e:
             response = json.loads(e.read())
             raise GraphAPIError(response)
@@ -241,8 +242,7 @@ class GraphAPI(object):
 
         try:
             response = requests.request(method or "GET",
-                                        "https://graph.facebook.com/" +
-                                        path,
+                                        FACEBOOK_GRAPH_URL + path,
                                         timeout=self.timeout,
                                         params=args,
                                         data=post_args,
@@ -449,7 +449,7 @@ def parse_signed_request(signed_request, app_secret):
 
 
 def auth_url(app_id, canvas_url, perms=None, **kwargs):
-    url = "https://www.facebook.com/dialog/oauth?"
+    url = FACEBOOK_OAUTH_DIALOG_URL
     kvps = {'client_id': app_id, 'redirect_uri': canvas_url}
     if perms:
         kvps['scope'] = ",".join(perms)

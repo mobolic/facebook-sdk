@@ -128,7 +128,7 @@ class TestAuthURL(FacebookTestCase):
         perms = ['email', 'birthday']
         redirect_url = 'https://localhost/facebook/callback/'
 
-        expected_url = 'https://www.facebook.com/dialog/oauth?' + urlencode(
+        expected_url = facebook.FACEBOOK_OAUTH_DIALOG_URL + urlencode(
             dict(client_id=self.app_id,
                  redirect_uri=redirect_url,
                  scope=','.join(perms)))
