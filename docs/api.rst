@@ -233,11 +233,11 @@ photo and its post.
 .. code-block:: python
 
     # Upload an image with a caption.
-    graph.put_photo(image=open('img.jpg'), message='Look at this cool photo!')
+    graph.put_photo(image=open('img.jpg', 'rb'), message='Look at this cool photo!')
     # Upload a photo to an album.
-    graph.put_photo(image=open("img.jpg"), album_path=album_id + "/photos")
+    graph.put_photo(image=open("img.jpg", 'rb'), album_path=album_id + "/photos")
     # Upload a profile photo for a Page.
-    graph.put_photo(image=open("img.jpg"), album_path=page_id + "/picture")
+    graph.put_photo(image=open("img.jpg", 'rb'), album_path=page_id + "/picture")
 
 delete_object
 ^^^^^^^^^^^^^
