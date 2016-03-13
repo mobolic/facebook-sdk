@@ -40,8 +40,8 @@ You can read more about `Facebook's Graph API here`_.
 .. code-block:: python
 
     import facebook
-
-    graph = facebook.GraphAPI(access_token='your_token', version='2.2')
+    my_access_token = graph.get_app_access_token('my_app_id', 'my_app_secret')
+    graph = facebook.GraphAPI(access_token='my_access_token', version='2.2')
 
 Methods
 -------
