@@ -15,7 +15,7 @@ Reporting Bugs
 Bugs with the SDK should be reported on the `issue tracker at Github`_. Bugs
 with Facebook's Graph API should be reported on `Facebook's bugtracker`_.
 
-.. _issue tracker at Github: https://github.com/pythonforfacebook/facebook-sdk/issues
+.. _issue tracker at Github: https://github.com/mobolic/facebook-sdk/issues
 .. _Facebook's bugtracker: https://developers.facebook.com/x/bugs/
 
 Security Issues
@@ -54,4 +54,3 @@ Update Tests and Documentation
 
 All non-trivial changes should include full test coverage. Please review
 the package's documentation to ensure that it is up to date with any changes.
-

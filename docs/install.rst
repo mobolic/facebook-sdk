@@ -17,7 +17,7 @@ For the newest features, you should install the SDK directly from Git.
 
     virtualenv facebookenv
     source facebookenv/bin/activate
-    pip install -e git+https://github.com/pythonforfacebook/facebook-sdk.git#egg=facebook-sdk
+    pip install -e git+https://github.com/mobolic/facebook-sdk.git#egg=facebook-sdk
 
 Installing a Released Version
 =============================
