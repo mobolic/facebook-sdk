@@ -235,9 +235,10 @@ class GraphAPI(object):
 
         if self.access_token:
             if post_args is not None:
-                post_args["access_token"] = self.access_token
-            else:
-                args["access_token"] = self.access_token
+                if 'access_token' not in post_args:
+                    post_args["access_token"] = self.access_token
+            elif 'access_token' not in args:
+                    args["access_token"] = self.access_token
 
         try:
             response = requests.request(method or "GET",
@@ -282,13 +283,23 @@ class GraphAPI(object):
         """
         return self.request(self.version + "/" + "fql", {"q": query})
 
-    def get_app_access_token(self, app_id, app_secret):
-        """Get the application's access token as a string."""
-        args = {'grant_type': 'client_credentials',
-                'client_id': app_id,
-                'client_secret': app_secret}
+    def get_app_access_token(self, app_id, app_secret, offline=False):
+        """
+        Get the application's access token as a string.
+        If offline=True, use the concatenated app ID and secret
+        instead of making an API call.
+        <https://developers.facebook.com/docs/facebook-login/
+        access-tokens#apptokens>
+        """
+        if offline:
+            return "%s|%s" % (app_id, app_secret)
+        else:
+            args = {'grant_type': 'client_credentials',
+                    'client_id': app_id,
+                    'client_secret': app_secret}
 
-        return self.request("oauth/access_token", args=args)["access_token"]
+            return self.request("oauth/access_token",
+                                args=args)["access_token"]
 
     def get_access_token_from_code(
             self, code, redirect_uri, app_id, app_secret):
@@ -335,7 +346,9 @@ class GraphAPI(object):
         """
         args = {
             "input_token": token,
-            "access_token": "%s|%s" % (app_id, app_secret)
+            "access_token": self.get_app_access_token(
+                app_id, app_secret,
+                offline=True)
         }
         return self.request("/debug_token", args=args)
 
