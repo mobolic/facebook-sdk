@@ -235,9 +235,10 @@ class GraphAPI(object):
 
         if self.access_token:
             if post_args is not None:
-                post_args["access_token"] = self.access_token
-            else:
-                args["access_token"] = self.access_token
+                if 'access_token' not in post_args:
+                    post_args["access_token"] = self.access_token
+            elif 'access_token' not in args:
+                    args["access_token"] = self.access_token
 
         try:
             response = requests.request(method or "GET",
@@ -345,7 +346,9 @@ class GraphAPI(object):
         """
         args = {
             "input_token": token,
-            "access_token": "%s|%s" % (app_id, app_secret)
+            "access_token": self.get_app_access_token(
+                app_id, app_secret,
+                offline=True)
         }
         return self.request("/debug_token", args=args)
 
