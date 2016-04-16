@@ -64,6 +64,12 @@ class TestGetAppAccessToken(FacebookTestCase):
         # the following line with flake8 (hence the noqa comment).
         assert(isinstance(token, str) or isinstance(token, unicode))    # noqa
 
+    def test_get_offline_app_access_token(self):
+        """Verify that offline generation of app access tokens works."""
+        token = facebook.GraphAPI().get_app_access_token(
+            self.app_id, self.secret, offline=True)
+        self.assertEqual(token, "%s|%s" % (self.app_id, self.secret))
+
     def test_get_deleted_app_access_token(self):
         deleted_app_id = '174236045938435'
         deleted_secret = '0073dce2d95c4a5c2922d1827ea0cca6'
