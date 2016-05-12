@@ -32,5 +32,5 @@ of the SDK that has been officially released.
     pip install facebook-sdk
 
 .. _requests: https://pypi.python.org/pypi/requests
-.. _pip: http://www.pip-installer.org/
-.. _virtualenv: http://www.virtualenv.org/
+.. _pip: https://pip.pypa.io/
+.. _virtualenv: https://virtualenv.pypa.io/

@@ -6,7 +6,7 @@
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#     https://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
@@ -153,10 +153,10 @@ class GraphAPI(object):
         being posted to the Wall. It should be a dictionary of the form:
 
             {"name": "Link name"
-             "link": "http://www.example.com/",
+             "link": "https://www.example.com/",
              "caption": "{*actor*} posted a new review",
              "description": "This is a longer description of the attachment",
-             "picture": "http://www.example.com/thumbnail.jpg"}
+             "picture": "https://www.example.com/thumbnail.jpg"}
 
         """
         return self.put_object(profile_id, "feed", message=message,
@@ -436,7 +436,7 @@ def parse_signed_request(signed_request, app_secret):
         return False
 
     # HMAC can only handle ascii (byte) strings
-    # http://bugs.python.org/issue5285
+    # https://bugs.python.org/issue5285
     app_secret = app_secret.encode('ascii')
     payload = payload.encode('ascii')
 

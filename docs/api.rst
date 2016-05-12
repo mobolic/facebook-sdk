@@ -171,10 +171,10 @@ authenticated user's wall if no ``profile_id`` is specified.
 
     attachment =  {
         'name': 'Link name'
-        'link': 'http://www.example.com/',
+        'link': 'https://www.example.com/',
         'caption': 'Check out this example',
         'description': 'This is a longer description of the attachment',
-        'picture': 'http://www.example.com/thumbnail.jpg'
+        'picture': 'https://www.example.com/thumbnail.jpg'
     }
 
     graph.put_wall_post(message='Check this out...', attachment=attachment)
