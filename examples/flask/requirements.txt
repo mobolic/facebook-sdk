@@ -6,7 +6,7 @@ SQLAlchemy==0.9.4
 Werkzeug==0.9.4
 argparse==1.2.1
 distribute==0.6.24
-facebook-sdk==0.4.0
+git+https://github.com/mobolic/facebook-sdk.git#egg=facebook-sdk
 itsdangerous==0.24
 requests==2.2.1
 wsgiref==0.1.2
