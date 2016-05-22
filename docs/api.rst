@@ -25,7 +25,7 @@ You can read more about `Facebook's Graph API here`_.
 * ``timeout`` - A ``float`` describing (in seconds) how long the client will be
   waiting for a response from Facebook's servers. `See more here`_.
 * ``version`` - A ``string`` describing the `version of Facebook's Graph API to
-  use`_. Valid API versions are ``2.0``, ``2.1`` and ``2.2``. The
+  use`_. Valid API versions are ``2.0``, ``2.1``, ``2.2``, ``2.3``, ``2.4``, ``2.5``, and ``2.6``. The
   default version is ``2.0`` and is used if the version keyword argument is not
   provided.
 * ``proxies`` - A ``dict`` with proxy-settings that Requests should use. `See Requests documentation`_.
@@ -171,10 +171,10 @@ authenticated user's wall if no ``profile_id`` is specified.
 
     attachment =  {
         'name': 'Link name'
-        'link': 'http://www.example.com/',
+        'link': 'https://www.example.com/',
         'caption': 'Check out this example',
         'description': 'This is a longer description of the attachment',
-        'picture': 'http://www.example.com/thumbnail.jpg'
+        'picture': 'https://www.example.com/thumbnail.jpg'
     }
 
     graph.put_wall_post(message='Check this out...', attachment=attachment)

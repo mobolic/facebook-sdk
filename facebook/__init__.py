@@ -6,7 +6,7 @@
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#     https://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
@@ -19,7 +19,7 @@
 This client library is designed to support the Graph API and the
 official Facebook JavaScript SDK, which is the canonical way to
 implement Facebook authentication. Read more about the Graph API at
-http://developers.facebook.com/docs/api.
+https://developers.facebook.com/docs/graph-api.
 
 """
 
@@ -50,8 +50,7 @@ VALID_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6"]
 class GraphAPI(object):
     """A client for the Facebook Graph API.
 
-    See http://developers.facebook.com/docs/api for complete
-    documentation for the API.
+    https://developers.facebook.com/docs/graph-api
 
     The Graph API is made up of the objects in Facebook (e.g., people,
     pages, events, photos) and the connections between them (e.g.,
@@ -65,11 +64,11 @@ class GraphAPI(object):
        friends = graph.get_connections(user["id"], "friends")
 
     You can see a list of all of the objects and connections supported
-    by the API at http://developers.facebook.com/docs/reference/api/.
+    by the API at https://developers.facebook.com/docs/graph-api/reference/.
 
     You can obtain an access token via OAuth or by using the Facebook
     JavaScript SDK. See
-    http://developers.facebook.com/docs/authentication/ for details.
+    https://developers.facebook.com/docs/facebook-login for details.
 
     If you are using the JavaScript SDK, you can use the
     get_user_from_cookie() method below to get the OAuth access token
@@ -133,14 +132,9 @@ class GraphAPI(object):
             post = feed["data"][0]
             graph.put_object(post["id"], "comments", message="First!")
 
-        See http://developers.facebook.com/docs/api#publishing for all
-        of the supported writeable objects.
-
-        Certain write operations require extended permissions. For
-        example, publishing to a user's feed requires the
-        "publish_actions" permission. See
-        http://developers.facebook.com/docs/publishing/ for details
-        about publishing permissions.
+        Certain operations require extended permissions. See
+        https://developers.facebook.com/docs/facebook-login/permissions
+        for details about permissions.
 
         """
         assert self.access_token, "Write operations require an access token"
@@ -159,10 +153,10 @@ class GraphAPI(object):
         being posted to the Wall. It should be a dictionary of the form:
 
             {"name": "Link name"
-             "link": "http://www.example.com/",
+             "link": "https://www.example.com/",
              "caption": "{*actor*} posted a new review",
              "description": "This is a longer description of the attachment",
-             "picture": "http://www.example.com/thumbnail.jpg"}
+             "picture": "https://www.example.com/thumbnail.jpg"}
 
         """
         return self.put_object(profile_id, "feed", message=message,
@@ -319,8 +313,8 @@ class GraphAPI(object):
     def extend_access_token(self, app_id, app_secret):
         """
         Extends the expiration time of a valid OAuth access token. See
-        <https://developers.facebook.com/roadmap/offline-access-removal/
-        #extend_token>
+        <https://developers.facebook.com/docs/facebook-login/access-tokens/
+        expiration-and-extension>
 
         """
         args = {
@@ -335,8 +329,8 @@ class GraphAPI(object):
     def debug_access_token(self, token, app_id, app_secret):
         """
         Gets information about a user access token issued by an app. See
-        <https://developers.facebook.com/docs/facebook-login/access-tokens
-        #debug>
+        <https://developers.facebook.com/docs/facebook-login/
+        access-tokens/debugging-and-error-handling>
 
         We can generate the app access token by concatenating the app
         id and secret: <https://developers.facebook.com/docs/
@@ -391,10 +385,8 @@ def get_user_from_cookie(cookies, app_id, app_secret):
     requests to the Graph API. If the user is not logged in, we
     return None.
 
-    Download the official Facebook JavaScript SDK at
-    http://github.com/facebook/connect-js/. Read more about Facebook
-    authentication at
-    http://developers.facebook.com/docs/authentication/.
+    Read more about Facebook authentication at
+    https://developers.facebook.com/docs/facebook-login.
 
     """
     cookie = cookies.get("fbsr_" + app_id, "")
@@ -444,7 +436,7 @@ def parse_signed_request(signed_request, app_secret):
         return False
 
     # HMAC can only handle ascii (byte) strings
-    # http://bugs.python.org/issue5285
+    # https://bugs.python.org/issue5285
     app_secret = app_secret.encode('ascii')
     payload = payload.encode('ascii')
 
