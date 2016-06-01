@@ -41,7 +41,8 @@ You can read more about `Facebook's Graph API here`_.
 
     import facebook
 
-    graph = facebook.GraphAPI(access_token='your_token', version='2.2')
+    token = facebook.get_access_token('your_app_id', 'your_app_secret')  # consider caching this
+    graph = facebook.GraphAPI(access_token=token, version='2.2')
 
 Methods
 -------
