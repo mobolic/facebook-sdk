@@ -57,6 +57,7 @@ Returns the given object from the graph as a ``dict``. A list of
 **Parameters**
 
 * ``id`` –  A ``string`` that is a unique ID for that particular resource.
+* ``**args`` (optional) - keyword args to be passed as query params
 
 **Example**
 
@@ -64,6 +65,12 @@ Returns the given object from the graph as a ``dict``. A list of
 
     post = graph.get_object(id='post_id')
     print(post['message'])
+
+.. code-block:: python
+
+    event = graph.get_object(id='event_id', fields='attending_count,declined_count')
+    print(event['attending_count'])
+    print(event['declined_count'])
 
 
 get_objects
@@ -75,6 +82,7 @@ maps to an object.
 **Parameters**
 
 * ``ids`` – A ``list`` containing IDs for multiple resources.
+* ``**args`` (optional) - keyword args to be passed as query params
 
 **Example**
 
@@ -82,10 +90,19 @@ maps to an object.
 
     post_ids = ['post_id_1', 'post_id_2']
     posts = graph.get_objects(ids=post_ids)
-
+    
     # Each given id maps to an object.
     for post_id in post_ids:
         print(posts[post_id]['created_time'])
+
+.. code-block:: python
+
+    event_ids = ['event_id_1', 'event_id_2']
+    events = graph.get_objects(ids=event_ids, fields='attending_count,declined_count')
+
+    # Each given id maps to an object the contains the requested fields.
+    for event_id in event_ids:
+        print(posts[event_id]['declined_count'])
 
 
 get_connections
