@@ -2,13 +2,13 @@
 Changelog
 =========
 
-Version 2.0.0
-=============
+Version 2.0.0 (Future Release)
+==============================
  - Support Graph API version 2.6.
  - Allow offline generation of application access tokens.
 
-Version 1.0.0
-=============
+Version 1.0.0 (2016-04-01)
+==========================
 
  - Python 3 support.
  - More comprehensive test coverage.
