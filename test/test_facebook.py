@@ -171,14 +171,8 @@ class TestAccessToken(FacebookTestCase):
                 e.message, "fb_exchange_token parameter not specified")
 
     def test_bogus_access_token(self):
-        invalid_token_error_message = "Invalid OAuth access token."
-
         graph = facebook.GraphAPI(access_token='wrong_token')
-        self.assert_raises_multi_regex(
-            facebook.GraphAPIError,
-            invalid_token_error_message,
-            graph.get_object,
-            "me")
+        self.assertRaises(facebook.GraphAPIError, graph.get_object, 'me')
 
     def test_access_with_expired_access_token(self):
         expired_token = (
