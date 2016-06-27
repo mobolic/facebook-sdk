@@ -227,10 +227,14 @@ class GraphAPI(object):
         if post_args is not None:
             method = "POST"
 
+        # Add `access_token` to post_args or args if it has not already been
+        # included.
         if self.access_token:
-            if post_args is not None:
+            # If post_args exists, we assume that args either does not exists
+            # or it does not need `access_token`.
+            if post_args and "access_token" not in post_args:
                 post_args["access_token"] = self.access_token
-            else:
+            elif args and "access_token" not in args:
                 args["access_token"] = self.access_token
 
         try:
