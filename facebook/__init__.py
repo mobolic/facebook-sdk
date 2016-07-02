@@ -234,7 +234,7 @@ class GraphAPI(object):
             # or it does not need `access_token`.
             if post_args and "access_token" not in post_args:
                 post_args["access_token"] = self.access_token
-            elif args and "access_token" not in args:
+            elif "access_token" not in args:
                 args["access_token"] = self.access_token
 
         try:
