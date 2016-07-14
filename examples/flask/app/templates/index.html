@@ -7,5 +7,11 @@
     </p>
     <h3>Hello, {{ user['name'] }}.</h3>
     <a href="/logout" id="logout">Log out</a>
+    <script>
+        document.getElementById('logout').onclick = function() {
+            FB.logout(function(response) { });
+        };
+    </script>
+
 </div>
 {% endblock %}
