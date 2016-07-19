@@ -32,9 +32,9 @@ import json
 import re
 
 try:
-    from urllib.parse import parse_qs, urlencode
+    from urllib.parse import parse_qs, urlencode, urlparse
 except ImportError:
-    from urlparse import parse_qs
+    from urlparse import parse_qs, urlparse
     from urllib import urlencode
 
 from . import version
@@ -117,6 +117,22 @@ class GraphAPI(object):
         """Fetches the connections for given object."""
         return self.request(
             "%s/%s/%s" % (self.version, id, connection_name), args)
+
+    def get_all_connections(self, id, connection_name, **args):
+        """Get all pages from a get_connections call
+
+        This will iterate over all pages returned by a get_connections call
+        and yield the individual items.
+        """
+        while True:
+            page = self.get_connections(id, connection_name, **args)
+            for post in page['data']:
+                yield post
+            next = page.get('paging', {}).get('next')
+            if not next:
+                return
+            args = parse_qs(urlparse(next).query)
+            del args['access_token']
 
     def put_object(self, parent_object, connection_name, **data):
         """Writes the given object to the graph, connected to the given parent.
