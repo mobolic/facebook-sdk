@@ -44,7 +44,7 @@ __version__ = version.__version__
 
 FACEBOOK_GRAPH_URL = "https://graph.facebook.com/"
 FACEBOOK_OAUTH_DIALOG_URL = "https://www.facebook.com/dialog/oauth?"
-VALID_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6"]
+VALID_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7"]
 
 
 class GraphAPI(object):
@@ -76,10 +76,11 @@ class GraphAPI(object):
 
     """
 
+    # The default version is only used if the version kwarg does not exist.
+    DEFAULT_VERSION = "2.7"
+
     def __init__(self, access_token=None, timeout=None, version=None,
                  proxies=None):
-        # The default version is only used if the version kwarg does not exist.
-        default_version = "2.0"
 
         self.access_token = access_token
         self.timeout = timeout
@@ -98,7 +99,7 @@ class GraphAPI(object):
                 raise GraphAPIError("Version number should be in the"
                                     " following format: #.# (e.g. 2.0).")
         else:
-            self.version = "v" + default_version
+            self.version = "v" + self.DEFAULT_VERSION
 
     def get_object(self, id, **args):
         """Fetches the given object from the graph."""
