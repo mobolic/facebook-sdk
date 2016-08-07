@@ -4,7 +4,7 @@ Changelog
 
 Version 2.0.0 (Future Release)
 ==============================
- - Support Graph API version 2.6.
+ - Support Graph API version 2.6 and 2.7.
  - Allow offline generation of application access tokens.
 
 Version 1.0.0 (2016-04-01)
