@@ -25,9 +25,9 @@ You can read more about `Facebook's Graph API here`_.
 * ``timeout`` - A ``float`` describing (in seconds) how long the client will be
   waiting for a response from Facebook's servers. `See more here`_.
 * ``version`` - A ``string`` describing the `version of Facebook's Graph API to
-  use`_. Valid API versions are ``2.0``, ``2.1``, ``2.2``, ``2.3``, ``2.4``, ``2.5``, and ``2.6``. The
-  default version is ``2.0`` and is used if the version keyword argument is not
-  provided.
+  use`_. Valid API versions are ``2.0``, ``2.1``, ``2.2``, ``2.3``, ``2.4``,
+  ``2.5``, ``2.6``, and ``2.7``. The default version is ``2.0`` and is used if
+  the version keyword argument is not provided.
 * ``proxies`` - A ``dict`` with proxy-settings that Requests should use. `See Requests documentation`_.
 
 .. _Read more about access tokens here: https://developers.facebook.com/docs/facebook-login/access-tokens
@@ -90,7 +90,7 @@ maps to an object.
 
     post_ids = ['post_id_1', 'post_id_2']
     posts = graph.get_objects(ids=post_ids)
-    
+
     # Each given id maps to an object.
     for post_id in post_ids:
         print(posts[post_id]['created_time'])
