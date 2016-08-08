@@ -44,7 +44,7 @@ __version__ = version.__version__
 
 FACEBOOK_GRAPH_URL = "https://graph.facebook.com/"
 FACEBOOK_OAUTH_DIALOG_URL = "https://www.facebook.com/dialog/oauth?"
-VALID_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7"]
+VALID_API_VERSIONS = ["2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7"]
 
 
 class GraphAPI(object):
@@ -79,7 +79,7 @@ class GraphAPI(object):
     def __init__(self, access_token=None, timeout=None, version=None,
                  proxies=None):
         # The default version is only used if the version kwarg does not exist.
-        default_version = "2.0"
+        default_version = VALID_API_VERSIONS[0]
 
         self.access_token = access_token
         self.timeout = timeout
@@ -271,14 +271,6 @@ class GraphAPI(object):
         if result and isinstance(result, dict) and result.get("error"):
             raise GraphAPIError(result)
         return result
-
-    def fql(self, query):
-        """FQL query.
-
-        Example query: "SELECT affiliations FROM user WHERE uid = me()"
-
-        """
-        return self.request(self.version + "/" + "fql", {"q": query})
 
     def get_app_access_token(self, app_id, app_secret, offline=False):
         """

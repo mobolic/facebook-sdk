@@ -112,23 +112,6 @@ class TestAPIVersion(FacebookTestCase):
                           facebook.GraphAPI, version="2.23")
 
 
-class TestFQL(FacebookTestCase):
-    def test_fql(self):
-        graph = facebook.GraphAPI(version=2.0)
-        graph.access_token = graph.get_app_access_token(
-            self.app_id, self.secret)
-
-        # Ensure that version is below 2.1. Facebook has stated that FQL is
-        # not present in this or future versions of the Graph API.
-        if graph.get_version() < 2.1:
-            # This is a tautology, but we are limited in what information
-            # we can retrieve with a proper OAuth access token.
-            fql_result = graph.fql(
-                "SELECT app_id from application where app_id = %s" %
-                self.app_id)
-            self.assertEqual(fql_result["data"][0]["app_id"], str(self.app_id))
-
-
 class TestAuthURL(FacebookTestCase):
     def test_auth_url(self):
         perms = ['email', 'birthday']
