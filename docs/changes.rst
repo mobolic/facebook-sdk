@@ -2,11 +2,13 @@
 Changelog
 =========
 
-Version 2.0.0 (Future Release)
+Version 2.0.0 (2016-08-08)
 ==============================
  - Add support for Graph API versions 2.6 and 2.7.
  - Remove support for Graph API version 2.0 and FQL.
  - Change default Graph API version to 2.1.
+ - Fix bug with debug_access_token method not working when the
+   GraphAPI object's access token was set (#276).
  - Allow offline generation of application access tokens.
 
 Version 1.0.0 (2016-04-01)
