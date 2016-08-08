@@ -272,14 +272,6 @@ class GraphAPI(object):
             raise GraphAPIError(result)
         return result
 
-    def fql(self, query):
-        """FQL query.
-
-        Example query: "SELECT affiliations FROM user WHERE uid = me()"
-
-        """
-        return self.request(self.version + "/" + "fql", {"q": query})
-
     def get_app_access_token(self, app_id, app_secret, offline=False):
         """
         Get the application's access token as a string.
