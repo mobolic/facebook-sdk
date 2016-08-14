@@ -17,7 +17,7 @@ Licensing
 This library uses the `Apache License, version 2.0`_. Please see the library's
 individual files for more information.
 
-.. _Apache License, version 2.0: http://www.apache.org/licenses/LICENSE-2.0.html
+.. _Apache License, version 2.0: https://www.apache.org/licenses/LICENSE-2.0
 
 Reporting Issues
 ================
@@ -26,7 +26,7 @@ If you have bugs or other issues specifically pertaining to this library, file
 them `here`_. Bugs with the Graph API should be filed on `Facebook's
 bugtracker`_.
 
-.. _here: https://github.com/pythonforfacebook/facebook-sdk/issues
+.. _here: https://github.com/mobolic/facebook-sdk/issues
 .. _Facebook's bugtracker: https://developers.facebook.com/bugs/
 
 

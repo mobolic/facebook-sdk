@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 #
-# Copyright 2013-2014 Martey Dodoo
+# Copyright 2013-2016 Martey Dodoo
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#     https://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
@@ -69,6 +69,12 @@ class TestGetAppAccessToken(FacebookTestCase):
         # the following line with flake8 (hence the noqa comment).
         assert(isinstance(token, str) or isinstance(token, unicode))    # noqa
 
+    def test_get_offline_app_access_token(self):
+        """Verify that offline generation of app access tokens works."""
+        token = facebook.GraphAPI().get_app_access_token(
+            self.app_id, self.secret, offline=True)
+        self.assertEqual(token, "%s|%s" % (self.app_id, self.secret))
+
     def test_get_deleted_app_access_token(self):
         deleted_app_id = '174236045938435'
         deleted_secret = '0073dce2d95c4a5c2922d1827ea0cca6'
@@ -111,29 +117,12 @@ class TestAPIVersion(FacebookTestCase):
                           facebook.GraphAPI, version="2.23")
 
 
-class TestFQL(FacebookTestCase):
-    def test_fql(self):
-        graph = facebook.GraphAPI(version=2.0)
-        graph.access_token = graph.get_app_access_token(
-            self.app_id, self.secret)
-
-        # Ensure that version is below 2.1. Facebook has stated that FQL is
-        # not present in this or future versions of the Graph API.
-        if graph.get_version() < 2.1:
-            # This is a tautology, but we are limited in what information
-            # we can retrieve with a proper OAuth access token.
-            fql_result = graph.fql(
-                "SELECT app_id from application where app_id = %s" %
-                self.app_id)
-            self.assertEqual(fql_result["data"][0]["app_id"], str(self.app_id))
-
-
 class TestAuthURL(FacebookTestCase):
     def test_auth_url(self):
         perms = ['email', 'birthday']
         redirect_url = 'https://localhost/facebook/callback/'
 
-        expected_url = 'https://www.facebook.com/dialog/oauth?' + urlencode(
+        expected_url = facebook.FACEBOOK_OAUTH_DIALOG_URL + urlencode(
             dict(client_id=self.app_id,
                  redirect_uri=redirect_url,
                  scope=','.join(perms)))
@@ -170,14 +159,8 @@ class TestAccessToken(FacebookTestCase):
                 e.message, "fb_exchange_token parameter not specified")
 
     def test_bogus_access_token(self):
-        invalid_token_error_message = "Invalid OAuth access token."
-
         graph = facebook.GraphAPI(access_token='wrong_token')
-        self.assert_raises_multi_regex(
-            facebook.GraphAPIError,
-            invalid_token_error_message,
-            graph.get_object,
-            "me")
+        self.assertRaises(facebook.GraphAPIError, graph.get_object, 'me')
 
     def test_access_with_expired_access_token(self):
         expired_token = (
