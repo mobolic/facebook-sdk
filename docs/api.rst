@@ -270,3 +270,22 @@ Deletes the object with the given ID from the graph.
 .. code-block:: python
 
     graph.delete_object(id='post_id')
+
+get_permissions
+^^^^^^^^^^^^^
+
+https://developers.facebook.com/docs/graph-api/reference/user/permissions/
+
+Returns the permissions granted for the app by the user with the given ID as a
+``dict``.
+
+**Parameters**
+
+* ``user_id`` - A ``string`` or an ``int`` that is a unique ID for a user.
+
+**Example**
+
+.. code-block:: python
+
+    permissions = graph.get_permissions(user_id=12345)
+    print(permissions["public_profile"])
