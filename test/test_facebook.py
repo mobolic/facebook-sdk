@@ -35,8 +35,9 @@ class FacebookTestCase(unittest.TestCase):
         try:
             self.app_id = os.environ["FACEBOOK_APP_ID"]
             self.secret = os.environ["FACEBOOK_SECRET"]
+            self.user_id = os.environ["FACEBOOK_USER_ID"]
         except KeyError:
-            raise Exception("FACEBOOK_APP_ID and FACEBOOK_SECRET "
+            raise Exception("FACEBOOK_APP_ID, FACEBOOK_SECRET, and FACEBOOK_USER_ID "
                             "must be set as environmental variables.")
 
     def assert_raises_multi_regex(
@@ -211,20 +212,10 @@ class TestGetUserPermissions(FacebookTestCase):
     (other than the default `public_profile` scope).
 
     """
-    token = None
-
-    @classmethod
-    def setUpClass(cls):
-        super(TestGetUserPermissions, cls).setUpClass()
-        try:
-            cls.token = os.environ["FACEBOOK_USER_ACCESS_TOKEN"]
-        except KeyError:
-            pass
-
-    @unittest.skipIf("FACEBOOK_USER_ACCESS_TOKEN" not in os.environ,
-                     "FACEBOOK_USER_ACCESS_TOKEN not set")
     def test_get_user_permissions_node(self):
-        permissions = facebook.GraphAPI(self.token).get_permissions()
+        token = facebook.GraphAPI().get_app_access_token(
+            self.app_id, self.secret)
+        permissions = facebook.GraphAPI(token).get_permissions(self.user_id)
         assert permissions is not None
         assert permissions["public_profile"] is True
 
