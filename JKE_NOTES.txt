@@ -1,0 +1,2 @@
+get app ID and secret from .travis.yml
+python -m test.test_facebook -v TestGetUserPermissions

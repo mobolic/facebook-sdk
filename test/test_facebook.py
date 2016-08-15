@@ -223,7 +223,7 @@ class TestGetUserPermissions(FacebookTestCase):
         token = facebook.GraphAPI().get_app_access_token(
             self.app_id, self.secret)
         with self.assertRaises(facebook.GraphAPIError):
-	        permissions = facebook.GraphAPI(token).get_permissions(1)
+            permissions = facebook.GraphAPI(token).get_permissions(1)
 
 
 if __name__ == '__main__':
