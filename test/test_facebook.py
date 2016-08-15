@@ -219,6 +219,12 @@ class TestGetUserPermissions(FacebookTestCase):
         assert permissions is not None
         assert permissions["public_profile"] is True
 
+    def test_get_user_permissions_nonexistant_user(self):
+        token = facebook.GraphAPI().get_app_access_token(
+            self.app_id, self.secret)
+        with self.assertRaises(facebook.GraphAPIError):
+	        permissions = facebook.GraphAPI(token).get_permissions(1)
+
 
 if __name__ == '__main__':
     unittest.main()
