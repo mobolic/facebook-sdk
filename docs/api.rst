@@ -276,7 +276,7 @@ get_permissions
 
 https://developers.facebook.com/docs/graph-api/reference/user/permissions/
 
-Returns the permissions granted for the app by the user with the given ID as a
+Returns the permissions granted to the app by the user with the given ID as a
 ``dict``.
 
 **Parameters**
