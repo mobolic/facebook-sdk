@@ -224,21 +224,28 @@ class GraphAPI(object):
         """
         args = args or {}
 
-        if post_args is not None:
-            method = "POST"
+        if method is None:
+            if post_args is not None or files is not None:
+                method = "POST"
+            else:
+                method = "GET"
 
         # Add `access_token` to post_args or args if it has not already been
         # included.
         if self.access_token:
-            # If post_args exists, we assume that args either does not exists
-            # or it does not need `access_token`.
-            if post_args and "access_token" not in post_args:
-                post_args["access_token"] = self.access_token
-            elif "access_token" not in args:
-                args["access_token"] = self.access_token
+            # `access_token` is passed in `post_args` for POST requests and it's
+            # passed in `args` (query string) if it's GET request.
+            if method == "POST":
+                if post_args is None:
+                    post_args = {}
+                if "access_token" not in post_args:
+                    post_args["access_token"] = self.access_token
+            else:
+                if "access_token" not in args:
+                    args["access_token"] = self.access_token
 
         try:
-            response = requests.request(method or "GET",
+            response = requests.request(method,
                                         FACEBOOK_GRAPH_URL + path,
                                         timeout=self.timeout,
                                         params=args,

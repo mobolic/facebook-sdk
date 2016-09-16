@@ -14,7 +14,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 import facebook
+import mock
 import os
+import requests
 import unittest
 
 try:
@@ -195,6 +197,62 @@ class TestParseSignedRequest(FacebookTestCase):
         self.assertTrue('code' in result)
         self.assertTrue('user_id' in result)
         self.assertTrue('algorithm' in result)
+
+
+@mock.patch('requests.request')
+class TestRequest(FacebookTestCase):
+    def test_get_object(self, request):
+        response = requests.Response()
+        response.headers['content-type'] = 'json'
+        response._content = '{}'
+        request.return_value = response
+
+        api = facebook.GraphAPI(access_token='my_token', version='2.7')
+        api.get_object('me')
+
+        self.assertEquals(request.call_args[0], ('GET', 'https://graph.facebook.com/v2.7/me'))
+        self.assertEquals(request.call_args[1]['params'], {'access_token': 'my_token'})
+
+    def test_put_comment(self, request):
+        response = requests.Response()
+        response.headers['content-type'] = 'json'
+        response._content = '{"success": true}'
+        request.return_value = response
+
+        api = facebook.GraphAPI(access_token='my_token', version='2.7')
+        api.put_comment('123456', 'Hello')
+
+        self.assertEquals(request.call_args[0], ('POST', 'https://graph.facebook.com/v2.7/123456/comments'))
+        self.assertEquals(request.call_args[1]['data'], {'access_token': 'my_token', 'message': 'Hello'})
+        self.assertEquals(request.call_args[1]['params'], {})
+
+
+    def test_put_like(self, request):
+        response = requests.Response()
+        response.headers['content-type'] = 'json'
+        response._content = '{"success": true}'
+        request.return_value = response
+
+        api = facebook.GraphAPI(access_token='my_token', version='2.7')
+        api.put_like('123456')
+
+        self.assertEquals(request.call_args[0], ('POST', 'https://graph.facebook.com/v2.7/123456/likes'))
+        self.assertEquals(request.call_args[1]['data'], {'access_token': 'my_token'})
+        self.assertEquals(request.call_args[1]['params'], {})
+
+    def test_put_photo(self, request):
+        response = requests.Response()
+        response.headers['content-type'] = 'json'
+        response._content = '{"success": true}'
+        request.return_value = response
+
+        api = facebook.GraphAPI(access_token='my_token', version='2.7')
+        api.put_photo('file-mock')
+
+        self.assertEquals(request.call_args[0], ('POST', 'https://graph.facebook.com/v2.7/me/photos'))
+        self.assertEquals(request.call_args[1]['data'], {'access_token': 'my_token'})
+        self.assertEquals(request.call_args[1]['files'], {'source': 'file-mock'})
+        self.assertEquals(request.call_args[1]['params'], {})
 
 
 if __name__ == '__main__':
