@@ -25,6 +25,9 @@ jobs:
               python -m venv ~/venv;
             fi;
             . ~/venv/bin/activate
+            if [ $(python -c "import platform; print(platform.python_version_tuple()[0])") == "2" ]; then
+              pip install mock
+            fi;
             pip install coverage pygments
             pip install -e .
       - run:
