@@ -43,7 +43,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Facebook SDK for Python'
-copyright = u'2010 Facebook, 2016 Mobolic LLC'
+copyright = u'2010 Facebook, 2015 Mobolic'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
