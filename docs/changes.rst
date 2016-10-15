@@ -2,6 +2,10 @@
 Changelog
 =========
 
+Version 3.0.0 (unreleased)
+========================
+ - Remove support for Python 2.6.
+
 Version 2.0.0 (2016-08-08)
 ==============================
  - Add support for Graph API versions 2.6 and 2.7.
