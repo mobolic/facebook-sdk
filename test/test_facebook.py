@@ -219,7 +219,7 @@ class TestAppSecretProof(FacebookTestCase):
         self.assertEqual(api.app_secret_hmac, None)
 
     @mock.patch('requests.request')
-    def test_appsecret_proof_is_set_on_request(self, mock_request):
+    def test_appsecret_proof_is_set_on_get_request(self, mock_request):
         api = facebook.GraphAPI(access_token='abc123', app_secret='xyz789')
         mock_response = mock.Mock()
         mock_response.headers = {'content-type': 'json'}
@@ -228,6 +228,24 @@ class TestAppSecretProof(FacebookTestCase):
         api.request('some-path')
         mock_request.assert_called_once_with(
             'GET',
+            'https://graph.facebook.com/some-path',
+            data=None,
+            files=None,
+            params={'access_token': 'abc123',
+                    'appsecret_proof': self.proof},
+            proxies=None,
+            timeout=None)
+
+    @mock.patch('requests.request')
+    def test_appsecret_proof_is_set_on_post_request(self, mock_request):
+        api = facebook.GraphAPI(access_token='abc123', app_secret='xyz789')
+        mock_response = mock.Mock()
+        mock_response.headers = {'content-type': 'json'}
+        mock_response.json.return_value = {}
+        mock_request.return_value = mock_response
+        api.request('some-path', method = 'POST')
+        mock_request.assert_called_once_with(
+            'POST',
             'https://graph.facebook.com/some-path',
             data=None,
             files=None,
