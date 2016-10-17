@@ -6,7 +6,7 @@ python:
     - "2.7"
     - "2.6"
 install:
-    - if [[ "$TRAVIS_PYTHON_VERSION" = 2.6 -o "$TRAVIS_PYTHON_VERSION" = 2.7 ]]; then pip install mock; fi
+    - if [[ $TRAVIS_PYTHON_VERSION == 2* ]]; then pip install mock; fi
     - "pip install flake8"
     - "pip install ."
 script:
