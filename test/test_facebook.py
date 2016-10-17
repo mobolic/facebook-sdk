@@ -243,7 +243,7 @@ class TestAppSecretProof(FacebookTestCase):
         mock_response.headers = {'content-type': 'json'}
         mock_response.json.return_value = {}
         mock_request.return_value = mock_response
-        api.request('some-path', method = 'POST')
+        api.request('some-path', method='POST')
         mock_request.assert_called_once_with(
             'POST',
             'https://graph.facebook.com/some-path',
