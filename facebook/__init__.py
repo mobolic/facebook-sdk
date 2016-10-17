@@ -90,7 +90,8 @@ class GraphAPI(object):
             # https://developers.facebook.com/docs/graph-api/securing-requests
             self.app_secret_hmac = hmac.new(app_secret.encode('ascii'),
                                             msg=access_token.encode('ascii'),
-                                            digestmod=hashlib.sha256).hexdigest()
+                                            digestmod=hashlib.sha256
+                                            ).hexdigest()
         else:
             self.app_secret_hmac = None
 

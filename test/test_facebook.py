@@ -28,6 +28,7 @@ try:
 except ImportError:
     import mock
 
+
 class FacebookTestCase(unittest.TestCase):
     """Sets up application ID and secret from environment."""
     def setUp(self):
@@ -224,8 +225,9 @@ class TestAppSecretProof(FacebookTestCase):
         mock_response.headers = {'content-type': 'json'}
         mock_response.json.return_value = {}
         mock_request.return_value = mock_response
-        response = api.request('some-path')
-        mock_request.assert_called_once_with('GET',
+        api.request('some-path')
+        mock_request.assert_called_once_with(
+            'GET',
             'https://graph.facebook.com/some-path',
             data=None,
             files=None,
@@ -241,8 +243,9 @@ class TestAppSecretProof(FacebookTestCase):
         mock_response.headers = {'content-type': 'json'}
         mock_response.json.return_value = {}
         mock_request.return_value = mock_response
-        response = api.request('some-path')
-        mock_request.assert_called_once_with('GET',
+        api.request('some-path')
+        mock_request.assert_called_once_with(
+            'GET',
             'https://graph.facebook.com/some-path',
             data=None,
             files=None,
