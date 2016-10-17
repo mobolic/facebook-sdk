@@ -29,11 +29,17 @@ You can read more about `Facebook's Graph API here`_.
   ``2.5``, ``2.6``, and ``2.7``. The default version is ``2.1`` and is used if
   the version keyword argument is not provided.
 * ``proxies`` - A ``dict`` with proxy-settings that Requests should use. `See Requests documentation`_.
+* ``app_secret`` (optional) The secret key of your app. If both ``app_secret``
+  and ``access_token`` are present this will be used to compute an
+  `appsecret_proof`_ *(This prevents bad guys from making API calls with your
+  access tokens from their servers.)*
+
 
 .. _Read more about access tokens here: https://developers.facebook.com/docs/facebook-login/access-tokens
 .. _See more here: http://docs.python-requests.org/en/latest/user/quickstart/#timeouts
 .. _version of Facebook's Graph API to use: https://developers.facebook.com/docs/apps/versions
 .. _See Requests documentation: http://www.python-requests.org/en/latest/user/advanced/#proxies
+.. _appsecret_proof: https://developers.facebook.com/docs/graph-api/securing-requests
 
 **Example**
 
