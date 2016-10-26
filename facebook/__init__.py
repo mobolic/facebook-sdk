@@ -321,7 +321,8 @@ class GraphAPI(object):
             "fb_exchange_token": self.access_token,
         }
 
-        return self.request(self.version + "/" + "oauth/access_token", args=args)
+        return self.request(self.version + "/" + "oauth/access_token",
+                            args=args)
 
     def debug_access_token(self, token, app_id, app_secret):
         """
