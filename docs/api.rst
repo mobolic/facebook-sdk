@@ -271,3 +271,24 @@ Deletes the object with the given ID from the graph.
 .. code-block:: python
 
     graph.delete_object(id='post_id')
+
+auth_url
+^^^^^^^^^^^^^
+https://developers.facebook.com/docs/facebook-login/manually-build-a-login-flow
+
+Generates Facebook login URL to request access token and permissions.
+
+**Parameters**
+
+* ``app_id`` - ``integer`` Facebook application id that is requesting for authentication and authorisation.
+* ``canvas_url`` - ``string`` Return URL after successful authentication, usually parses returned Facebook response for authorisation request.
+* ``perms`` - ``list`` List of requested permissions.
+
+**Example**
+
+.. code-block:: python
+    app_id = 1231241241
+    canvas_url = 'https://domain.com/that-handles-auth-response/'
+    perms = ['manage_pages','publish_pages']
+    fb_login_url = graph.auth_url(app_id, canvas_url, perms)
+    print(fb_login_url)
