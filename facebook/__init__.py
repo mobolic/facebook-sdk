@@ -450,6 +450,14 @@ def parse_signed_request(signed_request, app_secret):
 
 
 def auth_url(app_id, canvas_url, perms=None, **kwargs):
+    """ Generates Facebook login URL to request access token and permissions
+    @app_id: integer
+    @canvas_url: string
+    @perms: list
+
+    Example:
+      fb_login_url = facebook.auth_url(1209312309123,'http://domain.com/handles/return',['manage_pages','publish_pages'])
+    """
     url = FACEBOOK_OAUTH_DIALOG_URL
     kvps = {'client_id': app_id, 'redirect_uri': canvas_url}
     if perms:
