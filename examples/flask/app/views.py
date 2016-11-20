@@ -2,7 +2,7 @@ from facebook import get_user_from_cookie, GraphAPI
 from flask import g, render_template, redirect, request, session, url_for
 
 from app import app, db
-from models import User
+from .models import User
 
 # Facebook app details
 FB_APP_ID = ''
