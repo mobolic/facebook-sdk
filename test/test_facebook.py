@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2013-2016 Martey Dodoo
+# Copyright 2015 Mobolic
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -74,7 +74,7 @@ class TestGetAppAccessToken(FacebookTestCase):
         """Verify that offline generation of app access tokens works."""
         token = facebook.GraphAPI().get_app_access_token(
             self.app_id, self.secret, offline=True)
-        self.assertEqual(token, "%s|%s" % (self.app_id, self.secret))
+        self.assertEqual(token, "{0}|{1}".format(self.app_id, self.secret))
 
     def test_get_deleted_app_access_token(self):
         deleted_app_id = '174236045938435'
