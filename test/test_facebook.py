@@ -30,7 +30,7 @@ class FacebookTestCase(unittest.TestCase):
         try:
             self.app_id = os.environ["FACEBOOK_APP_ID"]
             self.secret = os.environ["FACEBOOK_SECRET"]
-#            self.user_id = os.environ["FACEBOOK_USER_ID"]
+            self.user_id = os.environ["FACEBOOK_USER_ID"]
         except KeyError:
             raise Exception("FACEBOOK_APP_ID, FACEBOOK_SECRET, and "
                             "FACEBOOK_USER_ID must be set as "
