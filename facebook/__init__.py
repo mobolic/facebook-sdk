@@ -232,7 +232,7 @@ class GraphAPI(object):
             raise GraphAPIError("API version number not available")
 
     def request(
-            self, path, args=None, post_args=None, files=None, method=None):
+            self, path, args=dict(), post_args=None, files=None, method=None):
         """Fetches the given path in the Graph API.
 
         We translate args to a valid query string. If post_args is

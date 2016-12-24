@@ -268,5 +268,19 @@ class TestGetAllConnectionsMethod(FacebookTestCase):
             self.assertTrue('id' in f)
 
 
+class TestAPIRequest(FacebookTestCase):
+    def test_request(self):
+        """
+        Test if request() works using default value of "args"
+        """
+        FB_OBJECT_ID = "1846089248954071_1870020306560965"
+        token = facebook.GraphAPI().get_app_access_token(
+            self.app_id, self.secret)
+        graph = facebook.GraphAPI(access_token=token)
+
+        result = graph.request(FB_OBJECT_ID)
+        self.assertEqual(result["created_time"], "2016-12-24T05:20:55+0000")
+
+
 if __name__ == '__main__':
     unittest.main()
