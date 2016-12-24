@@ -201,16 +201,19 @@ class TestAPIRequest(FacebookTestCase):
     def test_request_args_by_none(self):
         FB_VER = 2.7
         FB_OBJECT_ID = "1846089248954071_1870020306560965"
-        token = facebook.GraphAPI().get_app_access_token(self.app_id, self.secret)
+        token = facebook.GraphAPI().get_app_access_token(
+            self.app_id, self.secret)
         graph = facebook.GraphAPI(access_token=token, version=FB_VER)
 
         # args=None
-        self.assertRaises(TypeError, graph.request, FB_OBJECT_ID, args=None, post_args=None)
+        self.assertRaises(TypeError,
+            graph.request, FB_OBJECT_ID, args=None, post_args=None)
 
     def test_request_args_in_dict(self):
         FB_VER = 2.7
         FB_OBJECT_ID = "1846089248954071_1870020306560965"
-        token = facebook.GraphAPI().get_app_access_token(self.app_id, self.secret)
+        token = facebook.GraphAPI().get_app_access_token(
+            self.app_id, self.secret)
         graph = facebook.GraphAPI(access_token=token, version=FB_VER)
 
         # args=dict()
@@ -220,7 +223,8 @@ class TestAPIRequest(FacebookTestCase):
     def test_request_args_by_default(self):
         FB_VER = 2.7
         FB_OBJECT_ID = "1846089248954071_1870020306560965"
-        token = facebook.GraphAPI().get_app_access_token(self.app_id, self.secret)
+        token = facebook.GraphAPI().get_app_access_token(
+            self.app_id, self.secret)
         graph = facebook.GraphAPI(access_token=token, version=FB_VER)
 
         # default value set to: args=dict()
