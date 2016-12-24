@@ -206,8 +206,8 @@ class TestAPIRequest(FacebookTestCase):
         graph = facebook.GraphAPI(access_token=token, version=FB_VER)
 
         # args=None
-        self.assertRaises(TypeError,
-            graph.request, FB_OBJECT_ID, args=None, post_args=None)
+        self.assertRaises(
+            TypeError, graph.request, FB_OBJECT_ID, args=None, post_args=None)
 
     def test_request_args_in_dict(self):
         FB_VER = 2.7
