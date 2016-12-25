@@ -130,6 +130,30 @@ Returns all connections for a given object as a ``dict``.
     comments = graph.get_connections(id='post_id', connection_name='comments')
 
 
+get_all_connections
+^^^^^^^^^^^^^^^^^^^
+
+Iterates over all pages returned by a get_connections call and yields the
+individual items.
+
+**Parameters**
+
+* ``id`` – A ``string`` that is a unique ID for that particular resource.
+* ``connection_name`` - A ``string`` that specifies the connection or edge
+  between objects, e.g., feed, friends, groups, likes, posts.
+
+**Example**
+
+.. code-block:: python
+
+    # Get all of the authenticated user's friends
+    friends = graph.get_all_connections(id='me', connection_name='friends')
+
+    # Get all the comments from a post
+    comments = graph.get_all_connections(id='post_id',
+                                         connection_name='comments')
+
+
 put_object
 ^^^^^^^^^^
 
