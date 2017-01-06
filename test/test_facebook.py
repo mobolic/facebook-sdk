@@ -281,6 +281,23 @@ class TestAPIRequest(FacebookTestCase):
         result = graph.request(FB_OBJECT_ID)
         self.assertEqual(result["created_time"], "2016-12-24T05:20:55+0000")
 
+    def test_request_access_tokens_are_unique_to_instances(self):
+        """Verify that access tokens are unique to each GraphAPI object."""
+        graph1 = facebook.GraphAPI(access_token="foo")
+        graph2 = facebook.GraphAPI(access_token="bar")
+        # We use `delete_object` so that the access_token will appear
+        # in request.__defaults__.
+        try:
+            graph1.delete_object("baz")
+        except facebook.GraphAPIError:
+            pass
+        try:
+            graph2.delete_object("baz")
+        except facebook.GraphAPIError:
+            pass
+        self.assertEqual(graph1.request.__defaults__[0], None)
+        self.assertEqual(graph2.request.__defaults__[0], None)
+
 
 if __name__ == '__main__':
     unittest.main()
