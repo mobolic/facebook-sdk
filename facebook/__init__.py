@@ -105,7 +105,7 @@ class GraphAPI(object):
     def get_permissions(self, user_id):
         """Fetches the permissions object from the graph."""
         response = self.request(
-            "{0}/{1}/permissions".format(self.version, user_id)
+            "{0}/{1}/permissions".format(self.version, user_id), {}
             )["data"]
         result = dict((x["permission"], x["status"] == "granted")
                       for x in response)
@@ -261,7 +261,7 @@ class GraphAPI(object):
             # or it does not need `access_token`.
             if post_args and "access_token" not in post_args:
                 post_args["access_token"] = self.access_token
-            elif args and "access_token" not in args:
+            elif "access_token" not in args:
                 args["access_token"] = self.access_token
 
         try:
