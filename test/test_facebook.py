@@ -35,11 +35,9 @@ class FacebookTestCase(unittest.TestCase):
         try:
             self.app_id = os.environ["FACEBOOK_APP_ID"]
             self.secret = os.environ["FACEBOOK_SECRET"]
-            self.user_id = os.environ["FACEBOOK_USER_ID"]
         except KeyError:
-            raise Exception("FACEBOOK_APP_ID, FACEBOOK_SECRET, and "
-                            "FACEBOOK_USER_ID must be set as "
-                            "environmental variables.")
+            raise Exception("FACEBOOK_APP_ID and FACEBOOK_SECRET "
+                            "must be set as environmental variables.")
 
         self.test_users = []
 
@@ -310,13 +308,15 @@ class TestGetUserPermissions(FacebookTestCase):
     (other than the default `public_profile` scope).
 
     """
-    @unittest.skip('test cannot be run without a valid user ID')
     def test_get_user_permissions_node(self):
         token = facebook.GraphAPI().get_app_access_token(
             self.app_id, self.secret)
-        permissions = facebook.GraphAPI(token).get_permissions(self.user_id)
-        assert permissions is not None
-        assert permissions["public_profile"] is True
+        print "token:", token
+        graph = facebook.GraphAPI(access_token=token)
+        self.create_test_users(self.app_id, graph, 1)
+        permissions = graph.get_permissions(self.test_users[0]['id'])
+        self.assertIsNotNone(permissions)
+        self.assertEqual(permissions["public_profile"], True)
 
     def test_get_user_permissions_nonexistant_user(self):
         token = facebook.GraphAPI().get_app_access_token(
