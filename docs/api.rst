@@ -311,8 +311,28 @@ Generates Facebook login URL to request access token and permissions.
 **Example**
 
 .. code-block:: python
+
     app_id = 1231241241
     canvas_url = 'https://domain.com/that-handles-auth-response/'
     perms = ['manage_pages','publish_pages']
     fb_login_url = graph.auth_url(app_id, canvas_url, perms)
     print(fb_login_url)
+
+get_permissions
+^^^^^^^^^^^^^
+
+https://developers.facebook.com/docs/graph-api/reference/user/permissions/
+
+Returns the permissions granted to the app by the user with the given ID as a
+``set``.
+
+**Parameters**
+
+* ``user_id`` - A ``string`` containing a user's unique ID.
+
+**Example**
+
+.. code-block:: python
+
+    permissions = graph.get_permissions(user_id=12345)
+    print('public_profile' in permissions)

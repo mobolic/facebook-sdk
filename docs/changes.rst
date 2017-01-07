@@ -11,6 +11,8 @@ Version 3.0.0 (unreleased)
  - Add support for requests' sessions (#201).
  - Add versioning to access token endpoints (#322).
  - Add new `get_all_connections` method to make pagination easier (#337).
+ - Add new `get_permissions` method to retrieve permissions that a user has
+   granted an application (#264, #342).
 
 Version 2.0.0 (2016-08-08)
 ==============================
