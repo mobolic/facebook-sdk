@@ -33,7 +33,7 @@ bugtracker`_.
 Support & Discussion
 ====================
 
-Documentation is available at https://facebook-sdk.readthedocs.org/en/latest/.
+Documentation is available at https://facebook-sdk.readthedocs.io/en/latest/.
 
 Have a question? Need help? Visit the library's `Google Group`_.
 
