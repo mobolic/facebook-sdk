@@ -143,29 +143,42 @@ class GraphAPI(object):
             args = parse_qs(urlparse(next).query)
             del args['access_token']
 
-    def put_object(self, parent_object, connection_name, **data):
+    def put_object(self, parent_object, connection_name, post_args=None, **data):
         """Writes the given object to the graph, connected to the given parent.
-
         For example,
-
             graph.put_object("me", "feed", message="Hello, world")
-
         writes "Hello, world" to the active user's wall. Likewise, this
         will comment on the first post of the active user's feed:
-
             feed = graph.get_connections("me", "feed")
             post = feed["data"][0]
             graph.put_object(post["id"], "comments", message="First!")
-
+        Some parameters that can be sent to the Facebook API can not be passed
+        to the method using kwargs, for example 'fb:explicitly_shared'. These
+        needs to be set using the post_args argument dict. If the same key is
+        used both in the post_arg dict and passed in as a kwarg, the kwarg will
+        take precedence.
+        Usage example,
+            graph.put_object(
+                "me",
+                "nyccookbook:cook",
+                recipe="http://www.sugarmedia.com/nyccookbook/cookie.html",
+                post_args={"fb:explicitly_shared": True}
+            )
+        will share the object as a post as described in the docs. See
+        https://developers.facebook.com/docs/opengraph/guides/explicit-sharing/
+        for details.
         Certain operations require extended permissions. See
         https://developers.facebook.com/docs/facebook-login/permissions
         for details about permissions.
-
         """
         assert self.access_token, "Write operations require an access token"
+        if post_args is None:
+            post_args = {}
+        post_args.update(data)
+
         return self.request(
             "{0}/{1}/{2}".format(self.version, parent_object, connection_name),
-            post_args=data,
+            post_args=post_args,
             method="POST")
 
     def put_wall_post(self, message, attachment={}, profile_id="me"):
