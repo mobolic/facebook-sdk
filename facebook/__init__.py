@@ -143,7 +143,8 @@ class GraphAPI(object):
             args = parse_qs(urlparse(next).query)
             del args['access_token']
 
-    def put_object(self, parent_object, connection_name, post_args=None, **data):
+    def put_object(
+            self, parent_object, connection_name,post_args=None, **data):
         """Writes the given object to the graph, connected to the given parent.
         For example,
             graph.put_object("me", "feed", message="Hello, world")
