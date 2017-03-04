@@ -42,7 +42,7 @@ You can read more about `Facebook's Graph API here`_.
 
     import facebook
 
-    graph = facebook.GraphAPI(access_token='your_token', version='2.2')
+    graph = facebook.GraphAPI(access_token='your_token', version='2.8')
 
 Methods
 -------
