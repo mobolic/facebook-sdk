@@ -6,8 +6,8 @@ Version 3.0.0 (unreleased)
 ========================
  - Remove support for Python 2.6.
  - Add support for Graph API version 2.8.
- - Remove support for Graph API version 2.1.
- - Change default Graph API version to 2.2.
+ - Remove support for Graph API versions 2.1 and 2.2.
+ - Change default Graph API version to 2.3.
  - Add support for requests' sessions (#201).
  - Add versioning to access token endpoints (#322).
  - Add new `get_all_connections` method to make pagination easier (#337).
