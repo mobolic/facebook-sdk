@@ -45,7 +45,7 @@ __version__ = version.__version__
 
 FACEBOOK_GRAPH_URL = "https://graph.facebook.com/"
 FACEBOOK_OAUTH_DIALOG_URL = "https://www.facebook.com/dialog/oauth?"
-VALID_API_VERSIONS = ["2.2", "2.3", "2.4", "2.5", "2.6", "2.7", "2.8"]
+VALID_API_VERSIONS = ["2.3", "2.4", "2.5", "2.6", "2.7", "2.8"]
 
 
 class GraphAPI(object):
