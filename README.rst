@@ -19,6 +19,17 @@ individual files for more information.
 
 .. _Apache License, version 2.0: https://www.apache.org/licenses/LICENSE-2.0
 
+
+Installation
+============
+
+Install from PyPI:
+
+::
+
+    pip install facebook-sdk
+
+
 Reporting Issues
 ================
 
