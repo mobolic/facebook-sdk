@@ -73,6 +73,14 @@ Returns the given object from the graph as a ``dict``. A list of
     print(event['attending_count'])
     print(event['declined_count'])
 
+.. code-block:: python
+
+    # Retrieve information about a website or page:
+    # https://developers.facebook.com/docs/graph-api/reference/url/
+    # Note that URLs need to be properly encoded with the "quote" function
+    # of urllib (Python 2) or urllib.parse (Python 3).
+    site_info = graph.get_object(id="https%3A//mobolic.com")
+    print(site_info["og_object"]["description"])
 
 get_objects
 ^^^^^^^^^^^
