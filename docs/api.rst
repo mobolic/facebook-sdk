@@ -60,7 +60,7 @@ Returns the given object from the graph as a ``dict``. A list of
 * ``id`` –  A ``string`` that is a unique ID for that particular resource.
 * ``**args`` (optional) - keyword args to be passed as query params
 
-**Example**
+**Examples**
 
 .. code-block:: python
 
@@ -95,7 +95,7 @@ maps to an object.
 * ``ids`` – A ``list`` containing IDs for multiple resources.
 * ``**args`` (optional) - keyword args to be passed as query params
 
-**Example**
+**Examples**
 
 .. code-block:: python
 
@@ -164,7 +164,7 @@ Returns all connections for a given object as a ``dict``.
   ``get_connections`` will simply return the authenticated user's basic
   information.
 
-**Example**
+**Examples**
 
 .. code-block:: python
 
@@ -187,7 +187,7 @@ individual items.
 * ``connection_name`` - A ``string`` that specifies the connection or edge
   between objects, e.g., feed, friends, groups, likes, posts.
 
-**Example**
+**Examples**
 
 .. code-block:: python
 
@@ -212,7 +212,7 @@ Writes the given object to the graph, connected to the given parent.
 * ``connection_name`` - A ``string`` that specifies the connection or edge
   between objects, e.g., feed, friends, groups, likes, posts.
 
-**Example**
+**Examples**
 
 .. code-block:: python
 
@@ -279,14 +279,16 @@ photo and its post.
     Defaults to `/me/photos` which creates/uses a custom album for each
     Facebook application.
 
-**Example**
+**Examples**
 
 .. code-block:: python
 
     # Upload an image with a caption.
     graph.put_photo(image=open('img.jpg', 'rb'), message='Look at this cool photo!')
+
     # Upload a photo to an album.
     graph.put_photo(image=open("img.jpg", 'rb'), album_path=album_id + "/photos")
+
     # Upload a profile photo for a Page.
     graph.put_photo(image=open("img.jpg", 'rb'), album_path=page_id + "/picture")
 
