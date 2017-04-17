@@ -1,7 +1,9 @@
 #!/usr/bin/env python
-from os import environ
+import os
 
 from app import app, db
 
 db.create_all()
-app.run(host='0.0.0.0', port=8000)
+
+port = int(os.environ.get("PORT", 5000))
+app.run(host='0.0.0.0', port=port)
