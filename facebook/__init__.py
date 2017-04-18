@@ -193,7 +193,7 @@ class GraphAPI(object):
 
     def put_comment_with_photo(self, object_id, image, message):
         return self.request(
-            "{0}/{1}/{2}".format(self.version, feed_id, "comments"),
+            "{0}/{1}/{2}".format(self.version, object_id, "comments"),
             post_args={"message": message},
             files={"attachment": image},
             method="POST")
