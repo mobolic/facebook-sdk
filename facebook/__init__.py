@@ -163,12 +163,16 @@ class GraphAPI(object):
 
         """
         assert self.access_token, "Write operations require an access token"
-        file = None if file is None else {"file": file}
+
+        if file is None:
+            files = None
+        else:
+            files = {"file": file}
 
         return self.request(
             "{0}/{1}/{2}".format(self.version, parent_object, connection_name),
             post_args=data,
-            files=file,
+            files=files,
             method="POST")
 
     def put_wall_post(self, message, attachment={}, profile_id="me"):
