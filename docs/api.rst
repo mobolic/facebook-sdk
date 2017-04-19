@@ -197,8 +197,11 @@ Writes the given object to the graph, connected to the given parent.
                      message='First!')
 
     # Writes a comment with image on a post
-    graph.put_object(parent_object='post_id', connection_name='comments',
-                     message='Second!', file=open('image.jpg', 'rb'))
+    graph.put_object(
+        parent_object='post_id',
+        connection_name='comments',
+        message='Second!',
+        file=open('image.jpg', 'rb'))
 
 put_comment
 ^^^^^^^^^^^
