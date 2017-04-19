@@ -190,16 +190,9 @@ class GraphAPI(object):
         return self.put_object(profile_id, "feed", message=message,
                                **attachment)
 
-    def put_comment(self, object_id, message, image=None):
+    def put_comment(self, object_id, message):
         """Writes the given comment on the given post."""
-        if image is None:
-            return self.put_object(object_id, "comments", message=message)
-        else:
-            return self.request(
-                "{0}/{1}/{2}".format(self.version, object_id, "comments"),
-                post_args={"message": message},
-                files={"attachment": image},
-                method="POST")
+        return self.put_object(object_id, "comments", message=message)
 
     def put_like(self, object_id):
         """Likes the given post."""
