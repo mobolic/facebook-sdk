@@ -143,7 +143,7 @@ class GraphAPI(object):
             args = parse_qs(urlparse(next).query)
             del args['access_token']
 
-    def put_object(self, parent_object, connection_name, **data):
+    def put_object(self, parent_object, connection_name, file=None, **data):
         """Writes the given object to the graph, connected to the given parent.
 
         For example,
@@ -163,9 +163,12 @@ class GraphAPI(object):
 
         """
         assert self.access_token, "Write operations require an access token"
+        file = None if file is None else {"file": file}
+
         return self.request(
             "{0}/{1}/{2}".format(self.version, parent_object, connection_name),
             post_args=data,
+            files=file,
             method="POST")
 
     def put_wall_post(self, message, attachment={}, profile_id="me"):
@@ -187,16 +190,16 @@ class GraphAPI(object):
         return self.put_object(profile_id, "feed", message=message,
                                **attachment)
 
-    def put_comment(self, object_id, message):
+    def put_comment(self, object_id, message, image=None):
         """Writes the given comment on the given post."""
-        return self.put_object(object_id, "comments", message=message)
-
-    def put_comment_with_photo(self, object_id, image, message):
-        return self.request(
-            "{0}/{1}/{2}".format(self.version, object_id, "comments"),
-            post_args={"message": message},
-            files={"attachment": image},
-            method="POST")
+        if image is None:
+            return self.put_object(object_id, "comments", message=message)
+        else:
+            return self.request(
+                "{0}/{1}/{2}".format(self.version, object_id, "comments"),
+                post_args={"message": message},
+                files={"attachment": image},
+                method="POST")
 
     def put_like(self, object_id):
         """Likes the given post."""
