@@ -42,7 +42,7 @@ You can read more about `Facebook's Graph API here`_.
 
     import facebook
 
-    graph = facebook.GraphAPI(access_token='your_token', version='2.8')
+    graph = facebook.GraphAPI(access_token='your_token', version='2.9')
 
 Methods
 -------
@@ -181,59 +181,24 @@ Writes the given object to the graph, connected to the given parent.
 
 .. code-block:: python
 
-    # Writes 'Hello, world' to the active user's wall.
+    # Write 'Hello, world' to the active user's wall.
     graph.put_object(parent_object='me', connection_name='feed',
                      message='Hello, world')
 
-    # Writes a comment on a post
+   # Add a link and write a message about it.
+   graph.put_object(
+      parent_object="me",
+      connection_name="feed",
+      message="This is a great website. Everyone should visit it.",
+      link="https://www.facebook.com")
+
+    # Write a comment on a post.
     graph.put_object(parent_object='post_id', connection_name='comments',
                      message='First!')
 
     # Writes a comment with image on a post
     graph.put_object(parent_object='post_id', connection_name='comments',
                      message='Second!', file=open('image.jpg', 'rb'))
-
-put_wall_post
-^^^^^^^^^^^^^
-
-Writes a wall post to the given profile's wall. It defaults to writing to the
-authenticated user's wall if no ``profile_id`` is specified.
-
-**Parameters**
-
-* ``message`` - A ``string`` that will be posted to the user's wall.
-* ``attachment`` - A ``dict`` that adds a structured attachment to the message
-  being posted to the Wall. If you are sharing a URL, you will want to use the
-  ``attachment`` parameter so that a thumbnail preview appears in the post. It
-  should be a ``dict`` of the form:
-
-.. code-block:: python
-
-    attachment =  {
-        'name': '',
-        'link': '',
-        'caption': '',
-        'description': '',
-        'picture': ''
-   }
-
-* ``profile_id`` - A ``string`` that is a unique ID for that particular user.
-  Defaults to the authenticated user's wall.
-
-**Example**
-
-.. code-block:: python
-
-    attachment =  {
-        'name': 'Link name'
-        'link': 'https://www.example.com/',
-        'caption': 'Check out this example',
-        'description': 'This is a longer description of the attachment',
-        'picture': 'https://www.example.com/thumbnail.jpg'
-    }
-
-    graph.put_wall_post(message='Check this out...', attachment=attachment)
-
 
 put_comment
 ^^^^^^^^^^^

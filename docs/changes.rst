@@ -5,7 +5,7 @@ Changelog
 Version 3.0.0 (unreleased)
 ========================
  - Remove support for Python 2.6.
- - Add support for Graph API version 2.8.
+ - Add support for Graph API versions  2.8 and 2.9.
  - Remove support for Graph API versions 2.1 and 2.2.
  - Change default Graph API version to 2.3.
  - Add support for requests' sessions (#201).
@@ -13,6 +13,7 @@ Version 3.0.0 (unreleased)
  - Add new `get_all_connections` method to make pagination easier (#337).
  - Add new `get_permissions` method to retrieve permissions that a user has
    granted an application (#264, #342).
+ - Remove `put_wall_post` method. Use `put_object` instead.
 
 Version 2.0.0 (2016-08-08)
 ==============================
