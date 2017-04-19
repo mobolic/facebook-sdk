@@ -45,7 +45,7 @@ __version__ = version.__version__
 
 FACEBOOK_GRAPH_URL = "https://graph.facebook.com/"
 FACEBOOK_OAUTH_DIALOG_URL = "https://www.facebook.com/dialog/oauth?"
-VALID_API_VERSIONS = ["2.3", "2.4", "2.5", "2.6", "2.7", "2.8"]
+VALID_API_VERSIONS = ["2.3", "2.4", "2.5", "2.6", "2.7", "2.8", "2.9"]
 
 
 class GraphAPI(object):
@@ -167,25 +167,6 @@ class GraphAPI(object):
             "{0}/{1}/{2}".format(self.version, parent_object, connection_name),
             post_args=data,
             method="POST")
-
-    def put_wall_post(self, message, attachment={}, profile_id="me"):
-        """Writes a wall post to the given profile's wall.
-
-        We default to writing to the authenticated user's wall if no
-        profile_id is specified.
-
-        attachment adds a structured attachment to the status message
-        being posted to the Wall. It should be a dictionary of the form:
-
-            {"name": "Link name"
-             "link": "https://www.example.com/",
-             "caption": "{*actor*} posted a new review",
-             "description": "This is a longer description of the attachment",
-             "picture": "https://www.example.com/thumbnail.jpg"}
-
-        """
-        return self.put_object(profile_id, "feed", message=message,
-                               **attachment)
 
     def put_comment(self, object_id, message):
         """Writes the given comment on the given post."""
