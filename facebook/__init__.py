@@ -46,6 +46,7 @@ __version__ = version.__version__
 FACEBOOK_GRAPH_URL = "https://graph.facebook.com/"
 FACEBOOK_OAUTH_DIALOG_URL = "https://www.facebook.com/dialog/oauth?"
 VALID_API_VERSIONS = ["2.3", "2.4", "2.5", "2.6", "2.7", "2.8", "2.9"]
+VALID_SEARCH_TYPES = ["page", "event", "group", "place", "placetopic", "user"]
 
 
 class GraphAPI(object):
@@ -121,6 +122,19 @@ class GraphAPI(object):
         """
         args["ids"] = ",".join(ids)
         return self.request(self.version + "/", args)
+
+    def search(self, type, **args):
+        """Fetches all objects of a given type from the graph.
+
+        Returns all objects of a given type from the graph as a dict.
+        """
+
+        if type not in VALID_SEARCH_TYPES:
+            raise GraphAPIError('Valid types are: %s'
+                                % ', '.join(VALID_SEARCH_TYPES))
+
+        args["type"] = type
+        return self.request(self.version + "/search/", args)
 
     def get_connections(self, id, connection_name, **args):
         """Fetches the connections for given object."""
