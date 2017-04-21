@@ -196,7 +196,7 @@ Writes the given object to the graph, connected to the given parent.
     graph.put_object(parent_object='post_id', connection_name='comments',
                      message='First!')
 
-    # Writes a comment with image on a post
+    # Write a comment with image on a post
     graph.put_object(
         parent_object='post_id',
         connection_name='comments',
