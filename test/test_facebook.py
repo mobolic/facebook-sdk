@@ -17,6 +17,7 @@ import facebook
 import os
 import unittest
 import inspect
+import warnings
 
 try:
     from urllib.parse import parse_qs, urlencode, urlparse
@@ -32,6 +33,19 @@ class FacebookTestCase(unittest.TestCase):
 
     """
     def setUp(self):
+
+        # Due to a python requests design choice, there's this warning
+        # about an unclosed connection when running the tests.
+        # https://github.com/kennethreitz/requests/issues/3912
+        # This can be annoying when running the tests, hence this filter to
+        # suppress the warning as discussed in
+        # https://github.com/kennethreitz/requests/issues/1882
+
+        super().setUp()
+        warnings.filterwarnings(action="ignore",
+                                message="unclosed",
+                                category=ResourceWarning)
+
         try:
             self.app_id = os.environ["FACEBOOK_APP_ID"]
             self.secret = os.environ["FACEBOOK_SECRET"]
@@ -42,6 +56,12 @@ class FacebookTestCase(unittest.TestCase):
         self.test_users = []
 
     def tearDown(self):
+
+        super().tearDown()
+        warnings.filterwarnings(action="ignore",
+                                message="unclosed",
+                                category=ResourceWarning)
+
         """Deletes the test users included in the test user list."""
         token = facebook.GraphAPI().get_app_access_token(
             self.app_id, self.secret)
