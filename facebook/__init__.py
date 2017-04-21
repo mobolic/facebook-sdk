@@ -164,10 +164,7 @@ class GraphAPI(object):
         """
         assert self.access_token, "Write operations require an access token"
 
-        """
-        If you do not need a file object, None is stored 'files'.
-        But if not, file object is saved in dictionary form to 'files'.
-        """
+        # Save file object to dictionary for uploading (if provided).
         if file is None:
             files = None
         else:
