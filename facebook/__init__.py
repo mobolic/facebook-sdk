@@ -394,7 +394,7 @@ def get_user_from_cookie(cookies, app_id, app_secret):
     https://developers.facebook.com/docs/facebook-login.
 
     """
-    cookie = cookies.get("fbsr_" + app_id, "")
+    cookie = cookies.get("fbsr_" + str(app_id), "")
     if not cookie:
         return None
     parsed_request = parse_signed_request(cookie, app_secret)
