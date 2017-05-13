@@ -1,0 +1,12 @@
+Flask==0.10.1
+Flask-SQLAlchemy==1.0
+Jinja2==2.7.2
+MarkupSafe==0.19
+SQLAlchemy==0.9.4
+Werkzeug==0.9.4
+argparse==1.2.1
+distribute==0.6.24
+git+https://github.com/mobolic/facebook-sdk.git#egg=facebook-sdk
+itsdangerous==0.24
+requests==2.2.1
+wsgiref==0.1.2

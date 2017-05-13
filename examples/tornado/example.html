@@ -8,7 +8,7 @@
     <fb:login-button autologoutlink="true"></fb:login-button>
 
     {% if current_user %}
-      <p><a href="{{ current_user.profile_url }}"><img src="http://graph.facebook.com/{{ current_user.id }}/picture?type=square"/></a></p>
+      <p><a href="{{ current_user.profile_url }}"><img src="https://graph.facebook.com/{{ current_user.id }}/picture?type=square"/></a></p>
       <p>Hello, {{ escape(current_user.name) }}</p>
     {% end %}
 
@@ -24,7 +24,7 @@
       (function() {
         var e = document.createElement('script');
         e.type = 'text/javascript';
-        e.src = document.location.protocol + '//connect.facebook.net/en_US/all.js';
+        e.src = document.location.protocol + '//connect.facebook.net/en_US/sdk.js';
         e.async = true;
         document.getElementById('fb-root').appendChild(e);
       }());

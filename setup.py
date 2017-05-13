@@ -11,16 +11,19 @@ setup(
                 'is the canonical way to implement Facebook authentication.',
     author='Facebook',
     maintainer='Martey Dodoo',
-    maintainer_email='facebook-sdk@marteydodoo.com',
-    url='https://github.com/pythonforfacebook/facebook-sdk',
+    maintainer_email='martey+facebook-sdk@mobolic.com',
+    url='https://github.com/mobolic/facebook-sdk',
     license='Apache',
     packages=["facebook"],
     long_description=open("README.rst").read(),
     classifiers=[
         'License :: OSI Approved :: Apache Software License',
-        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5'
     ],
     install_requires=[
         'requests',

@@ -13,7 +13,7 @@
 
 import sys, os
 
-from facebook import __version__
+exec(open("../facebook/version.py").read())
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -43,7 +43,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Facebook SDK for Python'
-copyright = u'2010 Facebook, 2010-2014 Python for Facebook developers'
+copyright = u'2010 Facebook, 2015 Mobolic'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -186,7 +186,7 @@ latex_elements = {
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'FacebookSDKforPython.tex', u'Facebook SDK for Python Documentation',
-   u'Facebook, Python for Facebook developers', 'manual'),
+   u'Martey Dodoo', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -216,7 +216,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'facebooksdkforpython', u'Facebook SDK for Python Documentation',
-     [u'Facebook, Python for Facebook developers'], 1)
+     [u'Martey Dodoo'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -230,7 +230,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'FacebookSDKforPython', u'Facebook SDK for Python Documentation',
-   u'Facebook, Python for Facebook developers', 'FacebookSDKforPython', 'One line description of project.',
+   u'Martey Dodoo', 'FacebookSDKforPython', 'One line description of project.',
    'Miscellaneous'),
 ]
 

@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 #
 # Copyright 2010 Facebook
+# Copyright 2015 Mobolic
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#     https://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
@@ -19,44 +20,38 @@
 This client library is designed to support the Graph API and the
 official Facebook JavaScript SDK, which is the canonical way to
 implement Facebook authentication. Read more about the Graph API at
-http://developers.facebook.com/docs/api. You can download the Facebook
-JavaScript SDK at http://github.com/facebook/connect-js/.
-
-If your application is using Google AppEngine's webapp framework, your
-usage of this module might look like this:
-
-user = facebook.get_user_from_cookie(self.request.cookies, key, secret)
-if user:
-    graph = facebook.GraphAPI(user["access_token"])
-    profile = graph.get_object("me")
-    friends = graph.get_connections("me", "friends")
+https://developers.facebook.com/docs/graph-api.
 
 """
 
-import urllib
 import hashlib
 import hmac
+import binascii
 import base64
 import requests
 import json
+import re
 
-# Find a query string parser
 try:
-    from urllib.parse import parse_qs
+    from urllib.parse import parse_qs, urlencode, urlparse
 except ImportError:
-    from urlparse import parse_qs
+    from urlparse import parse_qs, urlparse
+    from urllib import urlencode
 
 from . import version
 
 
 __version__ = version.__version__
 
+FACEBOOK_GRAPH_URL = "https://graph.facebook.com/"
+FACEBOOK_OAUTH_DIALOG_URL = "https://www.facebook.com/dialog/oauth?"
+VALID_API_VERSIONS = ["2.3", "2.4", "2.5", "2.6", "2.7", "2.8", "2.9"]
+
 
 class GraphAPI(object):
     """A client for the Facebook Graph API.
 
-    See http://developers.facebook.com/docs/api for complete
-    documentation for the API.
+    https://developers.facebook.com/docs/graph-api
 
     The Graph API is made up of the objects in Facebook (e.g., people,
     pages, events, photos) and the connections between them (e.g.,
@@ -70,37 +65,83 @@ class GraphAPI(object):
        friends = graph.get_connections(user["id"], "friends")
 
     You can see a list of all of the objects and connections supported
-    by the API at http://developers.facebook.com/docs/reference/api/.
+    by the API at https://developers.facebook.com/docs/graph-api/reference/.
 
     You can obtain an access token via OAuth or by using the Facebook
     JavaScript SDK. See
-    http://developers.facebook.com/docs/authentication/ for details.
+    https://developers.facebook.com/docs/facebook-login for details.
 
     If you are using the JavaScript SDK, you can use the
     get_user_from_cookie() method below to get the OAuth access token
     for the active user from the cookie saved by the SDK.
 
     """
-    def __init__(self, access_token=None, timeout=None):
+
+    def __init__(self, access_token=None, timeout=None, version=None,
+                 proxies=None, session=None):
+        # The default version is only used if the version kwarg does not exist.
+        default_version = VALID_API_VERSIONS[0]
+
         self.access_token = access_token
         self.timeout = timeout
+        self.proxies = proxies
+        self.session = session or requests.Session()
+
+        if version:
+            version_regex = re.compile("^\d\.\d$")
+            match = version_regex.search(str(version))
+            if match is not None:
+                if str(version) not in VALID_API_VERSIONS:
+                    raise GraphAPIError("Valid API versions are " +
+                                        str(VALID_API_VERSIONS).strip('[]'))
+                else:
+                    self.version = "v" + str(version)
+            else:
+                raise GraphAPIError("Version number should be in the"
+                                    " following format: #.# (e.g. 2.0).")
+        else:
+            self.version = "v" + default_version
+
+    def get_permissions(self, user_id):
+        """Fetches the permissions object from the graph."""
+        response = self.request(
+            "{0}/{1}/permissions".format(self.version, user_id), {}
+            )["data"]
+        return {x["permission"] for x in response if x["status"] == "granted"}
 
     def get_object(self, id, **args):
-        """Fetchs the given object from the graph."""
-        return self.request(id, args)
+        """Fetches the given object from the graph."""
+        return self.request("{0}/{1}".format(self.version, id), args)
 
     def get_objects(self, ids, **args):
-        """Fetchs all of the given object from the graph.
+        """Fetches all of the given object from the graph.
 
         We return a map from ID to object. If any of the IDs are
         invalid, we raise an exception.
         """
         args["ids"] = ",".join(ids)
-        return self.request("", args)
+        return self.request(self.version + "/", args)
 
     def get_connections(self, id, connection_name, **args):
-        """Fetchs the connections for given object."""
-        return self.request(id + "/" + connection_name, args)
+        """Fetches the connections for given object."""
+        return self.request(
+            "{0}/{1}/{2}".format(self.version, id, connection_name), args)
+
+    def get_all_connections(self, id, connection_name, **args):
+        """Get all pages from a get_connections call
+
+        This will iterate over all pages returned by a get_connections call
+        and yield the individual items.
+        """
+        while True:
+            page = self.get_connections(id, connection_name, **args)
+            for post in page['data']:
+                yield post
+            next = page.get('paging', {}).get('next')
+            if not next:
+                return
+            args = parse_qs(urlparse(next).query)
+            del args['access_token']
 
     def put_object(self, parent_object, connection_name, **data):
         """Writes the given object to the graph, connected to the given parent.
@@ -110,27 +151,25 @@ class GraphAPI(object):
             graph.put_object("me", "feed", message="Hello, world")
 
         writes "Hello, world" to the active user's wall. Likewise, this
-        will comment on a the first post of the active user's feed:
+        will comment on the first post of the active user's feed:
 
             feed = graph.get_connections("me", "feed")
             post = feed["data"][0]
             graph.put_object(post["id"], "comments", message="First!")
 
-        See http://developers.facebook.com/docs/api#publishing for all
-        of the supported writeable objects.
-
-        Certain write operations require extended permissions. For
-        example, publishing to a user's feed requires the
-        "publish_actions" permission. See
-        http://developers.facebook.com/docs/publishing/ for details
-        about publishing permissions.
+        Certain operations require extended permissions. See
+        https://developers.facebook.com/docs/facebook-login/permissions
+        for details about permissions.
 
         """
         assert self.access_token, "Write operations require an access token"
-        return self.request(parent_object + "/" + connection_name,
-                            post_args=data,
-                            method="POST")
-                            
+
+        return self.request(
+            "{0}/{1}/{2}".format(self.version, parent_object, connection_name),
+            post_args=data,
+            method="POST")
+                        
+        
     def get_access_token_for_page(self, profile_id="me", page_id=None):
         """
         Retrive access token of user as admin of Page
@@ -162,6 +201,7 @@ class GraphAPI(object):
         return self.put_object(profile_id, "feed", message=message,
                                **attachment)
 
+
     def put_comment(self, object_id, message):
         """Writes the given comment on the given post."""
         return self.put_object(object_id, "comments", message=message)
@@ -172,27 +212,46 @@ class GraphAPI(object):
 
     def delete_object(self, id):
         """Deletes the object with the given ID from the graph."""
-        self.request(id, method="DELETE")
+        self.request("{0}/{1}".format(self.version, id), method="DELETE")
 
     def delete_request(self, user_id, request_id):
         """Deletes the Request with the given ID for the given user."""
-        self.request("%s_%s" % (request_id, user_id), method="DELETE")
+        self.request("{0}_{1}".format(request_id, user_id), method="DELETE")
 
-    def put_photo(self, image, message=None, album_id=None, **kwargs):
-        """Uploads an image using multipart/form-data.
+    def put_photo(self, image, album_path="me/photos", **kwargs):
+        """
+        Upload an image using multipart/form-data.
 
-        image=File like object for the image
-        message=Caption for your image
-        album_id=None posts to /me/photos which uses or creates and uses
-        an album for your application.
+        image - A file object representing the image to be uploaded.
+        album_path - A path representing where the image should be uploaded.
 
         """
-        object_id = album_id or "me"
-        kwargs.update({"message": message})
-        self.request(object_id,
-                     post_args=kwargs,
-                     files={"file": image},
-                     method="POST")
+        return self.request(
+            "{0}/{1}".format(self.version, album_path),
+            post_args=kwargs,
+            files={"source": image},
+            method="POST")
+
+    def get_version(self):
+        """Fetches the current version number of the Graph API being used."""
+        args = {"access_token": self.access_token}
+        try:
+            response = self.session.request(
+                "GET",
+                FACEBOOK_GRAPH_URL + self.version + "/me",
+                params=args,
+                timeout=self.timeout,
+                proxies=self.proxies)
+        except requests.HTTPError as e:
+            response = json.loads(e.read())
+            raise GraphAPIError(response)
+
+        try:
+            headers = response.headers
+            version = headers["facebook-api-version"].replace("v", "")
+            return float(version)
+        except Exception:
+            raise GraphAPIError("API version number not available")
 
     def request(
             self, path, args=None, post_args=None, files=None, method=None):
@@ -203,21 +262,30 @@ class GraphAPI(object):
         arguments.
 
         """
-        args = args or {}
+        if args is None:
+            args = dict()
+        if post_args is not None:
+            method = "POST"
 
+        # Add `access_token` to post_args or args if it has not already been
+        # included.
         if self.access_token:
-            if post_args is not None:
+            # If post_args exists, we assume that args either does not exists
+            # or it does not need `access_token`.
+            if post_args and "access_token" not in post_args:
                 post_args["access_token"] = self.access_token
-            else:
+            elif "access_token" not in args:
                 args["access_token"] = self.access_token
 
         try:
-            response = requests.request(method or "GET",
-                                        "https://graph.facebook.com/" + path,
-                                        timeout=self.timeout,
-                                        params=args,
-                                        data=post_args,
-                                        files=files)
+            response = self.session.request(
+                method or "GET",
+                FACEBOOK_GRAPH_URL + path,
+                timeout=self.timeout,
+                params=args,
+                data=post_args,
+                proxies=self.proxies,
+                files=files)
         except requests.HTTPError as e:
             response = json.loads(e.read())
             raise GraphAPIError(response)
@@ -245,21 +313,23 @@ class GraphAPI(object):
             raise GraphAPIError(result)
         return result
 
-    def fql(self, query):
-        """FQL query.
-
-        Example query: "SELECT affiliations FROM user WHERE uid = me()"
-
+    def get_app_access_token(self, app_id, app_secret, offline=False):
         """
-        self.request("fql", {"q": query})
+        Get the application's access token as a string.
+        If offline=True, use the concatenated app ID and secret
+        instead of making an API call.
+        <https://developers.facebook.com/docs/facebook-login/
+        access-tokens#apptokens>
+        """
+        if offline:
+            return "{0}|{1}".format(app_id, app_secret)
+        else:
+            args = {'grant_type': 'client_credentials',
+                    'client_id': app_id,
+                    'client_secret': app_secret}
 
-    def get_app_access_token(self, app_id, app_secret):
-        """Get the application's access token as a string."""
-        args = {'grant_type': 'client_credentials',
-                'client_id': app_id,
-                'client_secret': app_secret}
-
-        return self.request("oauth/access_token", args=args)["access_token"]
+            return self.request("{0}/oauth/access_token".format(self.version),
+                                args=args)["access_token"]
 
     def get_access_token_from_code(
             self, code, redirect_uri, app_id, app_secret):
@@ -275,13 +345,14 @@ class GraphAPI(object):
             "client_id": app_id,
             "client_secret": app_secret}
 
-        return self.request("oauth/access_token", args)
+        return self.request(
+            "{0}/oauth/access_token".format(self.version), args)
 
     def extend_access_token(self, app_id, app_secret):
         """
         Extends the expiration time of a valid OAuth access token. See
-        <https://developers.facebook.com/roadmap/offline-access-removal/
-        #extend_token>
+        <https://developers.facebook.com/docs/facebook-login/access-tokens/
+        expiration-and-extension>
 
         """
         args = {
@@ -291,12 +362,31 @@ class GraphAPI(object):
             "fb_exchange_token": self.access_token,
         }
 
-        return self.request("access_token", args=args)
+        return self.request("{0}/oauth/access_token".format(self.version),
+                            args=args)
+
+    def debug_access_token(self, token, app_id, app_secret):
+        """
+        Gets information about a user access token issued by an app. See
+        <https://developers.facebook.com/docs/facebook-login/
+        access-tokens/debugging-and-error-handling>
+
+        We can generate the app access token by concatenating the app
+        id and secret: <https://developers.facebook.com/docs/
+        facebook-login/access-tokens#apptokens>
+
+        """
+        args = {
+            "input_token": token,
+            "access_token": "{0}|{1}".format(app_id, app_secret)
+        }
+        return self.request(self.version + "/" + "debug_token", args=args)
 
 
 class GraphAPIError(Exception):
     def __init__(self, result):
         self.result = result
+        self.code = None
         try:
             self.type = result["error_code"]
         except:
@@ -309,6 +399,9 @@ class GraphAPIError(Exception):
             # OAuth 2.0 Draft 00
             try:
                 self.message = result["error"]["message"]
+                self.code = result["error"].get("code")
+                if not self.type:
+                    self.type = result["error"].get("type", "")
             except:
                 # REST server style
                 try:
@@ -331,10 +424,8 @@ def get_user_from_cookie(cookies, app_id, app_secret):
     requests to the Graph API. If the user is not logged in, we
     return None.
 
-    Download the official Facebook JavaScript SDK at
-    http://github.com/facebook/connect-js/. Read more about Facebook
-    authentication at
-    http://developers.facebook.com/docs/authentication/.
+    Read more about Facebook authentication at
+    https://developers.facebook.com/docs/facebook-login.
 
     """
     cookie = cookies.get("fbsr_" + app_id, "")
@@ -344,8 +435,8 @@ def get_user_from_cookie(cookies, app_id, app_secret):
     if not parsed_request:
         return None
     try:
-        result = get_access_token_from_code(parsed_request["code"], "",
-                                            app_id, app_secret)
+        result = GraphAPI().get_access_token_from_code(
+            parsed_request["code"], "", app_id, app_secret)
     except GraphAPIError:
         return None
     result["uid"] = parsed_request["user_id"]
@@ -375,13 +466,16 @@ def parse_signed_request(signed_request, app_secret):
     except TypeError:
         # Signed request had a corrupted payload.
         return False
+    except binascii.Error:
+        # Signed request had a corrupted payload.
+        return False
 
-    data = json.loads(data)
+    data = json.loads(data.decode('ascii'))
     if data.get('algorithm', '').upper() != 'HMAC-SHA256':
         return False
 
     # HMAC can only handle ascii (byte) strings
-    # http://bugs.python.org/issue5285
+    # https://bugs.python.org/issue5285
     app_secret = app_secret.encode('ascii')
     payload = payload.encode('ascii')
 
@@ -395,18 +489,9 @@ def parse_signed_request(signed_request, app_secret):
 
 
 def auth_url(app_id, canvas_url, perms=None, **kwargs):
-    url = "https://www.facebook.com/dialog/oauth?"
+    url = FACEBOOK_OAUTH_DIALOG_URL
     kvps = {'client_id': app_id, 'redirect_uri': canvas_url}
     if perms:
         kvps['scope'] = ",".join(perms)
     kvps.update(kwargs)
-    return url + urllib.urlencode(kvps)
-
-
-def get_access_token_from_code(code, redirect_uri, app_id, app_secret):
-    return GraphAPI().get_access_token_from_code(
-        code, redirect_uri, app_id, app_secret)
-
-
-def get_app_access_token(app_id, app_secret):
-    return GraphAPI().get_app_access_token(app_id, app_secret)
+    return url + urlencode(kvps)
