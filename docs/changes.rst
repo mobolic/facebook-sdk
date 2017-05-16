@@ -14,6 +14,7 @@ Version 3.0.0 (unreleased)
  - Add new `get_permissions` method to retrieve permissions that a user has
    granted an application (#264, #342).
  - Remove `put_wall_post` method. Use `put_object` instead.
+ - Add search method (#362).
 
 Version 2.0.0 (2016-08-08)
 ==============================

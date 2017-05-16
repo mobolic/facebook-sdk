@@ -113,6 +113,41 @@ maps to an object.
     for event_id in event_ids:
         print(posts[event_id]['declined_count'])
 
+search
+^^^^^^
+
+Returns all objects of a given type from the graph as a ``dict``.
+
+Valid types are: event, group, page, place, placetopic, and user
+
+https://developers.facebook.com/docs/graph-api/using-graph-api#search
+
+Most types require the argument q, except:
+- place requires q, addres or center
+- placetopic doesn't require any additional argument
+
+**Parameters**
+
+* ``type`` – A ``string`` containing a valid type.
+* ``**args`` (optional) - keyword args to be passed as query params
+
+**Example**
+
+.. code-block:: python
+
+    users = graph.search(type='user',q='Mark Zuckerberg')
+
+    # Each given id maps to an object.
+    for user in users['data']:
+        print('%s %s' % (user['id'],user['name'].encode()))
+
+.. code-block:: python
+
+    places = graph.search(type='place', center='-23.563337,-46.654195', fields='name,location')
+
+    # Each given id maps to an object the contains the requested fields.
+    for place in places['data']:
+        print('%s %s' % (place['name'].encode(),place['location'].get('zip')))
 
 get_connections
 ^^^^^^^^^^^^^^^
