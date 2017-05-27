@@ -216,27 +216,27 @@ Writes the given object to the graph, connected to the given parent.
 
 .. code-block:: python
 
-    # Write 'Hello, world' to the active user's wall.
-    graph.put_object(parent_object='me', connection_name='feed',
-                     message='Hello, world')
+   # Write 'Hello, world' to the active user's wall.
+   graph.put_object(parent_object='me', connection_name='feed',
+                    message='Hello, world')
 
    # Add a link and write a message about it.
    graph.put_object(
-      parent_object="me",
-      connection_name="feed",
-      message="This is a great website. Everyone should visit it.",
-      link="https://www.facebook.com")
+       parent_object="me",
+       connection_name="feed",
+       message="This is a great website. Everyone should visit it.",
+       link="https://www.facebook.com")
 
-    # Write a comment on a post.
-    graph.put_object(parent_object='post_id', connection_name='comments',
-                     message='First!')
+   # Write a comment on a post.
+   graph.put_object(parent_object='post_id', connection_name='comments',
+                    message='First!')
 
-    # Write a comment with image on a post
-    graph.put_object(
-        parent_object='post_id',
-        connection_name='comments',
-        message='Second!',
-        file=open('image.jpg', 'rb'))
+   # Write a comment with image on a post
+   graph.put_object(
+       parent_object='post_id',
+       connection_name='comments',
+       message='Second!',
+       file=open('image.jpg', 'rb'))
 
 put_comment
 ^^^^^^^^^^^
