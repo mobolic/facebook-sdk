@@ -157,11 +157,11 @@ class GraphAPI(object):
             args = parse_qs(urlparse(next).query)
             del args['access_token']
 
-    def put_object(self, parent_object, connection_name, **data):
+    def put_object(self, parent_object, connection_name, file=None, **data):
         """Writes the given object to the graph, connected to the given parent.
 
         For example,
-
+        
             graph.put_object("me", "feed", message="Hello, world")
 
         writes "Hello, world" to the active user's wall. Likewise, this
@@ -174,12 +174,20 @@ class GraphAPI(object):
         Certain operations require extended permissions. See
         https://developers.facebook.com/docs/facebook-login/permissions
         for details about permissions.
-
+        
         """
         assert self.access_token, "Write operations require an access token"
+
+        # Save file object to dictionary for uploading (if provided).
+        if file is None:
+            files = None
+        else:
+            files = {"file": file}
+
         return self.request(
             "{0}/{1}/{2}".format(self.version, parent_object, connection_name),
             post_args=data,
+            files=files,
             method="POST")
 
     def put_comment(self, object_id, message):
