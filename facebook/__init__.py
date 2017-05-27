@@ -161,7 +161,7 @@ class GraphAPI(object):
         """Writes the given object to the graph, connected to the given parent.
 
         For example,
-        
+
             graph.put_object("me", "feed", message="Hello, world")
 
         writes "Hello, world" to the active user's wall. Likewise, this
@@ -174,7 +174,7 @@ class GraphAPI(object):
         Certain operations require extended permissions. See
         https://developers.facebook.com/docs/facebook-login/permissions
         for details about permissions.
-        
+
         """
         assert self.access_token, "Write operations require an access token"
 

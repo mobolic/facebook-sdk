@@ -209,6 +209,8 @@ Writes the given object to the graph, connected to the given parent.
   profile is the parent of a feed, and a post is the parent of a comment.
 * ``connection_name`` - A ``string`` that specifies the connection or edge
   between objects, e.g., feed, friends, groups, likes, posts.
+* ``file`` - A ``dict`` that is associated with an image to be uploaded.
+  Defaults to ``None`` in case no file object is needed.
 
 **Example**
 
@@ -228,6 +230,13 @@ Writes the given object to the graph, connected to the given parent.
     # Write a comment on a post.
     graph.put_object(parent_object='post_id', connection_name='comments',
                      message='First!')
+
+    # Write a comment with image on a post
+    graph.put_object(
+        parent_object='post_id',
+        connection_name='comments',
+        message='Second!',
+        file=open('image.jpg', 'rb'))
 
 put_comment
 ^^^^^^^^^^^
