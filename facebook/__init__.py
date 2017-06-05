@@ -271,7 +271,7 @@ class GraphAPI(object):
             raise GraphAPIError(response)
 
         headers = response.headers
-        if 'json' in headers['content-type']:
+        if 'json' in headers['content-type'] or 'html' in headers['content-type']:
             result = response.json()
         elif 'image/' in headers['content-type']:
             mimetype = headers['content-type']
