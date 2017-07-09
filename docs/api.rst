@@ -64,12 +64,13 @@ Returns the given object from the graph as a ``dict``. A list of
 
 .. code-block:: python
 
-    post = graph.get_object(id='post_id')
+    post = graph.get_object(id='post_id', fields='message')
     print(post['message'])
 
 .. code-block:: python
 
-    event = graph.get_object(id='event_id', fields='attending_count,declined_count')
+    event = graph.get_object(id='event_id',
+                             fields='attending_count,declined_count')
     print(event['attending_count'])
     print(event['declined_count'])
 
@@ -79,7 +80,8 @@ Returns the given object from the graph as a ``dict``. A list of
     # https://developers.facebook.com/docs/graph-api/reference/url/
     # Note that URLs need to be properly encoded with the "quote" function
     # of urllib (Python 2) or urllib.parse (Python 3).
-    site_info = graph.get_object(id="https%3A//mobolic.com")
+    site_info = graph.get_object(id="https%3A//mobolic.com",
+                                 fields="og_object")
     print(site_info["og_object"]["description"])
 
 get_objects
@@ -98,7 +100,7 @@ maps to an object.
 .. code-block:: python
 
     post_ids = ['post_id_1', 'post_id_2']
-    posts = graph.get_objects(ids=post_ids)
+    posts = graph.get_objects(ids=post_ids, fields="created_time")
 
     # Each given id maps to an object.
     for post_id in post_ids:
