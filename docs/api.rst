@@ -113,7 +113,7 @@ maps to an object.
 
     # Each given id maps to an object that contains the requested fields.
     for event_id in event_ids:
-        print(posts[event_id]['declined_count'])
+        print(events[event_id]['declined_count'])
 
 search
 ^^^^^^
