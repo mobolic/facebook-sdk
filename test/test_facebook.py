@@ -151,14 +151,23 @@ class TestAPIVersion(FacebookTestCase):
 
 class TestAuthURL(FacebookTestCase):
     def test_auth_url(self):
+        graph = facebook.GraphAPI()
         perms = ['email', 'birthday']
         redirect_url = 'https://localhost/facebook/callback/'
 
-        expected_url = facebook.FACEBOOK_OAUTH_DIALOG_URL + urlencode(
-            dict(client_id=self.app_id,
-                 redirect_uri=redirect_url,
-                 scope=','.join(perms)))
-        actual_url = facebook.auth_url(self.app_id, redirect_url, perms=perms)
+        encoded_args = urlencode(dict(
+            client_id=self.app_id,
+            redirect_uri=redirect_url,
+            scope=','.join(perms),
+        ))
+        expected_url = "{0}{1}/{2}{3}".format(
+            facebook.FACEBOOK_WWW_URL,
+            graph.version,
+            facebook.FACEBOOK_OAUTH_DIALOG_PATH,
+            encoded_args,
+        )
+
+        actual_url = graph.get_auth_url(self.app_id, redirect_url, perms=perms)
 
         # Since the order of the query string parameters might be
         # different in each URL, we cannot just compare them to each

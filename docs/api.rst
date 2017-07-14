@@ -292,30 +292,6 @@ Deletes the object with the given ID from the graph.
 
     graph.delete_object(id='post_id')
 
-auth_url
-^^^^^^^^^^^^^
-https://developers.facebook.com/docs/facebook-login/manually-build-a-login-flow
-
-Generates Facebook login URL to request access token and permissions.
-
-**Parameters**
-
-* ``app_id`` - ``integer`` Facebook application id that is requesting for
-  authentication and authorisation.
-* ``canvas_url`` - ``string`` Return URL after successful authentication,
-  usually parses returned Facebook response for authorisation request.
-* ``perms`` - ``list`` List of requested permissions.
-
-**Example**
-
-.. code-block:: python
-
-    app_id = 1231241241
-    canvas_url = 'https://domain.com/that-handles-auth-response/'
-    perms = ['manage_pages','publish_pages']
-    fb_login_url = graph.auth_url(app_id, canvas_url, perms)
-    print(fb_login_url)
-
 get_permissions
 ^^^^^^^^^^^^^^^
 
@@ -336,3 +312,27 @@ Returns the permissions granted to the app by the user with the given ID as a
     # "public_profile" permission.
     permissions = graph.get_permissions(user_id=12345)
     print('public_profile' in permissions)
+
+get_auth_url
+^^^^^^^^^^^^
+
+https://developers.facebook.com/docs/facebook-login/manually-build-a-login-flow
+
+Returns a Facebook login URL used to request an access token and permissions.
+
+**Parameters**
+
+* ``app_id`` - A ``string`` containing a Facebook appplication ID.
+* ``canvas_url`` - A ``string`` containing the URL where Facebook should
+  redirect after successful authentication.
+* ``perms`` - An optional ``list`` of requested Facebook permissions.
+
+**Example**
+
+.. code-block:: python
+
+    app_id = "1231241241"
+    canvas_url = "https://domain.com/that-handles-auth-response/"
+    perms = ["manage_pages","publish_pages"]
+    fb_login_url = graph.get_auth_url(app_id, canvas_url, perms)
+    print(fb_login_url)
