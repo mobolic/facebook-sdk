@@ -333,7 +333,7 @@ Generates Facebook login URL to request access token and permissions.
     print(fb_login_url)
 
 get_permissions
-^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^
 
 https://developers.facebook.com/docs/graph-api/reference/user/permissions/
 
