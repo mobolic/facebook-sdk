@@ -111,7 +111,7 @@ maps to an object.
     event_ids = ['event_id_1', 'event_id_2']
     events = graph.get_objects(ids=event_ids, fields='attending_count,declined_count')
 
-    # Each given id maps to an object the contains the requested fields.
+    # Each given id maps to an object that contains the requested fields.
     for event_id in event_ids:
         print(posts[event_id]['declined_count'])
 
