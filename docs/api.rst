@@ -65,11 +65,14 @@ Returns the given object from the graph as a ``dict``. A list of
 
 .. code-block:: python
 
+    # Get the message from a post.
     post = graph.get_object(id='post_id', fields='message')
     print(post['message'])
 
 .. code-block:: python
 
+    # Retrieve the number of people who say that they are attending or
+    # declining  to attend a specific event.
     event = graph.get_object(id='event_id',
                              fields='attending_count,declined_count')
     print(event['attending_count'])
@@ -100,21 +103,22 @@ maps to an object.
 
 .. code-block:: python
 
+    # Get the time two different posts were created.
     post_ids = ['post_id_1', 'post_id_2']
     posts = graph.get_objects(ids=post_ids, fields="created_time")
 
-    # Each given id maps to an object.
-    for post_id in post_ids:
-        print(posts[post_id]['created_time'])
+    for post in posts:
+        print(post['created_time'])
 
 .. code-block:: python
 
+    # Get the number of people attending or who have declined to attend
+    # two different events.
     event_ids = ['event_id_1', 'event_id_2']
     events = graph.get_objects(ids=event_ids, fields='attending_count,declined_count')
 
-    # Each given id maps to an object that contains the requested fields.
-    for event_id in event_ids:
-        print(events[event_id]['declined_count'])
+    for event in events:
+        print(event['declined_count'])
 
 search
 ^^^^^^
@@ -138,15 +142,18 @@ Most types require the argument q, except:
 
 .. code-block:: python
 
+    # Search for a user named "Mark Zuckerberg" and show their ID and name.
     users = graph.search(type='user',q='Mark Zuckerberg')
 
-    # Each given id maps to an object.
     for user in users['data']:
         print('%s %s' % (user['id'],user['name'].encode()))
 
 .. code-block:: python
 
-    places = graph.search(type='place', center='-23.563337,-46.654195', fields='name,location')
+    # Search for places near 1 Hacker Way in Menlo Park, California.
+    places = graph.search(type='place',
+                          center='37.4845306,-122.1498183',
+                          fields='name,location')
 
     # Each given id maps to an object the contains the requested fields.
     for place in places['data']:
@@ -169,10 +176,10 @@ Returns all connections for a given object as a ``dict``.
 
 .. code-block:: python
 
-    # Get all of the authenticated user's friends
+    # Get the active user's friends.
     friends = graph.get_connections(id='me', connection_name='friends')
 
-    # Get all the comments from a post
+    # Get the comments from a post.
     comments = graph.get_connections(id='post_id', connection_name='comments')
 
 
@@ -187,18 +194,6 @@ individual items.
 * ``id`` – A ``string`` that is a unique ID for that particular resource.
 * ``connection_name`` - A ``string`` that specifies the connection or edge
   between objects, e.g., feed, friends, groups, likes, posts.
-
-**Examples**
-
-.. code-block:: python
-
-    # Get all of the authenticated user's friends
-    friends = graph.get_all_connections(id='me', connection_name='friends')
-
-    # Get all the comments from a post
-    comments = graph.get_all_connections(id='post_id',
-                                         connection_name='comments')
-
 
 put_object
 ^^^^^^^^^^
@@ -285,13 +280,16 @@ photo and its post.
 .. code-block:: python
 
     # Upload an image with a caption.
-    graph.put_photo(image=open('img.jpg', 'rb'), message='Look at this cool photo!')
+    graph.put_photo(image=open('img.jpg', 'rb'),
+                    message='Look at this cool photo!')
 
     # Upload a photo to an album.
-    graph.put_photo(image=open("img.jpg", 'rb'), album_path=album_id + "/photos")
+    graph.put_photo(image=open("img.jpg", 'rb'),
+                    album_path=album_id + "/photos")
 
     # Upload a profile photo for a Page.
-    graph.put_photo(image=open("img.jpg", 'rb'), album_path=page_id + "/picture")
+    graph.put_photo(image=open("img.jpg", 'rb'),
+                    album_path=page_id + "/picture")
 
 delete_object
 ^^^^^^^^^^^^^
@@ -348,5 +346,7 @@ Returns the permissions granted to the app by the user with the given ID as a
 
 .. code-block:: python
 
+    # Figure out whether the specified user has granted us the
+    # "public_profile" permission.
     permissions = graph.get_permissions(user_id=12345)
     print('public_profile' in permissions)
