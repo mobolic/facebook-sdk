@@ -5,7 +5,7 @@ python:
     - "3.3"
     - "2.7"
 install:
-    - "pip install flake8 doc8"
+    - "pip install flake8 doc8 pygments"
     - "pip install ."
 script:
     - "python -m test.test_facebook"
