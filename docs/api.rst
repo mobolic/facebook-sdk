@@ -27,7 +27,8 @@ You can read more about `Facebook's Graph API here`_.
 * ``version`` - A ``string`` describing the `version of Facebook's Graph API to
   use`_. The default version is the oldest current version. It is used if
   the version keyword argument is not provided.
-* ``proxies`` - A ``dict`` with proxy-settings that Requests should use. `See Requests documentation`_.
+* ``proxies`` - A ``dict`` with proxy-settings that Requests should use.
+  `See Requests documentation`_.
 * ``session`` - A `Requests Session object`_.
 
 .. _Read more about access tokens here: https://developers.facebook.com/docs/facebook-login/access-tokens
@@ -315,8 +316,10 @@ Generates Facebook login URL to request access token and permissions.
 
 **Parameters**
 
-* ``app_id`` - ``integer`` Facebook application id that is requesting for authentication and authorisation.
-* ``canvas_url`` - ``string`` Return URL after successful authentication, usually parses returned Facebook response for authorisation request.
+* ``app_id`` - ``integer`` Facebook application id that is requesting for
+  authentication and authorisation.
+* ``canvas_url`` - ``string`` Return URL after successful authentication,
+  usually parses returned Facebook response for authorisation request.
 * ``perms`` - ``list`` List of requested permissions.
 
 **Example**
