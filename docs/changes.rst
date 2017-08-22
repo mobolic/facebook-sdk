@@ -3,7 +3,7 @@ Changelog
 =========
 
 Version 3.0.0 (unreleased)
-========================
+==========================
  - Remove support for Python 2.6.
  - Add support for Graph API versions 2.8 and 2.9.
  - Remove support for Graph API versions 2.1, 2.2, and 2.3.
@@ -17,7 +17,7 @@ Version 3.0.0 (unreleased)
  - Add search method (#362).
 
 Version 2.0.0 (2016-08-08)
-==============================
+==========================
  - Add support for Graph API versions 2.6 and 2.7.
  - Remove support for Graph API version 2.0 and FQL.
  - Change default Graph API version to 2.1.

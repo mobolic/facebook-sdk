@@ -27,7 +27,8 @@ You can read more about `Facebook's Graph API here`_.
 * ``version`` - A ``string`` describing the `version of Facebook's Graph API to
   use`_. The default version is the oldest current version. It is used if
   the version keyword argument is not provided.
-* ``proxies`` - A ``dict`` with proxy-settings that Requests should use. `See Requests documentation`_.
+* ``proxies`` - A ``dict`` with proxy-settings that Requests should use.
+  `See Requests documentation`_.
 * ``session`` - A `Requests Session object`_.
 
 .. _Read more about access tokens here: https://developers.facebook.com/docs/facebook-login/access-tokens
@@ -60,15 +61,18 @@ Returns the given object from the graph as a ``dict``. A list of
 * ``id`` –  A ``string`` that is a unique ID for that particular resource.
 * ``**args`` (optional) - keyword args to be passed as query params
 
-**Example**
+**Examples**
 
 .. code-block:: python
 
+    # Get the message from a post.
     post = graph.get_object(id='post_id', fields='message')
     print(post['message'])
 
 .. code-block:: python
 
+    # Retrieve the number of people who say that they are attending or
+    # declining  to attend a specific event.
     event = graph.get_object(id='event_id',
                              fields='attending_count,declined_count')
     print(event['attending_count'])
@@ -95,25 +99,26 @@ maps to an object.
 * ``ids`` – A ``list`` containing IDs for multiple resources.
 * ``**args`` (optional) - keyword args to be passed as query params
 
-**Example**
+**Examples**
 
 .. code-block:: python
 
+    # Get the time two different posts were created.
     post_ids = ['post_id_1', 'post_id_2']
     posts = graph.get_objects(ids=post_ids, fields="created_time")
 
-    # Each given id maps to an object.
-    for post_id in post_ids:
-        print(posts[post_id]['created_time'])
+    for post in posts:
+        print(post['created_time'])
 
 .. code-block:: python
 
+    # Get the number of people attending or who have declined to attend
+    # two different events.
     event_ids = ['event_id_1', 'event_id_2']
     events = graph.get_objects(ids=event_ids, fields='attending_count,declined_count')
 
-    # Each given id maps to an object the contains the requested fields.
-    for event_id in event_ids:
-        print(posts[event_id]['declined_count'])
+    for event in events:
+        print(event['declined_count'])
 
 search
 ^^^^^^
@@ -137,15 +142,18 @@ Most types require the argument q, except:
 
 .. code-block:: python
 
+    # Search for a user named "Mark Zuckerberg" and show their ID and name.
     users = graph.search(type='user',q='Mark Zuckerberg')
 
-    # Each given id maps to an object.
     for user in users['data']:
         print('%s %s' % (user['id'],user['name'].encode()))
 
 .. code-block:: python
 
-    places = graph.search(type='place', center='-23.563337,-46.654195', fields='name,location')
+    # Search for places near 1 Hacker Way in Menlo Park, California.
+    places = graph.search(type='place',
+                          center='37.4845306,-122.1498183',
+                          fields='name,location')
 
     # Each given id maps to an object the contains the requested fields.
     for place in places['data']:
@@ -164,14 +172,14 @@ Returns all connections for a given object as a ``dict``.
   ``get_connections`` will simply return the authenticated user's basic
   information.
 
-**Example**
+**Examples**
 
 .. code-block:: python
 
-    # Get all of the authenticated user's friends
+    # Get the active user's friends.
     friends = graph.get_connections(id='me', connection_name='friends')
 
-    # Get all the comments from a post
+    # Get the comments from a post.
     comments = graph.get_connections(id='post_id', connection_name='comments')
 
 
@@ -187,18 +195,6 @@ individual items.
 * ``connection_name`` - A ``string`` that specifies the connection or edge
   between objects, e.g., feed, friends, groups, likes, posts.
 
-**Example**
-
-.. code-block:: python
-
-    # Get all of the authenticated user's friends
-    friends = graph.get_all_connections(id='me', connection_name='friends')
-
-    # Get all the comments from a post
-    comments = graph.get_all_connections(id='post_id',
-                                         connection_name='comments')
-
-
 put_object
 ^^^^^^^^^^
 
@@ -212,7 +208,7 @@ Writes the given object to the graph, connected to the given parent.
 * ``connection_name`` - A ``string`` that specifies the connection or edge
   between objects, e.g., feed, friends, groups, likes, posts.
 
-**Example**
+**Examples**
 
 .. code-block:: python
 
@@ -279,16 +275,21 @@ photo and its post.
     Defaults to `/me/photos` which creates/uses a custom album for each
     Facebook application.
 
-**Example**
+**Examples**
 
 .. code-block:: python
 
     # Upload an image with a caption.
-    graph.put_photo(image=open('img.jpg', 'rb'), message='Look at this cool photo!')
+    graph.put_photo(image=open('img.jpg', 'rb'),
+                    message='Look at this cool photo!')
+
     # Upload a photo to an album.
-    graph.put_photo(image=open("img.jpg", 'rb'), album_path=album_id + "/photos")
+    graph.put_photo(image=open("img.jpg", 'rb'),
+                    album_path=album_id + "/photos")
+
     # Upload a profile photo for a Page.
-    graph.put_photo(image=open("img.jpg", 'rb'), album_path=page_id + "/picture")
+    graph.put_photo(image=open("img.jpg", 'rb'),
+                    album_path=page_id + "/picture")
 
 delete_object
 ^^^^^^^^^^^^^
@@ -313,8 +314,10 @@ Generates Facebook login URL to request access token and permissions.
 
 **Parameters**
 
-* ``app_id`` - ``integer`` Facebook application id that is requesting for authentication and authorisation.
-* ``canvas_url`` - ``string`` Return URL after successful authentication, usually parses returned Facebook response for authorisation request.
+* ``app_id`` - ``integer`` Facebook application id that is requesting for
+  authentication and authorisation.
+* ``canvas_url`` - ``string`` Return URL after successful authentication,
+  usually parses returned Facebook response for authorisation request.
 * ``perms`` - ``list`` List of requested permissions.
 
 **Example**
@@ -328,7 +331,7 @@ Generates Facebook login URL to request access token and permissions.
     print(fb_login_url)
 
 get_permissions
-^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^
 
 https://developers.facebook.com/docs/graph-api/reference/user/permissions/
 
@@ -343,5 +346,7 @@ Returns the permissions granted to the app by the user with the given ID as a
 
 .. code-block:: python
 
+    # Figure out whether the specified user has granted us the
+    # "public_profile" permission.
     permissions = graph.get_permissions(user_id=12345)
     print('public_profile' in permissions)
