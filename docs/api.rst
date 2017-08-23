@@ -42,8 +42,10 @@ You can read more about `Facebook's Graph API here`_.
 .. code-block:: python
 
     import facebook
-
-    graph = facebook.GraphAPI(access_token='your_token', version='2.9')
+    #when using version='2.9' it generates error
+    #facebook.GraphAPIError: Valid API versions are '2.1', '2.2', '2.3', '2.4', '2.5', '2.6', '2.7'
+    #therefore I changed version='2.9' to version='2.7'
+    graph = facebook.GraphAPI(access_token='your_token', version='2.7')
 
 Methods
 -------
@@ -143,6 +145,8 @@ Most types require the argument q, except:
 .. code-block:: python
 
     # Search for a user named "Mark Zuckerberg" and show their ID and name.
+    # using GraphAPI.search it gives this error (AttributeError: 'GraphAPI' object has no attribute 'search')
+    #I don't know what edit should be done but there is an error here should be investigated
     users = graph.search(type='user',q='Mark Zuckerberg')
 
     for user in users['data']:
