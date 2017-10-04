@@ -202,22 +202,22 @@ class GraphAPI(object):
         """
         Upload an image using image URL or multipart/form-data.
 
-        image - An image URL or a file object representing the image to be uploaded.
+        image - An URL or a file object representing the image to be uploaded.
         album_path - A path representing where the image should be uploaded.
         """
         payload = {
-            'path': self.version + "/" + album_path,
-            'post_args': kwargs,
-            'method': "POST"
+            "path": "{}/{}".format(self.version, album_path),
+            "post_args": kwargs,
+            "method": "POST"
         }
 
         if isinstance(image, str):
-            kwargs['url'] = image
+            kwargs["url"] = image
         else:
-            payload['files'] = {"source": image}
+            payload["files"] = {"source": image}
 
         return self.request(**payload)
-    
+
     def get_version(self):
         """Fetches the current version number of the Graph API being used."""
         args = {"access_token": self.access_token}
