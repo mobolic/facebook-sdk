@@ -311,6 +311,30 @@ class GraphAPI(object):
             return self.request("{0}/oauth/access_token".format(self.version),
                                 args=args)["access_token"]
 
+    def get_long_lived_token(self, app_id, app_secret):
+        """Exchanges a short lived user access token for a long lived one.
+        
+        This method uses a pre-existing short lived user access token and
+        exchanges it for a long lived user access token."""
+        args = {'grant_type': 'fb_exchange_token',
+                'client_id': app_id,
+                'client_secret': app_secret,
+                'fb_exchange_token': self.access_token}
+
+        return self.request("{0}/oauth/access_token".format(self.version), args=args)
+
+    def get_long_lived_token_code(self, app_id, app_secret, redirect_uri):
+        """Gets a code to be exchanged for a long lived token.
+        
+        Uses a pre-existing server side long lived token to return a code
+        that can be redeemed for a client side long lived token."""
+        args = {'access_token': self.access_token,
+                'client_id': app_id,
+                'client_secret': app_secret,
+                'redirect_uri': redirect_uri}
+
+        return self.request("{0}oauth/client_code".format(self.version), args=args)
+
     def get_access_token_from_code(
             self, code, redirect_uri, app_id, app_secret):
         """Get an access token from the "code" returned from an OAuth dialog.
