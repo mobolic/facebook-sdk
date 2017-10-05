@@ -321,7 +321,8 @@ class GraphAPI(object):
                 'client_secret': app_secret,
                 'fb_exchange_token': self.access_token}
 
-        return self.request("{0}/oauth/access_token".format(self.version), args=args)
+        return self.request("{0}/oauth/access_token".format(self.version),
+                            args=args)
 
     def get_long_lived_token_code(self, app_id, app_secret, redirect_uri):
         """Gets a code to be exchanged for a long lived token.
@@ -333,7 +334,8 @@ class GraphAPI(object):
                 'client_secret': app_secret,
                 'redirect_uri': redirect_uri}
 
-        return self.request("{0}oauth/client_code".format(self.version), args=args)
+        return self.request("{0}oauth/client_code".format(self.version),
+                            args=args)["code"]
 
     def get_access_token_from_code(
             self, code, redirect_uri, app_id, app_secret):
