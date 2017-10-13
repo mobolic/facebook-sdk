@@ -198,7 +198,7 @@ class TestAccessToken(FacebookTestCase):
         redirect_uri = 'https://localhost/facebook/callback/'
         test_token = facebook.GraphAPI().request(
                         '{0}/{1}/accounts/test-users'.format(
-                            GraphAPI().version,
+                            facebook.GraphAPI().version,
                             self.app_id))[0]['access_token']
         self.assertTrue(facebook.GraphAPI(test_token).get_code_from_token(
                         self.app_id, self.secret, redirect_uri),
