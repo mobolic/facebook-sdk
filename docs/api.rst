@@ -330,6 +330,31 @@ Generates Facebook login URL to request access token and permissions.
     fb_login_url = graph.auth_url(app_id, canvas_url, perms)
     print(fb_login_url)
 
+get_code_from_token
+^^^^^^^^^^^^^^^^^^^
+https://developers.facebook.com/docs/facebook-login/access-tokens/expiration-and-extension/
+
+Exchanges an existing long livd user access token on the server side for a
+code that can be redeemed for a long lived user token on the client side.
+
+**Parameters**
+
+* ``app_id`` - ``integer`` Facebook application id that is requesting a code.
+* ``app_secret`` - ``string`` Facebook application secret that is attempting
+  to get a code from the access token.
+* ``redirect_uri`` - ``string`` Return URL after successful authentication,
+  usually parses returned Facebook response for authorisation request.
+
+**Example**
+
+.. code-block:: python
+
+    app_id = 1231241241
+    app_secret = '123abc456def'
+    redirect_uri = 'https://domain.com/that-handles-auth-response/'
+    code = graph.get_code_from_token(app_id, app_secret, redirect_uri)
+    print(code)
+
 get_permissions
 ^^^^^^^^^^^^^^^
 
