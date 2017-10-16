@@ -196,7 +196,7 @@ class TestAccessToken(FacebookTestCase):
         exchanged for an access token.
         """
         redirect_uri = 'https://localhost/facebook/callback/'
-        app_token = facebook.GraphAPI().get_app_access_token(app_id, secret)
+        app_token = facebook.GraphAPI().get_app_access_token(self.app_id, self.secret)
         test_token = facebook.GraphAPI(app_token).request(
                         '{0}/{1}/accounts/test-users'.format(
                             facebook.GraphAPI().version,
