@@ -196,11 +196,15 @@ class TestAccessToken(FacebookTestCase):
         exchanged for an access token.
         """
         redirect_uri = 'https://localhost/facebook/callback/'
+        app_token = facebook.GraphAPI().get_app_access_token()
+        graph = facebook.GraphAPU(app_token)
+        create_test_users(aelf.app_id, facebook.GraphAPI(),1)
         test_token = self.test_users[0]['access_token']
-        self.assertIsNotNone(facebook.GraphAPI(test_token).get_code_from_token(
+        graph = facebook.GraphAPI(test_token)
+        self.assertIsNotNone(graph.get_code_from_token(
                         self.app_id, self.secret, redirect_uri),
                         'Code not returned by get_code_from_token method')
-        self.assertIsNotNone(facebook.GraphApi().get_access_token_from_code(
+        self.assertIsNotNone(graph.get_access_token_from_code(
                         self.app_id, self.secret), 'Invalid code returned by'
                         'get_code_from_token method')
 
