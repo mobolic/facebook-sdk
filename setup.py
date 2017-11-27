@@ -5,7 +5,7 @@ exec(open("facebook/version.py").read())
 
 setup(
     name='facebook-sdk',
-    version=__version__,
+    version=__version__,                # noqa: F821
     description='This client library is designed to support the Facebook '
                 'Graph API and the official Facebook JavaScript SDK, which '
                 'is the canonical way to implement Facebook authentication.',
@@ -19,7 +19,6 @@ setup(
     classifiers=[
         'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',

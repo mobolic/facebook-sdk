@@ -4,16 +4,15 @@ python:
     - "3.4"
     - "3.3"
     - "2.7"
-    - "2.6"
 install:
-    - if [[ $TRAVIS_PYTHON_VERSION == 2* ]]; then pip install mock; fi
-    - "pip install flake8"
+    - "pip install flake8 doc8 pygments"
     - "pip install ."
 script:
     - "python -m test.test_facebook"
     - "flake8 --ignore=E402,F401 examples"
     - "flake8 facebook"
     - "flake8 test"
+    - "doc8 -q *.rst docs/*.rst"
 env:
     global:
         - FACEBOOK_APP_ID=198798870326423

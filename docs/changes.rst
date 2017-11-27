@@ -2,8 +2,22 @@
 Changelog
 =========
 
+Version 3.0.0 (unreleased)
+==========================
+ - Remove support for Python 2.6.
+ - Add support for Graph API versions 2.8, 2.9, 2.10, and 2.11.
+ - Remove support for Graph API versions 2.1, 2.2, 2.3, and 2.4.
+ - Change default Graph API version to 2.4.
+ - Add support for requests' sessions (#201).
+ - Add versioning to access token endpoints (#322).
+ - Add new `get_all_connections` method to make pagination easier (#337).
+ - Add new `get_permissions` method to retrieve permissions that a user has
+   granted an application (#264, #342).
+ - Remove `put_wall_post` method. Use `put_object` instead.
+ - Add search method (#362).
+
 Version 2.0.0 (2016-08-08)
-==============================
+==========================
  - Add support for Graph API versions 2.6 and 2.7.
  - Remove support for Graph API version 2.0 and FQL.
  - Change default Graph API version to 2.1.

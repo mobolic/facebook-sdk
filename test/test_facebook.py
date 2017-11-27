@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2013-2016 Martey Dodoo
+# Copyright 2015 Mobolic
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -16,6 +16,7 @@
 import facebook
 import os
 import unittest
+import inspect
 
 try:
     from urllib.parse import parse_qs, urlencode, urlparse
@@ -30,7 +31,11 @@ except ImportError:
 
 
 class FacebookTestCase(unittest.TestCase):
-    """Sets up application ID and secret from environment."""
+    """
+    Sets up application ID and secret from environment and initialises an
+    empty list for test users.
+
+    """
     def setUp(self):
         try:
             self.app_id = os.environ["FACEBOOK_APP_ID"]
@@ -38,6 +43,18 @@ class FacebookTestCase(unittest.TestCase):
         except KeyError:
             raise Exception("FACEBOOK_APP_ID and FACEBOOK_SECRET "
                             "must be set as environmental variables.")
+
+        self.test_users = []
+
+    def tearDown(self):
+        """Deletes the test users included in the test user list."""
+        token = facebook.GraphAPI().get_app_access_token(
+            self.app_id, self.secret)
+        graph = facebook.GraphAPI(token)
+
+        for user in self.test_users:
+            graph.request(user['id'], {}, None, method='DELETE')
+        del self.test_users[:]
 
     def assert_raises_multi_regex(
             self, expected_exception, expected_regexp, callable_obj=None,
@@ -52,6 +69,26 @@ class FacebookTestCase(unittest.TestCase):
             callable_obj(*args)
         except facebook.GraphAPIError as error:
             self.assertEqual(error.message, expected_regexp)
+
+    def create_test_users(self, app_id, graph, amount):
+        """Function for creating test users."""
+        for i in range(amount):
+            u = graph.request(app_id + '/accounts/test-users', {}, {},
+                              method='POST')
+            self.test_users.append(u)
+
+    def create_friend_connections(self, user, friends):
+        """Function for creating friend connections for a test user."""
+        user_graph = facebook.GraphAPI(user['access_token'])
+
+        for friend in friends:
+            if user['id'] == friend['id']:
+                continue
+            user_graph.request(user['id'] + '/friends/' + friend['id'],
+                               {}, {}, method='POST')
+            respondent_graph = facebook.GraphAPI(friend['access_token'])
+            respondent_graph.request(friend['id'] + '/friends/' + user['id'],
+                                     {}, {}, method='POST')
 
 
 class TestGetAppAccessToken(FacebookTestCase):
@@ -73,7 +110,7 @@ class TestGetAppAccessToken(FacebookTestCase):
         """Verify that offline generation of app access tokens works."""
         token = facebook.GraphAPI().get_app_access_token(
             self.app_id, self.secret, offline=True)
-        self.assertEqual(token, "%s|%s" % (self.app_id, self.secret))
+        self.assertEqual(token, "{0}|{1}".format(self.app_id, self.secret))
 
     def test_get_deleted_app_access_token(self):
         deleted_app_id = '174236045938435'
@@ -200,6 +237,123 @@ class TestParseSignedRequest(FacebookTestCase):
         self.assertTrue('code' in result)
         self.assertTrue('user_id' in result)
         self.assertTrue('algorithm' in result)
+
+
+class TestSearchMethod(FacebookTestCase):
+    def setUp(self):
+        """Create GraphAPI object that can search (i.e. has user token)."""
+        super(TestSearchMethod, self).setUp()
+        # Create an app access token to create a test user
+        # to create a GraphAPI object with a valid user access token.
+        app_token = facebook.GraphAPI().get_app_access_token(self.app_id,
+                                                             self.secret,
+                                                             True)
+        self.create_test_users(self.app_id, facebook.GraphAPI(app_token), 1)
+        user = self.test_users[0]
+        self.graph = facebook.GraphAPI(user["access_token"])
+
+    def test_valid_search_types(self):
+        """Verify that search method accepts all valid search types."""
+        for search_type in facebook.VALID_SEARCH_TYPES:
+            self.graph.search(type=search_type, q="foobar")
+
+    def test_invalid_search_type(self):
+        """Verify that search method fails when an invalid type is passed."""
+        search_args = {"type": "foo", "q": "bar"}
+        self.assertRaises(
+            facebook.GraphAPIError, self.graph.search, search_args)
+
+
+class TestGetAllConnectionsMethod(FacebookTestCase):
+
+    def test_function_with_zero_connections(self):
+        token = facebook.GraphAPI().get_app_access_token(
+            self.app_id, self.secret)
+        graph = facebook.GraphAPI(token)
+
+        self.create_test_users(self.app_id, graph, 1)
+        friends = graph.get_all_connections(self.test_users[0]['id'],
+                                            'friends')
+
+        self.assertTrue(inspect.isgenerator(friends))
+        self.assertTrue(len(list(friends)) == 0)
+
+    def test_function_returns_correct_connections(self):
+        token = facebook.GraphAPI().get_app_access_token(
+            self.app_id, self.secret)
+        graph = facebook.GraphAPI(token)
+
+        self.create_test_users(self.app_id, graph, 27)
+        self.create_friend_connections(self.test_users[0], self.test_users)
+
+        friends = graph.get_all_connections(self.test_users[0]['id'],
+                                            'friends')
+        self.assertTrue(inspect.isgenerator(friends))
+
+        friends_list = list(friends)
+        self.assertTrue(len(friends_list) == 26)
+        for f in friends:
+            self.assertTrue(isinstance(f, dict))
+            self.assertTrue('name' in f)
+            self.assertTrue('id' in f)
+
+
+class TestAPIRequest(FacebookTestCase):
+    def test_request(self):
+        """
+        Test if request() works using default value of "args"
+        """
+        FB_OBJECT_ID = "1846089248954071_1870020306560965"
+        token = facebook.GraphAPI().get_app_access_token(
+            self.app_id, self.secret)
+        graph = facebook.GraphAPI(access_token=token)
+
+        result = graph.request(FB_OBJECT_ID)
+        self.assertEqual(result["created_time"], "2016-12-24T05:20:55+0000")
+
+    def test_request_access_tokens_are_unique_to_instances(self):
+        """Verify that access tokens are unique to each GraphAPI object."""
+        graph1 = facebook.GraphAPI(access_token="foo")
+        graph2 = facebook.GraphAPI(access_token="bar")
+        # We use `delete_object` so that the access_token will appear
+        # in request.__defaults__.
+        try:
+            graph1.delete_object("baz")
+        except facebook.GraphAPIError:
+            pass
+        try:
+            graph2.delete_object("baz")
+        except facebook.GraphAPIError:
+            pass
+        self.assertEqual(graph1.request.__defaults__[0], None)
+        self.assertEqual(graph2.request.__defaults__[0], None)
+
+
+class TestGetUserPermissions(FacebookTestCase):
+    """
+    Test if user permissions are retrieved correctly.
+
+    Note that this only tests if the returned JSON object exists and is
+    structured as expected, not whether any specific scope is included
+    (other than the default `public_profile` scope).
+
+    """
+    def test_get_user_permissions_node(self):
+        token = facebook.GraphAPI().get_app_access_token(
+            self.app_id, self.secret)
+        graph = facebook.GraphAPI(access_token=token)
+        self.create_test_users(self.app_id, graph, 1)
+        permissions = graph.get_permissions(self.test_users[0]['id'])
+        self.assertIsNotNone(permissions)
+        self.assertTrue('public_profile' in permissions)
+        self.assertTrue('user_friends' in permissions)
+        self.assertFalse('email' in permissions)
+
+    def test_get_user_permissions_nonexistant_user(self):
+        token = facebook.GraphAPI().get_app_access_token(
+            self.app_id, self.secret)
+        with self.assertRaises(facebook.GraphAPIError):
+            facebook.GraphAPI(token).get_permissions(1)
 
 
 class TestAppSecretProof(FacebookTestCase):
