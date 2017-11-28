@@ -171,6 +171,11 @@ Returns all connections for a given object as a ``dict``.
   between objects, e.g., feed, friends, groups, likes, posts. If left empty,
   ``get_connections`` will simply return the authenticated user's basic
   information.
+* ``fields`` – A ``string`` or group of (comma separated) ``strings``. Accepts one 
+    or more fields of the edge specified in connection_name, or one or more 
+    fields/edges of the node connected to the given object_id by said edge. 
+    This parameter allows for nested queries to the GraphAPI, supported by the 
+    field expansion feature. See the GraphAPI docs for syntax and further examples.
 
 **Examples**
 
@@ -180,8 +185,11 @@ Returns all connections for a given object as a ``dict``.
     friends = graph.get_connections(id='me', connection_name='friends')
 
     # Get the comments from a post.
-    comments = graph.get_connections(id='post_id', connection_name='comments')
-
+    comments = graph.get_connections(id='post_id', connection_name='comments')}
+    
+    # Get the photos from a user, requesting info available from node "Photo".
+    # Note that only the edge "Page Photos" ("photos") is referenced.
+    photos = graph.get_connections(id='me', 'photos', fields='created_time','likes.summary(total_count)')
 
 get_all_connections
 ^^^^^^^^^^^^^^^^^^^
