@@ -242,10 +242,8 @@ class GraphAPI(object):
         arguments.
 
         """
-        if args is None:
-            args = dict()
-        if post_args is not None:
-            method = "POST"
+        args = dict() if args is None else args
+        method = "POST" if post_args is not None else method
 
         # Add `access_token` to post_args or args if it has not already been
         # included.
@@ -265,7 +263,8 @@ class GraphAPI(object):
                 params=args,
                 data=post_args,
                 proxies=self.proxies,
-                files=files)
+                files=files
+            )
         except requests.HTTPError as e:
             response = json.loads(e.read())
             raise GraphAPIError(response)
@@ -304,12 +303,15 @@ class GraphAPI(object):
         if offline:
             return "{0}|{1}".format(app_id, app_secret)
         else:
-            args = {'grant_type': 'client_credentials',
-                    'client_id': app_id,
-                    'client_secret': app_secret}
+            args = {
+                'grant_type': 'client_credentials',
+                'client_id': app_id,
+                'client_secret': app_secret
+            }
 
-            return self.request("{0}/oauth/access_token".format(self.version),
-                                args=args)["access_token"]
+            return self.request(
+                "{0}/oauth/access_token".format(self.version), args=args
+            )["access_token"]
 
     def get_access_token_from_code(
             self, code, redirect_uri, app_id, app_secret):
