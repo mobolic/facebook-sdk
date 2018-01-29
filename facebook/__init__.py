@@ -260,11 +260,12 @@ class GraphAPI(object):
         assert self.access_token, "Write operations require an access token"
         return self.request(
             "{0}/{1}/{2}".format(self.version, self.page_id, "videos"),
-            post_args={'access_token': self.access_token, 'upload_phase':
-                'start', 'file_size': file_size},
+            post_args={'access_token': self.access_token,
+                       'upload_phase': 'start ', 'file_size': file_size},
             method="POST")
 
-    def upload_video_chunks(self, start_offset, upload_session_id, video_chunk):
+    def upload_video_chunks(self, start_offset, upload_session_id,
+                            video_chunk):
         """
         Upload video chunks using multipart/form-data.
 
@@ -274,7 +275,8 @@ class GraphAPI(object):
             upload_phase  - Set to transfer
             upload_session_id  - The session id returned in the start phase
             start_offset  - Start byte position of this chunk
-            video_file_chunk (multipart/form-data) - The video chunk, encoded as
+            video_file_chunk (multipart/form-data) - The video chunk,
+            encoded as
             form data
 
         This server response includes:
@@ -298,7 +300,8 @@ class GraphAPI(object):
     def ensure_and_create_dir(self, video_path):
 
         full_video_path = os.path.expanduser(video_path)
-        assert os.path.exists(full_video_path) is True, "File path doesnt exist"
+        assert os.path.exists(full_video_path) is True, "File path doesnt " \
+                                                        "exist"
         directory = os.path.dirname(video_path)
         tmp_dir = os.path.join(directory, 'tmp')
         if not os.path.exists(tmp_dir):
@@ -368,8 +371,8 @@ class GraphAPI(object):
         assert self.access_token, "Write operations require an access token"
         return self.request(
             "{0}/{1}/{2}".format(self.version, self.page_id, "videos"),
-            post_args={'access_token': self.access_token, 'upload_phase':
-                'finish',
+            post_args={'access_token': self.access_token,
+                       'upload_phase':'finish',
                        'upload_session_id': session_id, 'title': title,
                        'description': description},
             method="POST")
@@ -385,7 +388,8 @@ class GraphAPI(object):
         """
 
         full_video_path = os.path.expanduser(video_path)
-        assert os.path.exists(full_video_path) is True, "File path doesnt exist"
+        assert os.path.exists(full_video_path) is True, "File path doesnt " \
+                                                        "exist" 
 
         tmp_dir = self.ensure_and_create_dir(full_video_path)
         base_filename = os.path.basename(full_video_path)
