@@ -293,7 +293,7 @@ class GraphAPI(object):
             "{0}/{1}/{2}".format(self.version, self.page_id, "videos"),
             files={"video_file_chunk": video_chunk},
             post_args={'access_token': self.access_token, 'upload_phase':
-                'transfer', 'start_offset': start_offset,
+                       'transfer', 'start_offset': start_offset,
                        'upload_session_id': upload_session_id, },
             method="POST")
 
@@ -372,7 +372,7 @@ class GraphAPI(object):
         return self.request(
             "{0}/{1}/{2}".format(self.version, self.page_id, "videos"),
             post_args={'access_token': self.access_token,
-                       'upload_phase':'finish',
+                       'upload_phase': 'finish',
                        'upload_session_id': session_id, 'title': title,
                        'description': description},
             method="POST")
@@ -389,8 +389,7 @@ class GraphAPI(object):
 
         full_video_path = os.path.expanduser(video_path)
         assert os.path.exists(full_video_path) is True, "File path doesnt " \
-                                                        "exist" 
-
+                                                        "exist"
         tmp_dir = self.ensure_and_create_dir(full_video_path)
         base_filename = os.path.basename(full_video_path)
         video_file_size = os.path.getsize(full_video_path)
