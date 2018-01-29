@@ -341,8 +341,6 @@ class GraphAPI(object):
                                                            chunk_abs_path,
                                                            'rb'))
 
-            print upload_response
-
             start_offset = upload_response['start_offset']
             end_offset = upload_response['end_offset']
             if start_offset != previous_start_offset:
