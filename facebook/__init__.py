@@ -296,7 +296,7 @@ class GraphAPI(object):
         directory = os.path.dirname(video_path)
         tmp_dir = os.path.join(directory, 'tmp')
         if not os.path.exists(tmp_dir):
-            os.makedirs(tmp_dir, 0755)
+            os.makedirs(tmp_dir, 493)
 
         return tmp_dir
 
