@@ -31,7 +31,7 @@ import base64
 import requests
 import json
 import re
-import utils
+from facebook import utils
 import os
 
 try:
