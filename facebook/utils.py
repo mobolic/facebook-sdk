@@ -3,7 +3,7 @@ import subprocess
 
 def run_command(cmd, out, err):
     try:
-        p = subprocess.Popen(cmd, stdout = out, stderr = err)
+        p=subprocess.Popen(cmd, stdout=out, stderr=err)
     except OSError:
         #  The cmd in this case could not run, skipping
         return None

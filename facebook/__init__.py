@@ -42,7 +42,6 @@ except ImportError:
 
 from . import version
 
-
 __version__ = version.__version__
 
 FACEBOOK_GRAPH_URL = "https://graph.facebook.com/"
@@ -111,7 +110,7 @@ class GraphAPI(object):
         """Fetches the permissions object from the graph."""
         response = self.request(
             "{0}/{1}/permissions".format(self.version, user_id), {}
-            )["data"]
+        )["data"]
         return {x["permission"] for x in response if x["status"] == "granted"}
 
     def get_object(self, id, **args):
@@ -250,15 +249,19 @@ class GraphAPI(object):
 
             upload_session_id (int32) - ID of the upload session
             video_id (int32) - ID of the video
-            start_offset (int32) - Start byte position of the first chunk to send. Will be 0
-            end_offset (int32) - End byte position of the next file chunk to send
+            start_offset (int32) - Start byte position of the first chunk to
+            send. Will be 0
+            end_offset (int32) - End byte position of the next file chunk to
+            send
         """
 
-        assert self.page_id, "Uploading videos require an page id/user_id/event_id/group_id"
+        assert self.page_id, "Uploading videos require an page " \
+                             "id/user_id/event_id/group_id"
         assert self.access_token, "Write operations require an access token"
         return self.request(
             "{0}/{1}/{2}".format(self.version, self.page_id, "videos"),
-            post_args={'access_token': self.access_token, 'upload_phase': 'start', 'file_size': file_size},
+            post_args={'access_token': self.access_token, 'upload_phase':
+                'start', 'file_size': file_size},
             method="POST")
 
     def upload_video_chunks(self, start_offset, upload_session_id, video_chunk):
@@ -271,7 +274,8 @@ class GraphAPI(object):
             upload_phase  - Set to transfer
             upload_session_id  - The session id returned in the start phase
             start_offset  - Start byte position of this chunk
-            video_file_chunk (multipart/form-data) - The video chunk, encoded as form data
+            video_file_chunk (multipart/form-data) - The video chunk, encoded as
+            form data
 
         This server response includes:
 
@@ -280,12 +284,14 @@ class GraphAPI(object):
 
         """
 
-        assert self.page_id, "Uploading videos require an page id/user_id/event_id/group_id"
+        assert self.page_id, "Uploading videos require an page " \
+                             "id/user_id/event_id/group_id"
         assert self.access_token, "Write operations require an access token"
         return self.request(
             "{0}/{1}/{2}".format(self.version, self.page_id, "videos"),
             files={"video_file_chunk": video_chunk},
-            post_args={'access_token': self.access_token, 'upload_phase': 'transfer', 'start_offset': start_offset,
+            post_args={'access_token': self.access_token, 'upload_phase':
+                'transfer', 'start_offset': start_offset,
                        'upload_session_id': upload_session_id, },
             method="POST")
 
@@ -300,20 +306,23 @@ class GraphAPI(object):
 
         return tmp_dir
 
-    def upload_video(self, tmp_dir, base_filename, full_video_path, start_offset, end_offset, session_id):
+    def upload_video(self, tmp_dir, base_filename, full_video_path,
+                     start_offset, end_offset, session_id):
         """
-        To upload video, split video into chunks and upload with the right start_offset and end_offset
+        To upload video, split video into chunks and upload with the right
+        start_offset and end_offset
         and get the offset for the next chunk.
         """
 
-        previous_start_offset = 'A way to make sure a chunk doesnt get copied twice in case of upload failure'
+        previous_start_offset = ''
         chunk = 0
         file_name = base_filename.rsplit('.', 1)[0]
         file_extension = base_filename.rsplit('.', 1)[1]
 
         while start_offset != end_offset:
 
-            chunk_abs_path = '%s/%schunk%s.%s' % (tmp_dir, file_name, str(chunk), file_extension)
+            chunk_abs_path = '%s/%schunk%s.%s' % (tmp_dir, file_name,
+                                                  str(chunk), file_extension)
 
             cmd = ['dd', 'if=%s' % full_video_path,
                    'of=%s' % chunk_abs_path, 'bs=1',
@@ -326,8 +335,11 @@ class GraphAPI(object):
                     raise GraphAPIError(response.stderr.read())
                 previous_start_offset = start_offset
 
-            upload_response = self.upload_video_chunks(start_offset, session_id,
-                                                       video_chunk=open(chunk_abs_path, 'rb'))
+            upload_response = self.upload_video_chunks(start_offset,
+                                                       session_id,
+                                                       video_chunk=open(
+                                                           chunk_abs_path,
+                                                           'rb'))
 
             print upload_response
 
@@ -338,7 +350,8 @@ class GraphAPI(object):
 
     def post_video(self, session_id, title, description):
         """
-        Post video and close the upload session and queue it for asynchronous encoding.
+        Post video and close the upload session and queue it for asynchronous
+        encoding.
 
         The request parameters are:
 
@@ -352,12 +365,15 @@ class GraphAPI(object):
 
         """
 
-        assert self.page_id, "Uploading videos require an page id/user_id/event_id/group_id"
+        assert self.page_id, "Uploading videos require an page " \
+                             "id/user_id/event_id/group_id"
         assert self.access_token, "Write operations require an access token"
         return self.request(
             "{0}/{1}/{2}".format(self.version, self.page_id, "videos"),
-            post_args={'access_token': self.access_token, 'upload_phase': 'finish',
-                       'upload_session_id': session_id, 'title': title, 'description': description},
+            post_args={'access_token': self.access_token, 'upload_phase':
+                'finish',
+                       'upload_session_id': session_id, 'title': title,
+                       'description': description},
             method="POST")
 
     def put_video(self, video_path, title=None, description=None):
@@ -365,7 +381,8 @@ class GraphAPI(object):
         Upload a video using resumable upload protocol.
 
             title - The title of the video.
-            description - The text describing a post that may be shown in a story about it.
+            description - The text describing a post that may be shown in a
+            story  about it.
 
         """
 
@@ -375,18 +392,21 @@ class GraphAPI(object):
         tmp_dir = self.ensure_and_create_dir(full_video_path)
         base_filename = os.path.basename(full_video_path)
         video_file_size = os.path.getsize(full_video_path)
-        initialize_response = self.initialize_video_upload_session(str(video_file_size))
+        initialize_response = self.initialize_video_upload_session(str(
+            video_file_size))
 
         start_offset = initialize_response['start_offset']
         end_offset = initialize_response['end_offset']
         session_id = initialize_response['upload_session_id']
 
-        self.upload_video(tmp_dir, base_filename, full_video_path, start_offset, end_offset, session_id)
+        self.upload_video(tmp_dir, base_filename, full_video_path,
+                          start_offset, end_offset, session_id)
 
         return self.post_video(session_id, title, description)
 
     def request(
-            self, path, args=None, post_args=None, files=None, method=None, video=False):
+            self, path, args=None, post_args=None, files=None, method=None,
+            video=False):
         """Fetches the given path in the Graph API.
 
         We translate args to a valid query string. If post_args is
