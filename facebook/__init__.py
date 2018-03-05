@@ -178,10 +178,44 @@ class GraphAPI(object):
 
         """
         assert self.access_token, "Write operations require an access token"
+
         return self.request(
             "{0}/{1}/{2}".format(self.version, parent_object, connection_name),
             post_args=data,
             method="POST")
+                        
+        
+    def get_access_token_for_page(self, profile_id="me", page_id=None):
+        """
+        Retrive access token of user as admin of Page
+        """
+        if not page_id:
+            return None
+        response = self.request(profile_id + "/accounts")
+        for token in response['data']:
+            if str(page_id) in token['id']:
+                return token['access_token']
+        return None
+
+    def put_wall_post(self, message, attachment={}, profile_id="me"):
+        """Writes a wall post to the given profile's wall.
+
+        We default to writing to the authenticated user's wall if no
+        profile_id is specified.
+
+        attachment adds a structured attachment to the status message
+        being posted to the Wall. It should be a dictionary of the form:
+
+            {"name": "Link name"
+             "link": "http://www.example.com/",
+             "caption": "{*actor*} posted a new review",
+             "description": "This is a longer description of the attachment",
+             "picture": "http://www.example.com/thumbnail.jpg"}
+
+        """
+        return self.put_object(profile_id, "feed", message=message,
+                               **attachment)
+
 
     def put_comment(self, object_id, message):
         """Writes the given comment on the given post."""
