@@ -30,10 +30,9 @@ You can read more about `Facebook's Graph API here`_.
 * ``proxies`` - A ``dict`` with proxy-settings that Requests should use.
   `See Requests documentation`_.
 * ``session`` - A `Requests Session object`_.
-* ``app_secret`` (optional) The secret key of your app. If both ``app_secret``
-  and ``access_token`` are present this will be used to compute an
-  `appsecret_proof`_ *(This prevents bad guys from making API calls with your
-  access tokens from their servers.)*
+* ``app_secret`` - (optional) A ``string`` representing the secret key of your
+  app. If both ``app_secret`` and ``access_token`` are present this will be
+  used to compute an `appsecret_proof`_
 
 
 .. _Read more about access tokens here: https://developers.facebook.com/docs/facebook-login/access-tokens

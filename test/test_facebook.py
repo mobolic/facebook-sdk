@@ -379,6 +379,7 @@ class TestAppSecretProof(FacebookTestCase):
         mock_response.headers = {'content-type': 'json'}
         mock_response.json.return_value = {}
         mock_request.return_value = mock_response
+        api.session.request = mock_request
         api.request('some-path')
         mock_request.assert_called_once_with(
             'GET',
@@ -397,6 +398,7 @@ class TestAppSecretProof(FacebookTestCase):
         mock_response.headers = {'content-type': 'json'}
         mock_response.json.return_value = {}
         mock_request.return_value = mock_response
+        api.session.request = mock_request
         api.request('some-path', method='POST')
         mock_request.assert_called_once_with(
             'POST',
@@ -415,6 +417,7 @@ class TestAppSecretProof(FacebookTestCase):
         mock_response.headers = {'content-type': 'json'}
         mock_response.json.return_value = {}
         mock_request.return_value = mock_response
+        api.session.request = mock_request
         api.request('some-path')
         mock_request.assert_called_once_with(
             'GET',

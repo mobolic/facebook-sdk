@@ -27,6 +27,9 @@ jobs:
               python -m venv ~/venv;
             fi;
             . ~/venv/bin/activate
+            if [ $(python -c "import platform; print(platform.python_version_tuple()[0])") == "2" ]; then
+              pip install mock
+            fi;
             pip install flake8 doc8 pygments
             pip install .
       - run:
