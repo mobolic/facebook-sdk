@@ -30,12 +30,21 @@ You can read more about `Facebook's Graph API here`_.
 * ``proxies`` - A ``dict`` with proxy-settings that Requests should use.
   `See Requests documentation`_.
 * ``session`` - A `Requests Session object`_.
+* ``verify_ssl`` - Either a ``boolean``, in which case it controls whether we
+  verify the server's TLS certificate, or a ``string``, in which case it must
+  be a path to a CA bundle to use. Defaults to ``True``.
+  `See SSL Cert documentation`_.
+* ``cert_ssl`` - If ``string``, path to ssl client cert file (.pem). If
+  ``tuple``, ('cert', 'key') pair.
+  `See Client Side Certificates documentation`_.
 
 .. _Read more about access tokens here: https://developers.facebook.com/docs/facebook-login/access-tokens
 .. _See more here: http://docs.python-requests.org/en/latest/user/quickstart/#timeouts
 .. _version of Facebook's Graph API to use: https://developers.facebook.com/docs/apps/changelog#versions
 .. _See Requests documentation: http://www.python-requests.org/en/latest/user/advanced/#proxies
 .. _Requests Session object: http://docs.python-requests.org/en/master/user/advanced/#session-objects
+.. _See SSL Cert documentation: http://www.python-requests.org/en/latest/user/advanced/#ssl-cert-verification
+.. _See Client Side Certificates documentation: http://www.python-requests.org/en/latest/user/advanced/#client-side-certificates
 
 **Example**
 

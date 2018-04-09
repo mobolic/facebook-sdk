@@ -80,7 +80,7 @@ class GraphAPI(object):
     """
 
     def __init__(self, access_token=None, timeout=None, version=None,
-                 proxies=None, session=None):
+                 proxies=None, session=None, verify_ssl=None, cert_ssl=None):
         # The default version is only used if the version kwarg does not exist.
         default_version = VALID_API_VERSIONS[0]
 
@@ -88,6 +88,8 @@ class GraphAPI(object):
         self.timeout = timeout
         self.proxies = proxies
         self.session = session or requests.Session()
+        self.verify_ssl = verify_ssl
+        self.cert_ssl = cert_ssl
 
         if version:
             version_regex = re.compile("^\d\.\d{1,2}$")
@@ -222,7 +224,9 @@ class GraphAPI(object):
                 FACEBOOK_GRAPH_URL + self.version + "/me",
                 params=args,
                 timeout=self.timeout,
-                proxies=self.proxies)
+                proxies=self.proxies,
+                verify=self.verify_ssl,
+                cert=self.cert_ssl)
         except requests.HTTPError as e:
             response = json.loads(e.read())
             raise GraphAPIError(response)
@@ -266,6 +270,8 @@ class GraphAPI(object):
                 params=args,
                 data=post_args,
                 proxies=self.proxies,
+                verify=self.verify_ssl,
+                cert=self.cert_ssl,
                 files=files)
         except requests.HTTPError as e:
             response = json.loads(e.read())
