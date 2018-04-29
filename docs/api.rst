@@ -123,15 +123,9 @@ maps to an object.
 search
 ^^^^^^
 
-Returns all objects of a given type from the graph as a ``dict``.
+https://developers.facebook.com/docs/places/search
 
-Valid types are: event, group, page, place, placetopic, and user
-
-https://developers.facebook.com/docs/graph-api/using-graph-api#search
-
-Most types require the argument q, except:
-- place requires q, addres or center
-- placetopic doesn't require any additional argument
+Valid types are: place, placetopic
 
 **Parameters**
 
@@ -139,14 +133,6 @@ Most types require the argument q, except:
 * ``**args`` (optional) - keyword args to be passed as query params
 
 **Example**
-
-.. code-block:: python
-
-    # Search for a user named "Mark Zuckerberg" and show their ID and name.
-    users = graph.search(type='user',q='Mark Zuckerberg')
-
-    for user in users['data']:
-        print('%s %s' % (user['id'],user['name'].encode()))
 
 .. code-block:: python
 

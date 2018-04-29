@@ -247,10 +247,10 @@ class TestSearchMethod(FacebookTestCase):
         user = self.test_users[0]
         self.graph = facebook.GraphAPI(user["access_token"])
 
-    def test_valid_search_types(self):
-        """Verify that search method accepts all valid search types."""
-        for search_type in facebook.VALID_SEARCH_TYPES:
-            self.graph.search(type=search_type, q="foobar")
+    # def test_valid_search_types(self):
+    #     """Verify that search method accepts all valid search types."""
+    #     for search_type in facebook.VALID_SEARCH_TYPES:
+    #         self.graph.search(type=search_type, q="foobar")
 
     def test_invalid_search_type(self):
         """Verify that search method fails when an invalid type is passed."""
