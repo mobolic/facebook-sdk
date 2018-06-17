@@ -204,7 +204,7 @@ class TestAccessToken(FacebookTestCase):
 
 class TestParseSignedRequest(FacebookTestCase):
     cookie = (
-        "O0vd27uj4j6RxdIyMH-VhMwQpUkPgg_9665I9yGDecE."
+        "Z6pnNcY-TePEBA7IfKta6ipLgrig53M7DRGisKSybBQ."
         "eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImNvZGUiOiJBUURjSXQ2YnhZ"
         "M090T3BSRGtpT1k4UDNlOWgwYzZRNFFuMEFFQnVqR1M3ZEV5LXNtbUt5b3pD"
         "dHdhZy1kRmVYNmRUbi12dVBfQVNtek5RbjlkakloZHJIa0VBMHlLMm16T0Ji"
