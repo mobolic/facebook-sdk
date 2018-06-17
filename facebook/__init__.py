@@ -44,7 +44,8 @@ from . import version
 __version__ = version.__version__
 
 FACEBOOK_GRAPH_URL = "https://graph.facebook.com/"
-FACEBOOK_OAUTH_DIALOG_URL = "https://www.facebook.com/dialog/oauth?"
+FACEBOOK_WWW_URL = "https://www.facebook.com/"
+FACEBOOK_OAUTH_DIALOG_PATH = "dialog/oauth?"
 VALID_API_VERSIONS = [
     "2.6", "2.7", "2.8", "2.9", "2.10", "2.11", "2.12", "3.0"]
 VALID_SEARCH_TYPES = ["place", "placetopic"]
@@ -359,6 +360,23 @@ class GraphAPI(object):
         }
         return self.request(self.version + "/" + "debug_token", args=args)
 
+    def get_auth_url(self, app_id, canvas_url, perms=None, **kwargs):
+        """Build a URL to create an OAuth dialog."""
+        url = "{0}{1}/{2}".format(
+            FACEBOOK_WWW_URL,
+            self.version,
+            FACEBOOK_OAUTH_DIALOG_PATH,
+        )
+
+        args = {
+            "client_id": app_id,
+            "redirect_uri": canvas_url,
+        }
+        if perms:
+            args["scope"] = ",".join(perms)
+        args.update(kwargs)
+        return url + urlencode(args)
+
 
 class GraphAPIError(Exception):
     def __init__(self, result):
@@ -463,12 +481,3 @@ def parse_signed_request(signed_request, app_secret):
         return False
 
     return data
-
-
-def auth_url(app_id, canvas_url, perms=None, **kwargs):
-    url = FACEBOOK_OAUTH_DIALOG_URL
-    kvps = {'client_id': app_id, 'redirect_uri': canvas_url}
-    if perms:
-        kvps['scope'] = ",".join(perms)
-    kvps.update(kwargs)
-    return url + urlencode(kvps)

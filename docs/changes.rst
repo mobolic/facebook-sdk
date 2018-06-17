@@ -16,6 +16,8 @@ Version 3.0.0 (unreleased)
    granted an application (#264, #342).
  - Remove `put_wall_post` method. Use `put_object` instead.
  - Add search method (#362).
+ - Rename `auth_url` method to `get_auth_url` and move it into the Graph API
+   object (#377, #378, #422).
 
 Version 2.0.0 (2016-08-08)
 ==========================
