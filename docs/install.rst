@@ -2,7 +2,7 @@
 Installation
 ============
 
-The SDK currently supports Python 2.7, 3.4, 3.5, and 3.6. The `requests`_
+The SDK currently supports Python 2.7 and Python 3.4-3.7. The `requests`_
 package is required.
 
 We recommend using `pip`_ and `virtualenv`_ to install the SDK. Please note
