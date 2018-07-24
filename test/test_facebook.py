@@ -44,7 +44,7 @@ class FacebookTestCase(unittest.TestCase):
     def tearDown(self):
         """Deletes the test users included in the test user list."""
         token = facebook.GraphAPI().get_app_access_token(
-            self.app_id, self.secret)
+            self.app_id, self.secret, True)
         graph = facebook.GraphAPI(token)
 
         for user in self.test_users:
@@ -96,7 +96,7 @@ class TestGetAppAccessToken(FacebookTestCase):
     """
     def test_get_app_access_token(self):
         token = facebook.GraphAPI().get_app_access_token(
-            self.app_id, self.secret)
+            self.app_id, self.secret, False)
         # Since "unicode" does not exist in Python 3, we cannot check
         # the following line with flake8 (hence the noqa comment).
         assert(isinstance(token, str) or isinstance(token, unicode))    # noqa
@@ -272,7 +272,7 @@ class TestGetAllConnectionsMethod(FacebookTestCase):
 
     def test_function_with_zero_connections(self):
         token = facebook.GraphAPI().get_app_access_token(
-            self.app_id, self.secret)
+            self.app_id, self.secret, True)
         graph = facebook.GraphAPI(token)
 
         self.create_test_users(self.app_id, graph, 1)
@@ -284,7 +284,7 @@ class TestGetAllConnectionsMethod(FacebookTestCase):
 
     def test_function_returns_correct_connections(self):
         token = facebook.GraphAPI().get_app_access_token(
-            self.app_id, self.secret)
+            self.app_id, self.secret, True)
         graph = facebook.GraphAPI(token)
 
         self.create_test_users(self.app_id, graph, 27)
@@ -309,7 +309,7 @@ class TestAPIRequest(FacebookTestCase):
         """
         FB_OBJECT_ID = "1846089248954071_1870020306560965"
         token = facebook.GraphAPI().get_app_access_token(
-            self.app_id, self.secret)
+            self.app_id, self.secret, True)
         graph = facebook.GraphAPI(access_token=token)
 
         result = graph.request(FB_OBJECT_ID)
@@ -344,7 +344,7 @@ class TestGetUserPermissions(FacebookTestCase):
     """
     def test_get_user_permissions_node(self):
         token = facebook.GraphAPI().get_app_access_token(
-            self.app_id, self.secret)
+            self.app_id, self.secret, True)
         graph = facebook.GraphAPI(access_token=token)
         self.create_test_users(self.app_id, graph, 1)
         permissions = graph.get_permissions(self.test_users[0]['id'])
@@ -355,7 +355,7 @@ class TestGetUserPermissions(FacebookTestCase):
 
     def test_get_user_permissions_nonexistant_user(self):
         token = facebook.GraphAPI().get_app_access_token(
-            self.app_id, self.secret)
+            self.app_id, self.secret, True)
         with self.assertRaises(facebook.GraphAPIError):
             facebook.GraphAPI(token).get_permissions(1)
 
