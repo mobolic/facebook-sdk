@@ -287,7 +287,7 @@ class TestGetAllConnectionsMethod(FacebookTestCase):
             self.app_id, self.secret, True)
         graph = facebook.GraphAPI(token)
 
-        self.create_test_users(self.app_id, graph, 27)
+        self.create_test_users(self.app_id, graph, 3)
         self.create_friend_connections(self.test_users[0], self.test_users)
 
         friends = graph.get_all_connections(self.test_users[0]['id'],
@@ -295,7 +295,7 @@ class TestGetAllConnectionsMethod(FacebookTestCase):
         self.assertTrue(inspect.isgenerator(friends))
 
         friends_list = list(friends)
-        self.assertTrue(len(friends_list) == 26)
+        self.assertTrue(len(friends_list) == 2)
         for f in friends:
             self.assertTrue(isinstance(f, dict))
             self.assertTrue('name' in f)
