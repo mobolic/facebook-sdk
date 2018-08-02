@@ -19,10 +19,10 @@ import unittest
 import inspect
 
 try:
-    from urllib.parse import parse_qs, urlencode, urlparse
+    from urllib.parse import parse_qs, urlencode, urlparse, quote
 except ImportError:
     from urlparse import parse_qs, urlparse
-    from urllib import urlencode
+    from urllib import urlencode, quote
 
 
 class FacebookTestCase(unittest.TestCase):
@@ -331,6 +331,17 @@ class TestAPIRequest(FacebookTestCase):
             pass
         self.assertEqual(graph1.request.__defaults__[0], None)
         self.assertEqual(graph2.request.__defaults__[0], None)
+
+    def test_request_result_has_x_app_usage_key(self):
+        """Verify that result has x-app-usage key from response headers"""
+        # using website's url as ID
+        # https://developers.facebook.com/docs/graph-api/reference/v3.1/url
+        FB_OBJECT_ID = quote('http://www.example.com')
+        token = facebook.GraphAPI().get_app_access_token(
+            self.app_id, self.secret, True)
+        graph = facebook.GraphAPI(access_token=token)
+        result = graph.request(FB_OBJECT_ID)
+        self.assertIn('x-app-usage', result.keys())
 
 
 class TestGetUserPermissions(FacebookTestCase):
