@@ -2,7 +2,7 @@
 Changelog
 =========
 
-Version 3.0.0 (unreleased)
+Version 3.0.0 (2018-08-08)
 ==========================
  - Add support for Python 3.6 and 3.7.
  - Remove support for Python 2.6 and 3.3.
