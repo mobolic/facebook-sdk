@@ -268,11 +268,11 @@ class GraphAPI(object):
             raise GraphAPIError(response)
 
         headers = response.headers
-        page_limits, app_limits = None, None
+        x-page-usage, x-app-usage = None, None
         if "x-page-usage" in headers:
-            page_limits = json.loads(headers.get("x-page-usage"))
+            x-page-usage = json.loads(headers.get("x-page-usage"))
         if "x-app-usage" in headers:
-            app_limits = json.loads(headers.get("x-app-usage"))
+            x-app-usage = json.loads(headers.get("x-app-usage"))
         if 'json' in headers['content-type']:
             result = response.json()
         elif 'image/' in headers['content-type']:
@@ -293,8 +293,8 @@ class GraphAPI(object):
 
         if result and isinstance(result, dict) and result.get("error"):
             raise GraphAPIError(result)
-        result.update({'page_limits': page_limits,
-                       'app_limits': app_limits})
+        result.update({'x-page-usage': x-page-usage,
+                       'x-app-usage': x-app-usage})
         return result
 
     def get_app_access_token(self, app_id, app_secret, offline=False):
