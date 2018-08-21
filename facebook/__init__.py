@@ -268,8 +268,11 @@ class GraphAPI(object):
             raise GraphAPIError(response)
 
         headers = response.headers
-        page_limits = json.loads(headers.get("x-page-usage"))
-        app_limits = json.loads(headers.get("x-app-usage"))
+        page_limits, app_limits = None, None
+        if "x-page-usage" in headers:
+            page_limits = json.loads(headers.get("x-page-usage"))
+        if "x-app-usage" in headers:
+            app_limits = json.loads(headers.get("x-app-usage"))
         if 'json' in headers['content-type']:
             result = response.json()
         elif 'image/' in headers['content-type']:
