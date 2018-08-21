@@ -18,6 +18,8 @@ Version 3.0.0 (2018-08-08)
  - Add search method (#362).
  - Rename `auth_url` method to `get_auth_url` and move it into the Graph API
    object (#377, #378, #422).
+ - Add `x-app-usage` `x-page-usage` Graph API response headers to result
+   returned from GraphAPI's request method
 
 Version 2.0.0 (2016-08-08)
 ==========================

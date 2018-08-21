@@ -332,6 +332,30 @@ class TestAPIRequest(FacebookTestCase):
         self.assertEqual(graph1.request.__defaults__[0], None)
         self.assertEqual(graph2.request.__defaults__[0], None)
 
+    def test_request_result_has_x_app_usage_key(self):
+        """
+        Test if request() response has 'x-page-usage' key
+        """
+        FB_OBJECT_ID = "1846089248954071_1870020306560965"
+        token = facebook.GraphAPI().get_app_access_token(
+            self.app_id, self.secret, True)
+        graph = facebook.GraphAPI(access_token=token)
+
+        result = graph.request(FB_OBJECT_ID)
+        self.assertIn('x-app-usage', result.keys())
+
+    def test_request_result_has_x_page_usage_key(self):
+        """
+        Test if request() response has 'x-page-usage' key
+        """
+        FB_OBJECT_ID = "1846089248954071_1870020306560965"
+        token = facebook.GraphAPI().get_app_access_token(
+            self.app_id, self.secret, True)
+        graph = facebook.GraphAPI(access_token=token)
+
+        result = graph.request(FB_OBJECT_ID)
+        self.assertIn('x-page-usage', result.keys())
+
 
 class TestGetUserPermissions(FacebookTestCase):
     """
