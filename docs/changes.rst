@@ -4,6 +4,7 @@ Changelog
 
 Version 3.1.0 (unreleased)
 ==========================
+- Add support for Graph API version 3.1.
 - Remove support for Graph API version 2.7.
 - Change default Graph API version to 2.8.
 
