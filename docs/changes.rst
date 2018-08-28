@@ -7,7 +7,6 @@ Version 3.0.1 (2018-08-28)
 ==========================
  - Add support for Graph API version 3.1
 
-
 Version 3.0.0 (2018-08-08)
 ==========================
  - Add support for Python 3.6 and 3.7.
