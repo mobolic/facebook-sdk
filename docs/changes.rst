@@ -9,6 +9,7 @@ Version 3.2.0 (unreleased)
 - Change default Graph API version to 2.10.
 - Add support for securing Graph API Calls with a proof based on the
   application secret (#454).
+- Add subcodes to GraphAPIError objects.
 
 Version 3.1.0 (2018-11-06)
 ==========================
