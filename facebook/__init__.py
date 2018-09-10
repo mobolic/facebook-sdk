@@ -31,6 +31,7 @@ import base64
 import requests
 import json
 import re
+import logging
 
 try:
     from urllib.parse import parse_qs, urlencode, urlparse
@@ -298,6 +299,12 @@ class GraphAPI(object):
             _add_to_post_args_or_args("appsecret_proof", self.app_secret_hmac)
 
         try:
+
+            logging.info('GRAPH REQUEST URL:%s' % (FACEBOOK_GRAPH_URL + path))
+            logging.info('GRAPH REQUEST params:')
+            logging.info(args)
+            logging.info('GRAPH REQUEST data:')
+            logging.info(post_args)
             response = self.session.request(
                 method or "GET",
                 FACEBOOK_GRAPH_URL + path,
@@ -429,6 +436,8 @@ class GraphAPIError(Exception):
     def __init__(self, result):
         self.result = result
         self.code = None
+        self.error_subcode = None
+
         try:
             self.type = result["error_code"]
         except (KeyError, TypeError):
@@ -442,6 +451,7 @@ class GraphAPIError(Exception):
             try:
                 self.message = result["error"]["message"]
                 self.code = result["error"].get("code")
+                self.error_subcode = result["error"].get("error_subcode")
                 if not self.type:
                     self.type = result["error"].get("type", "")
             except (KeyError, TypeError):
