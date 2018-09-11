@@ -31,7 +31,6 @@ import base64
 import requests
 import json
 import re
-import logging
 
 try:
     from urllib.parse import parse_qs, urlencode, urlparse
@@ -300,11 +299,6 @@ class GraphAPI(object):
 
         try:
 
-            logging.info('GRAPH REQUEST URL:%s' % (FACEBOOK_GRAPH_URL + path))
-            logging.info('GRAPH REQUEST params:')
-            logging.info(args)
-            logging.info('GRAPH REQUEST data:')
-            logging.info(post_args)
             response = self.session.request(
                 method or "GET",
                 FACEBOOK_GRAPH_URL + path,
