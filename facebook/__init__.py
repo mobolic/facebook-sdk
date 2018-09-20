@@ -31,6 +31,7 @@ import base64
 import requests
 import json
 import re
+import time
 
 try:
     from urllib.parse import parse_qs, urlencode, urlparse
@@ -133,10 +134,25 @@ class GraphAPI(object):
         args["type"] = type
         return self.request(self.version + "/search/", args)
 
-    def get_connections(self, id, connection_name, **args):
+    def get_connections(self, id, connection_name, retry_count=5, retry_delay=10, **args):
         """Fetches the connections for given object."""
-        return self.request(
-            "{0}/{1}/{2}".format(self.version, id, connection_name), args)
+        attempts = 0
+        while True:
+            try:
+                response = self.request(
+                    "{0}/{1}/{2}".format(self.version, id, connection_name), args
+                )
+                return response
+            except GraphAPIError, ge:
+                result = ge.result
+                error = result.get('error')
+                if error and error.get('code') == 2 and attempts < retry_count:
+                    attempts += 1
+                    print("Temporary Error: delaying %s attempt %s of %s" % (retry_delay, attempts, retry_count))
+                    time.sleep(retry_delay)
+                    continue
+                raise
+            break
 
     def get_all_connections(self, id, connection_name, **args):
         """Get all pages from a get_connections call
