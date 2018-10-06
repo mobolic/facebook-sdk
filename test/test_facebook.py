@@ -44,7 +44,7 @@ class FacebookTestCase(unittest.TestCase):
     def tearDown(self):
         """Deletes the test users included in the test user list."""
         token = facebook.GraphAPI().get_app_access_token(
-            self.app_id, self.secret)
+            self.app_id, self.secret, True)
         graph = facebook.GraphAPI(token)
 
         for user in self.test_users:
@@ -96,7 +96,7 @@ class TestGetAppAccessToken(FacebookTestCase):
     """
     def test_get_app_access_token(self):
         token = facebook.GraphAPI().get_app_access_token(
-            self.app_id, self.secret)
+            self.app_id, self.secret, False)
         # Since "unicode" does not exist in Python 3, we cannot check
         # the following line with flake8 (hence the noqa comment).
         assert(isinstance(token, str) or isinstance(token, unicode))    # noqa
@@ -151,14 +151,23 @@ class TestAPIVersion(FacebookTestCase):
 
 class TestAuthURL(FacebookTestCase):
     def test_auth_url(self):
+        graph = facebook.GraphAPI()
         perms = ['email', 'birthday']
         redirect_url = 'https://localhost/facebook/callback/'
 
-        expected_url = facebook.FACEBOOK_OAUTH_DIALOG_URL + urlencode(
-            dict(client_id=self.app_id,
-                 redirect_uri=redirect_url,
-                 scope=','.join(perms)))
-        actual_url = facebook.auth_url(self.app_id, redirect_url, perms=perms)
+        encoded_args = urlencode(dict(
+            client_id=self.app_id,
+            redirect_uri=redirect_url,
+            scope=','.join(perms),
+        ))
+        expected_url = "{0}{1}/{2}{3}".format(
+            facebook.FACEBOOK_WWW_URL,
+            graph.version,
+            facebook.FACEBOOK_OAUTH_DIALOG_PATH,
+            encoded_args,
+        )
+
+        actual_url = graph.get_auth_url(self.app_id, redirect_url, perms=perms)
 
         # Since the order of the query string parameters might be
         # different in each URL, we cannot just compare them to each
@@ -204,7 +213,7 @@ class TestAccessToken(FacebookTestCase):
 
 class TestParseSignedRequest(FacebookTestCase):
     cookie = (
-        "O0vd27uj4j6RxdIyMH-VhMwQpUkPgg_9665I9yGDecE."
+        "Z6pnNcY-TePEBA7IfKta6ipLgrig53M7DRGisKSybBQ."
         "eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImNvZGUiOiJBUURjSXQ2YnhZ"
         "M090T3BSRGtpT1k4UDNlOWgwYzZRNFFuMEFFQnVqR1M3ZEV5LXNtbUt5b3pD"
         "dHdhZy1kRmVYNmRUbi12dVBfQVNtek5RbjlkakloZHJIa0VBMHlLMm16T0Ji"
@@ -247,10 +256,10 @@ class TestSearchMethod(FacebookTestCase):
         user = self.test_users[0]
         self.graph = facebook.GraphAPI(user["access_token"])
 
-    def test_valid_search_types(self):
-        """Verify that search method accepts all valid search types."""
-        for search_type in facebook.VALID_SEARCH_TYPES:
-            self.graph.search(type=search_type, q="foobar")
+    # def test_valid_search_types(self):
+    #     """Verify that search method accepts all valid search types."""
+    #     for search_type in facebook.VALID_SEARCH_TYPES:
+    #         self.graph.search(type=search_type, q="foobar")
 
     def test_invalid_search_type(self):
         """Verify that search method fails when an invalid type is passed."""
@@ -263,7 +272,7 @@ class TestGetAllConnectionsMethod(FacebookTestCase):
 
     def test_function_with_zero_connections(self):
         token = facebook.GraphAPI().get_app_access_token(
-            self.app_id, self.secret)
+            self.app_id, self.secret, True)
         graph = facebook.GraphAPI(token)
 
         self.create_test_users(self.app_id, graph, 1)
@@ -275,10 +284,10 @@ class TestGetAllConnectionsMethod(FacebookTestCase):
 
     def test_function_returns_correct_connections(self):
         token = facebook.GraphAPI().get_app_access_token(
-            self.app_id, self.secret)
+            self.app_id, self.secret, True)
         graph = facebook.GraphAPI(token)
 
-        self.create_test_users(self.app_id, graph, 27)
+        self.create_test_users(self.app_id, graph, 3)
         self.create_friend_connections(self.test_users[0], self.test_users)
 
         friends = graph.get_all_connections(self.test_users[0]['id'],
@@ -286,7 +295,7 @@ class TestGetAllConnectionsMethod(FacebookTestCase):
         self.assertTrue(inspect.isgenerator(friends))
 
         friends_list = list(friends)
-        self.assertTrue(len(friends_list) == 26)
+        self.assertTrue(len(friends_list) == 2)
         for f in friends:
             self.assertTrue(isinstance(f, dict))
             self.assertTrue('name' in f)
@@ -300,7 +309,7 @@ class TestAPIRequest(FacebookTestCase):
         """
         FB_OBJECT_ID = "1846089248954071_1870020306560965"
         token = facebook.GraphAPI().get_app_access_token(
-            self.app_id, self.secret)
+            self.app_id, self.secret, True)
         graph = facebook.GraphAPI(access_token=token)
 
         result = graph.request(FB_OBJECT_ID)
@@ -335,7 +344,7 @@ class TestGetUserPermissions(FacebookTestCase):
     """
     def test_get_user_permissions_node(self):
         token = facebook.GraphAPI().get_app_access_token(
-            self.app_id, self.secret)
+            self.app_id, self.secret, True)
         graph = facebook.GraphAPI(access_token=token)
         self.create_test_users(self.app_id, graph, 1)
         permissions = graph.get_permissions(self.test_users[0]['id'])
@@ -346,7 +355,7 @@ class TestGetUserPermissions(FacebookTestCase):
 
     def test_get_user_permissions_nonexistant_user(self):
         token = facebook.GraphAPI().get_app_access_token(
-            self.app_id, self.secret)
+            self.app_id, self.secret, True)
         with self.assertRaises(facebook.GraphAPIError):
             facebook.GraphAPI(token).get_permissions(1)
 

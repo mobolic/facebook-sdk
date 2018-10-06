@@ -1,0 +1,61 @@
+version: 2
+workflows:
+  version: 2
+  build:
+    jobs:
+      - test-python-2.7
+      - test-python-3.4
+      - test-python-3.5
+      - test-python-3.6
+      - test-python-3.7
+jobs:
+  test-python-2.7:  &test-python-template
+    docker:
+      - image: circleci/python:2.7-browsers
+    working_directory: ~/facebook-sdk
+    steps:
+      - checkout
+      - run:
+          name: install dependencies
+          command: |
+            mkdir -p ~/venv
+            if [ $(python -c "import platform; print(platform.python_version_tuple()[0])") == "2" ]; then
+              virtualenv ~/venv;
+            else
+              python -m venv ~/venv;
+            fi;
+            . ~/venv/bin/activate
+            pip install flake8 doc8 pygments
+            pip install .
+      - run:
+          name: run linting
+          command: |
+            . ~/venv/bin/activate
+            flake8 --ignore=E402,F401 examples
+            flake8 facebook
+            flake8 test
+            doc8 -q *.rst docs/*.rst
+      - run:
+          name: run automated tests
+          command: |
+            . ~/venv/bin/activate
+            python -m test.test_facebook
+      - store_artifacts:
+          path: test-reports
+          destination: test-reports
+  test-python-3.4:
+    <<: *test-python-template
+    docker:
+      - image: circleci/python:3.4-browsers
+  test-python-3.5:
+    <<: *test-python-template
+    docker:
+      - image: circleci/python:3.5-browsers
+  test-python-3.6:
+    <<: *test-python-template
+    docker:
+      - image: circleci/python:3.6-browsers
+  test-python-3.7:
+    <<: *test-python-template
+    docker:
+      - image: circleci/python:3.7-browsers
