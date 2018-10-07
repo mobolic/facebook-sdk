@@ -16,7 +16,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: install dependencies
+          name: install virtualenv and dependencies
           command: |
             mkdir -p ~/venv
             if [ $(python -c "import platform; print(platform.python_version_tuple()[0])") == "2" ]; then
@@ -25,16 +25,19 @@ jobs:
               python -m venv ~/venv;
             fi;
             . ~/venv/bin/activate
-            pip install flake8 doc8 pygments
+            pip install pygments
             pip install .
       - run:
           name: run linting
           command: |
             . ~/venv/bin/activate
-            flake8 --ignore=E402,F401 examples
-            flake8 facebook
-            flake8 test
-            doc8 -q *.rst docs/*.rst
+            if [ $(python -c "import platform; print(platform.python_version()[:3])") == "3.7" ]; then
+              pip install black doc8;
+              black -l 79 --check examples;
+              black -l 79 --check facebook;
+              black -l 79 --check test;
+              doc8 -q *.rst docs/*.rst;
+            fi;
       - run:
           name: run automated tests
           command: |
