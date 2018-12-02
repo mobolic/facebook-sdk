@@ -39,13 +39,25 @@ jobs:
               doc8 -q *.rst docs/*.rst;
             fi;
       - run:
+          name: download CodeClimate test reporter utility
+          command: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+      - run:
           name: run automated tests
           command: |
             . ~/venv/bin/activate
+            ./cc-test-reporter before-build
             coverage run --include="facebook/*" test/test_facebook.py
+            coverage xml
+            ./cc-test-reporter format-coverage -t coverage.py -o "coverage/codeclimate.$CIRCLE_NODE_INDEX.json"
       - store_artifacts:
           path: test-reports
           destination: test-reports
+      - deploy:
+          name: upload test coverage reports to CodeClimate
+          command: |
+            ./cc-test-reporter sum-coverage -o - -p $CIRCLE_NODE_TOTAL coverage/codeclimate.*.json | ./cc-test-reporter upload-coverage --debug -i -
   test-python-3.4:
     <<: *test-python-template
     docker:
