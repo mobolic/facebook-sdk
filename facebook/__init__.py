@@ -86,6 +86,7 @@ class GraphAPI(object):
         version=None,
         proxies=None,
         session=None,
+        app_secret=None,
     ):
         # The default version is only used if the version kwarg does not exist.
         default_version = VALID_API_VERSIONS[0]
@@ -99,7 +100,9 @@ class GraphAPI(object):
         if app_secret and self.access_token:
             # Generates an app secret hmac based on
             # https://developers.facebook.com/docs/graph-api/securing-requests
-            self.app_secret_hmac = create_appsecret_proof(app_secret, access_token)
+            self.app_secret_hmac = create_appsecret_proof(
+                app_secret, access_token
+            )
 
         if version:
             version_regex = re.compile("^\d\.\d{1,2}$")
@@ -445,9 +448,11 @@ class GraphAPIError(Exception):
 
 def create_appsecret_proof(app_secret, access_token):
     """Create a signed appsecret."""
-    return hmac.new(app_secret.encode("ascii"),
-                    msg=access_token.encode("ascii"),
-                    digestmod=hashlib.sha256).hexdigest()
+    return hmac.new(
+        app_secret.encode("ascii"),
+        msg=access_token.encode("ascii"),
+        digestmod=hashlib.sha256,
+    ).hexdigest()
 
 
 def get_user_from_cookie(cookies, app_id, app_secret):

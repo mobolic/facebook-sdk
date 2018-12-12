@@ -404,13 +404,17 @@ class TestGetUserPermissions(FacebookTestCase):
 
 class AppSecretProofTestCase(FacebookTestCase):
 
-    PROOF = '4dad02ff1693df832f9c183fe400fc4f601360be06514acb4a73edb783eec345'  # noqa
-    ACCESS_TOKEN = 'abc123'
-    APP_SECRET='xyz789'
+    PROOF = (
+        "4dad02ff1693df832f9c183fe400fc4f601360be06514acb4a73edb783eec345"
+    )  # noqa
+    ACCESS_TOKEN = "abc123"
+    APP_SECRET = "xyz789"
 
     def test_appsecret_proof_set(self):
-        api = facebook.GraphAPI(access_token=self.ACCESS_TOKEN, app_secret=self.APP_SECRET)
-        self.assertEqual(api.app_secret_hmac, self.proof)
+        api = facebook.GraphAPI(
+            access_token=self.ACCESS_TOKEN, app_secret=self.APP_SECRET
+        )
+        self.assertEqual(api.app_secret_hmac, self.PROOF)
 
     def test_appsecret_proof_no_access_token(self):
         api = facebook.GraphAPI(app_secret=self.APP_SECRET)
@@ -420,62 +424,67 @@ class AppSecretProofTestCase(FacebookTestCase):
         api = facebook.GraphAPI(access_token=self.ACCESS_TOKEN)
         self.assertEqual(api.app_secret_hmac, None)
 
-    @mock.patch('requests.request')
+    @mock.patch("requests.request")
     def test_appsecret_proof_is_set_on_get_request(self, mock_request):
-        api = facebook.GraphAPI(access_token=self.ACCESS_TOKEN, app_secret=self.APP_SECRET)
+        api = facebook.GraphAPI(
+            access_token=self.ACCESS_TOKEN, app_secret=self.APP_SECRET
+        )
         mock_response = mock.Mock()
-        mock_response.headers = {'content-type': 'json'}
+        mock_response.headers = {"content-type": "json"}
         mock_response.json.return_value = {}
         mock_request.return_value = mock_response
         api.session.request = mock_request
-        api.request('some-path')
+        api.request("some-path")
         mock_request.assert_called_once_with(
-            'GET',
-            'https://graph.facebook.com/some-path',
+            "GET",
+            "https://graph.facebook.com/some-path",
             data=None,
             files=None,
-            params={'access_token': 'abc123',
-                    'appsecret_proof': self.proof},
+            params={"access_token": "abc123", "appsecret_proof": self.PROOF},
             proxies=None,
-            timeout=None)
+            timeout=None,
+        )
 
-    @mock.patch('requests.request')
+    @mock.patch("requests.request")
     def test_appsecret_proof_is_set_on_post_request(self, mock_request):
-        api = facebook.GraphAPI(access_token=self.ACCESS_TOKEN, app_secret=self.APP_SECRET)
+        api = facebook.GraphAPI(
+            access_token=self.ACCESS_TOKEN, app_secret=self.APP_SECRET
+        )
         mock_response = mock.Mock()
-        mock_response.headers = {'content-type': 'json'}
+        mock_response.headers = {"content-type": "json"}
         mock_response.json.return_value = {}
         mock_request.return_value = mock_response
         api.session.request = mock_request
-        api.request('some-path', method='POST')
+        api.request("some-path", method="POST")
         mock_request.assert_called_once_with(
-            'POST',
-            'https://graph.facebook.com/some-path',
+            "POST",
+            "https://graph.facebook.com/some-path",
             data=None,
             files=None,
-            params={'access_token': 'abc123',
-                    'appsecret_proof': self.proof},
+            params={"access_token": "abc123", "appsecret_proof": self.PROOF},
             proxies=None,
-            timeout=None)
+            timeout=None,
+        )
 
-    @mock.patch('requests.request')
+    @mock.patch("requests.request")
     def test_missing_appsecret_proof_is_not_set_on_request(self, mock_request):
         api = facebook.GraphAPI(access_token=self.ACCESS_TOKEN)
         mock_response = mock.Mock()
-        mock_response.headers = {'content-type': 'json'}
+        mock_response.headers = {"content-type": "json"}
         mock_response.json.return_value = {}
         mock_request.return_value = mock_response
         api.session.request = mock_request
-        api.request('some-path')
+        api.request("some-path")
         mock_request.assert_called_once_with(
-            'GET',
-            'https://graph.facebook.com/some-path',
+            "GET",
+            "https://graph.facebook.com/some-path",
             data=None,
             files=None,
-            params={'access_token': 'abc123'},
+            params={"access_token": "abc123"},
             proxies=None,
-            timeout=None)
+            timeout=None,
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
