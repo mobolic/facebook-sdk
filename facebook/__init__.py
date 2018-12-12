@@ -94,6 +94,12 @@ class GraphAPI(object):
         self.timeout = timeout
         self.proxies = proxies
         self.session = session or requests.Session()
+        self.app_secret_hmac = None
+
+        if app_secret and self.access_token:
+            # Generates an app secret hmac based on
+            # https://developers.facebook.com/docs/graph-api/securing-requests
+            self.app_secret_hmac = create_appsecret_proof(app_secret, access_token)
 
         if version:
             version_regex = re.compile("^\d\.\d{1,2}$")
@@ -274,6 +280,12 @@ class GraphAPI(object):
             elif "access_token" not in args:
                 args["access_token"] = self.access_token
 
+        if self.app_secret_hmac:
+            if post_args is not None:
+                post_args["appsecret_proof"] = self.app_secret_hmac
+            else:
+                args["appsecret_proof"] = self.app_secret_hmac
+
         try:
             response = self.session.request(
                 method or "GET",
@@ -429,6 +441,13 @@ class GraphAPIError(Exception):
                     self.message = result
 
         Exception.__init__(self, self.message)
+
+
+def create_appsecret_proof(app_secret, access_token):
+    """Create a signed appsecret."""
+    return hmac.new(app_secret.encode("ascii"),
+                    msg=access_token.encode("ascii"),
+                    digestmod=hashlib.sha256).hexdigest()
 
 
 def get_user_from_cookie(cookies, app_id, app_secret):
