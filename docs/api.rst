@@ -172,10 +172,11 @@ Returns all connections for a given object as a ``dict``.
   ``get_connections`` will simply return the authenticated user's basic
   information.
 * ``fields`` – A ``string`` or group of (comma separated) ``strings``. Accepts one 
-    or more fields of the edge specified in connection_name, or one or more 
-    fields/edges of the node connected to the given object_id by said edge. 
-    This parameter allows for nested queries to the GraphAPI, supported by the 
-    field expansion feature. See the GraphAPI docs for syntax and further examples.
+  or more fields of the edge specified in connection_name, or one or more 
+  fields/edges of the node connected to the given object_id by said edge. 
+  This parameter allows for nested queries to the GraphAPI, supported by the 
+  field expansion feature. See the GraphAPI docs for syntax and further examples at
+  https://developers.facebook.com/docs/graph-api/using-graph-api/
 
 **Examples**
 
