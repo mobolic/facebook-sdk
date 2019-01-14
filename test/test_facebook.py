@@ -51,9 +51,7 @@ class FacebookTestCase(unittest.TestCase):
 
     def tearDown(self):
         """Deletes the test users included in the test user list."""
-        token = facebook.GraphAPI().get_app_access_token(
-            self.app_id, self.secret, True
-        )
+        token = facebook.GraphAPI().get_app_access_token(self.app_id, self.secret, True)
         graph = facebook.GraphAPI(token)
 
         for user in self.test_users:
@@ -61,12 +59,7 @@ class FacebookTestCase(unittest.TestCase):
         del self.test_users[:]
 
     def assert_raises_multi_regex(
-        self,
-        expected_exception,
-        expected_regexp,
-        callable_obj=None,
-        *args,
-        **kwargs
+        self, expected_exception, expected_regexp, callable_obj=None, *args, **kwargs
     ):
         """
         Custom function to backport assertRaisesRegexp to all supported
@@ -82,9 +75,7 @@ class FacebookTestCase(unittest.TestCase):
     def create_test_users(self, app_id, graph, amount):
         """Function for creating test users."""
         for i in range(amount):
-            u = graph.request(
-                app_id + "/accounts/test-users", {}, {}, method="POST"
-            )
+            u = graph.request(app_id + "/accounts/test-users", {}, {}, method="POST")
             self.test_users.append(u)
 
     def create_friend_connections(self, user, friends):
@@ -149,9 +140,7 @@ class TestAPIVersion(FacebookTestCase):
     def test_no_version(self):
         graph = facebook.GraphAPI()
         self.assertNotEqual(graph.version, None, "Version should not be None.")
-        self.assertNotEqual(
-            graph.version, "", "Version should not be an empty string."
-        )
+        self.assertNotEqual(graph.version, "", "Version should not be an empty string.")
 
     def test_valid_versions(self):
         for version in facebook.VALID_API_VERSIONS:
@@ -159,23 +148,13 @@ class TestAPIVersion(FacebookTestCase):
             self.assertEqual(str(graph.get_version()), version)
 
     def test_invalid_version(self):
-        self.assertRaises(
-            facebook.GraphAPIError, facebook.GraphAPI, version=1.2
-        )
+        self.assertRaises(facebook.GraphAPIError, facebook.GraphAPI, version=1.2)
 
     def test_invalid_format(self):
-        self.assertRaises(
-            facebook.GraphAPIError, facebook.GraphAPI, version="2.a"
-        )
-        self.assertRaises(
-            facebook.GraphAPIError, facebook.GraphAPI, version="a.1"
-        )
-        self.assertRaises(
-            facebook.GraphAPIError, facebook.GraphAPI, version=2.23
-        )
-        self.assertRaises(
-            facebook.GraphAPIError, facebook.GraphAPI, version="2.23"
-        )
+        self.assertRaises(facebook.GraphAPIError, facebook.GraphAPI, version="2.a")
+        self.assertRaises(facebook.GraphAPIError, facebook.GraphAPI, version="a.1")
+        self.assertRaises(facebook.GraphAPIError, facebook.GraphAPI, version=2.23)
+        self.assertRaises(facebook.GraphAPIError, facebook.GraphAPI, version="2.23")
 
 
 class TestAuthURL(FacebookTestCase):
@@ -186,9 +165,7 @@ class TestAuthURL(FacebookTestCase):
 
         encoded_args = urlencode(
             dict(
-                client_id=self.app_id,
-                redirect_uri=redirect_url,
-                scope=",".join(perms),
+                client_id=self.app_id, redirect_uri=redirect_url, scope=",".join(perms)
             )
         )
         expected_url = "{0}{1}/{2}{3}".format(
@@ -227,9 +204,7 @@ class TestAccessToken(FacebookTestCase):
         try:
             facebook.GraphAPI().extend_access_token(self.app_id, self.secret)
         except facebook.GraphAPIError as e:
-            self.assertEqual(
-                e.message, "fb_exchange_token parameter not specified"
-            )
+            self.assertEqual(e.message, "fb_exchange_token parameter not specified")
 
     def test_bogus_access_token(self):
         graph = facebook.GraphAPI(access_token="wrong_token")
@@ -298,38 +273,28 @@ class TestSearchMethod(FacebookTestCase):
     def test_invalid_search_type(self):
         """Verify that search method fails when an invalid type is passed."""
         search_args = {"type": "foo", "q": "bar"}
-        self.assertRaises(
-            facebook.GraphAPIError, self.graph.search, search_args
-        )
+        self.assertRaises(facebook.GraphAPIError, self.graph.search, search_args)
 
 
 class TestGetAllConnectionsMethod(FacebookTestCase):
     def test_function_with_zero_connections(self):
-        token = facebook.GraphAPI().get_app_access_token(
-            self.app_id, self.secret, True
-        )
+        token = facebook.GraphAPI().get_app_access_token(self.app_id, self.secret, True)
         graph = facebook.GraphAPI(token)
 
         self.create_test_users(self.app_id, graph, 1)
-        friends = graph.get_all_connections(
-            self.test_users[0]["id"], "friends"
-        )
+        friends = graph.get_all_connections(self.test_users[0]["id"], "friends")
 
         self.assertTrue(inspect.isgenerator(friends))
         self.assertTrue(len(list(friends)) == 0)
 
     def test_function_returns_correct_connections(self):
-        token = facebook.GraphAPI().get_app_access_token(
-            self.app_id, self.secret, True
-        )
+        token = facebook.GraphAPI().get_app_access_token(self.app_id, self.secret, True)
         graph = facebook.GraphAPI(token)
 
         self.create_test_users(self.app_id, graph, 3)
         self.create_friend_connections(self.test_users[0], self.test_users)
 
-        friends = graph.get_all_connections(
-            self.test_users[0]["id"], "friends"
-        )
+        friends = graph.get_all_connections(self.test_users[0]["id"], "friends")
         self.assertTrue(inspect.isgenerator(friends))
 
         friends_list = list(friends)
@@ -346,9 +311,7 @@ class TestAPIRequest(FacebookTestCase):
         Test if request() works using default value of "args"
         """
         FB_OBJECT_ID = "1846089248954071_1870020306560965"
-        token = facebook.GraphAPI().get_app_access_token(
-            self.app_id, self.secret, True
-        )
+        token = facebook.GraphAPI().get_app_access_token(self.app_id, self.secret, True)
         graph = facebook.GraphAPI(access_token=token)
 
         result = graph.request(FB_OBJECT_ID)
@@ -383,9 +346,7 @@ class TestGetUserPermissions(FacebookTestCase):
     """
 
     def test_get_user_permissions_node(self):
-        token = facebook.GraphAPI().get_app_access_token(
-            self.app_id, self.secret, True
-        )
+        token = facebook.GraphAPI().get_app_access_token(self.app_id, self.secret, True)
         graph = facebook.GraphAPI(access_token=token)
         self.create_test_users(self.app_id, graph, 1)
         permissions = graph.get_permissions(self.test_users[0]["id"])
@@ -395,37 +356,58 @@ class TestGetUserPermissions(FacebookTestCase):
         self.assertFalse("email" in permissions)
 
     def test_get_user_permissions_nonexistant_user(self):
-        token = facebook.GraphAPI().get_app_access_token(
-            self.app_id, self.secret, True
-        )
+        token = facebook.GraphAPI().get_app_access_token(self.app_id, self.secret, True)
         with self.assertRaises(facebook.GraphAPIError):
             facebook.GraphAPI(token).get_permissions(1)
 
 
 class AppSecretProofTestCase(FacebookTestCase):
+    """
+    Add an appsecret proof to the request to facebook.
 
-    PROOF = (
-        "4dad02ff1693df832f9c183fe400fc4f601360be06514acb4a73edb783eec345"
-    )  # noqa
+    The appsecret proof will be added to requests when the API
+    is initialized with the access token and the api secret key.
+
+    When the secret is not given the appsecret proof will be omitted.
+    """
+
+    PROOF = "4dad02ff1693df832f9c183fe400fc4f601360be06514acb4a73edb783eec345"
+
     ACCESS_TOKEN = "abc123"
     APP_SECRET = "xyz789"
 
     def test_appsecret_proof_set(self):
+        """
+        When the API is initialized with an APP_SECRET and ACCESS_TOKEN
+        set the app_secret_hmac attribute on the API.
+        """
         api = facebook.GraphAPI(
             access_token=self.ACCESS_TOKEN, app_secret=self.APP_SECRET
         )
         self.assertEqual(api.app_secret_hmac, self.PROOF)
 
     def test_appsecret_proof_no_access_token(self):
+        """
+        When the API is initialized with an APP_SECRET and no ACCESS_TOKEN
+        do not set the app_secret_hmac attribute on the API.
+        """
         api = facebook.GraphAPI(app_secret=self.APP_SECRET)
         self.assertEqual(api.app_secret_hmac, None)
 
     def test_appsecret_proof_no_app_secret(self):
+        """
+        When the API is initialized with no APP_SECRET and an ACCESS_TOKEN
+        do not set the app_secret_hmac attribute on the API.
+        """
         api = facebook.GraphAPI(access_token=self.ACCESS_TOKEN)
         self.assertEqual(api.app_secret_hmac, None)
 
     @mock.patch("requests.request")
     def test_appsecret_proof_is_set_on_get_request(self, mock_request):
+        """
+        Always send an appsecret_proof when the API is initialized with
+        an APP_SECRET and ACCESS_TOKEN for GET requests.
+        """
         api = facebook.GraphAPI(
             access_token=self.ACCESS_TOKEN, app_secret=self.APP_SECRET
         )
@@ -447,6 +429,10 @@ class AppSecretProofTestCase(FacebookTestCase):
 
     @mock.patch("requests.request")
     def test_appsecret_proof_is_set_on_post_request(self, mock_request):
+        """
+        Always send an appsecret_proof when the API is initialized with
+        an APP_SECRET and ACCESS_TOKEN for POST requests.
+        """
         api = facebook.GraphAPI(
             access_token=self.ACCESS_TOKEN, app_secret=self.APP_SECRET
         )
@@ -468,6 +454,9 @@ class AppSecretProofTestCase(FacebookTestCase):
 
     @mock.patch("requests.request")
     def test_missing_appsecret_proof_is_not_set_on_request(self, mock_request):
+        """
+        If no APP_SECRET was given do not send an appsecret_proof.
+        """
         api = facebook.GraphAPI(access_token=self.ACCESS_TOKEN)
         mock_response = mock.Mock()
         mock_response.headers = {"content-type": "json"}
