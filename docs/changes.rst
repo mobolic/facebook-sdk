@@ -4,6 +4,7 @@ Changelog
 
 Version 3.2.0 (unreleased)
 ==========================
+- Add support for Graph API version 3.2.
 
 Version 3.1.0 (2018-11-06)
 ==========================
