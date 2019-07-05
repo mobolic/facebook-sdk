@@ -5,6 +5,7 @@ Changelog
 Version 3.2.0 (unreleased)
 ==========================
 - Add support for Graph API versions 3.2 and 3.3.
+- Change default Graph API version to 2.9.
 
 Version 3.1.0 (2018-11-06)
 ==========================
