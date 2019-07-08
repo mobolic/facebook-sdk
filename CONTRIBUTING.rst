@@ -12,14 +12,13 @@ an unrelated area of the code).
 Code Style
 ----------
 
-Code *must* be compliant with `PEP 8`_. Use the latest version of `pep8`_ or
-`flake8`_ to catch issues.
+Code *must* be compliant with `PEP 8`_. Use the latest version of `black`_
+to catch formatting issues.
 
 Git commit messages should include `a summary and proper line wrapping`_.
 
 .. _PEP 8: https://www.python.org/dev/peps/pep-0008/
-.. _pep8: https://pypi.python.org/pypi/pep8
-.. _flake8: https://pypi.python.org/pypi/flake8
+.. _black: https://pypi.org/project/black/
 .. _a summary and proper line wrapping: http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
 
 Update Tests and Documentation

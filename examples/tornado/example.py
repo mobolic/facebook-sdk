@@ -40,36 +40,47 @@ define("mysql_password", help="MySQL database password")
 
 class BaseHandler(tornado.web.RequestHandler):
     """Implements authentication via the Facebook JavaScript SDK cookie."""
+
     def get_current_user(self):
         cookies = dict((n, self.cookies[n].value) for n in self.cookies.keys())
         cookie = facebook.get_user_from_cookie(
-            cookies, options.facebook_app_id, options.facebook_app_secret)
+            cookies, options.facebook_app_id, options.facebook_app_secret
+        )
         if not cookie:
             return None
-        user = self.db.get(
-            "SELECT * FROM users WHERE id = %s", cookie["uid"])
+        user = self.db.get("SELECT * FROM users WHERE id = %s", cookie["uid"])
         if not user:
             # TODO: Make this fetch async rather than blocking
             graph = facebook.GraphAPI(cookie["access_token"])
             profile = graph.get_object("me")
             self.db.execute(
                 "REPLACE INTO users (id, name, profile_url, access_token) "
-                "VALUES (%s,%s,%s,%s)", profile["id"], profile["name"],
-                profile["link"], cookie["access_token"])
+                "VALUES (%s,%s,%s,%s)",
+                profile["id"],
+                profile["name"],
+                profile["link"],
+                cookie["access_token"],
+            )
             user = self.db.get(
-                "SELECT * FROM users WHERE id = %s", profile["id"])
+                "SELECT * FROM users WHERE id = %s", profile["id"]
+            )
         elif user.access_token != cookie["access_token"]:
             self.db.execute(
                 "UPDATE users SET access_token = %s WHERE id = %s",
-                cookie["access_token"], user.id)
+                cookie["access_token"],
+                user.id,
+            )
         return user
 
     @property
     def db(self):
         if not hasattr(BaseHandler, "_db"):
             BaseHandler._db = tornado.database.Connection(
-                host=options.mysql_host, database=options.mysql_database,
-                user=options.mysql_user, password=options.mysql_password)
+                host=options.mysql_host,
+                database=options.mysql_database,
+                user=options.mysql_user,
+                password=options.mysql_password,
+            )
         return BaseHandler._db
 
 
@@ -80,9 +91,9 @@ class MainHandler(BaseHandler):
 
 def main():
     tornado.options.parse_command_line()
-    http_server = tornado.httpserver.HTTPServer(tornado.web.Application([
-        (r"/", MainHandler),
-    ]))
+    http_server = tornado.httpserver.HTTPServer(
+        tornado.web.Application([(r"/", MainHandler)])
+    )
     http_server.listen(options.port)
     tornado.ioloop.IOLoop.instance().start()
 

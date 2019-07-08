@@ -16,7 +16,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: install dependencies
+          name: install virtualenv and dependencies
           command: |
             mkdir -p ~/venv
             if [ $(python -c "import platform; print(platform.python_version_tuple()[0])") == "2" ]; then
@@ -25,24 +25,39 @@ jobs:
               python -m venv ~/venv;
             fi;
             . ~/venv/bin/activate
-            pip install flake8 doc8 pygments
-            pip install .
+            pip install coverage pygments
+            pip install -e .
       - run:
           name: run linting
           command: |
             . ~/venv/bin/activate
-            flake8 --ignore=E402,F401 examples
-            flake8 facebook
-            flake8 test
-            doc8 -q *.rst docs/*.rst
+            if [ $(python -c "import platform; print(platform.python_version()[:3])") == "3.7" ]; then
+              pip install black doc8;
+              black -l 79 --check examples;
+              black -l 79 --check facebook;
+              black -l 79 --check test;
+              doc8 -q *.rst docs/*.rst;
+            fi;
+      - run:
+          name: download CodeClimate test reporter utility
+          command: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
       - run:
           name: run automated tests
           command: |
             . ~/venv/bin/activate
-            python -m test.test_facebook
+            ./cc-test-reporter before-build
+            coverage run --include="facebook/*" test/test_facebook.py
+            coverage xml
+            ./cc-test-reporter format-coverage -t coverage.py -o "coverage/codeclimate.$CIRCLE_NODE_INDEX.json"
       - store_artifacts:
           path: test-reports
           destination: test-reports
+      - deploy:
+          name: upload test coverage reports to CodeClimate
+          command: |
+            ./cc-test-reporter sum-coverage -o - -p $CIRCLE_NODE_TOTAL coverage/codeclimate.*.json | ./cc-test-reporter upload-coverage --debug -i -
   test-python-3.4:
     <<: *test-python-template
     docker:
