@@ -28,6 +28,13 @@ jobs:
             pip install coverage pygments
             pip install -e .
       - run:
+          name: install mock if running Python 2
+          command: |
+            . ~/venv/bin/activate
+            if [ $(python -c "import platform; print(platform.python_version_tuple()[0])") == "2" ]; then
+              pip install mock
+            fi;
+      - run:
           name: run linting
           command: |
             . ~/venv/bin/activate

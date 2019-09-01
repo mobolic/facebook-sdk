@@ -7,6 +7,8 @@ Version 3.2.0 (unreleased)
 - Add support for Graph API versions 3.2 and 3.3.
 - Remove support for Graph API versions 2.8 and 2.9.
 - Change default Graph API version to 2.10.
+- Add support for securing Graph API Calls with a proof based on the
+  application secret (#454).
 
 Version 3.1.0 (2018-11-06)
 ==========================

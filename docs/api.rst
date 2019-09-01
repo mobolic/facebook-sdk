@@ -30,12 +30,18 @@ You can read more about `Facebook's Graph API here`_.
 * ``proxies`` - A ``dict`` with proxy-settings that Requests should use.
   `See Requests documentation`_.
 * ``session`` - A `Requests Session object`_.
+* ``app_secret`` - A ``string`` containing the secret key of your
+  app. If both ``access_token`` and ``app_secret`` are present this will be
+  used to compute an `application secret proof`_ that will be sent on every
+  API request.
+
 
 .. _Read more about access tokens here: https://developers.facebook.com/docs/facebook-login/access-tokens
 .. _See more here: http://docs.python-requests.org/en/latest/user/quickstart/#timeouts
 .. _version of Facebook's Graph API to use: https://developers.facebook.com/docs/apps/changelog#versions
 .. _See Requests documentation: http://www.python-requests.org/en/latest/user/advanced/#proxies
 .. _Requests Session object: http://docs.python-requests.org/en/master/user/advanced/#session-objects
+.. _application secret proof: https://developers.facebook.com/docs/graph-api/securing-requests
 
 **Example**
 
