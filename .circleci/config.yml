@@ -55,7 +55,7 @@ jobs:
           command: |
             . ~/venv/bin/activate
             ./cc-test-reporter before-build
-            coverage run --include="facebook/*" test/test_facebook.py
+            coverage run --source="facebook" -m unittest discover
             coverage xml
             ./cc-test-reporter format-coverage -t coverage.py -o "coverage/codeclimate.$CIRCLE_NODE_INDEX.json"
       - store_artifacts:
