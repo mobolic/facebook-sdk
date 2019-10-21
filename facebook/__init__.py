@@ -429,6 +429,8 @@ class GraphAPIError(Exception):
     def __init__(self, result):
         self.result = result
         self.code = None
+        self.error_subcode = None
+
         try:
             self.type = result["error_code"]
         except (KeyError, TypeError):
@@ -442,6 +444,7 @@ class GraphAPIError(Exception):
             try:
                 self.message = result["error"]["message"]
                 self.code = result["error"].get("code")
+                self.error_subcode = result["error"].get("error_subcode")
                 if not self.type:
                     self.type = result["error"].get("type", "")
             except (KeyError, TypeError):
