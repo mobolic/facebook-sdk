@@ -45,6 +45,53 @@ VALID_API_VERSIONS = ["3.1", "3.2", "3.3", "4.0", "5.0", "6.0", "7.0"]
 VALID_SEARCH_TYPES = ["place", "placetopic"]
 
 
+class LoggingVerbosity:
+    """
+    In increasing order of verbosity.
+    """
+
+    NONE = 0
+    ON_EXCEPTION_ONLY = 1
+    BASIC_REQUEST_INFO = 2
+
+
+class GraphAPILogger(object):
+    def __init__(self, logger, verbosity):
+        self.logger = logger
+        self.verbosity = verbosity
+
+    def log_request(self, method, url, args, post_args):
+        if (
+            self.logger
+            and self.verbosity >= LoggingVerbosity.BASIC_REQUEST_INFO
+        ):
+            self.logger.info("Request method: {}".format(method))
+            self.logger.info("Request URL: {}".format(url))
+            self.logger.info("Request Args: {}".format(str(args)))
+            self.logger.info("Request Post Args: {}".format(str(post_args)))
+
+    def log_response(self, response):
+        if (
+            self.logger
+            and self.verbosity >= LoggingVerbosity.BASIC_REQUEST_INFO
+        ):
+            self.logger.info("Response URL: {}".format(response.url))
+            self.logger.info("Response Headers: {}".format(response.headers))
+
+    def log_error(self, err):
+        if (
+            self.logger
+            and self.verbosity >= LoggingVerbosity.ON_EXCEPTION_ONLY
+        ):
+            self.logger.info("GraphAPIError code: {}".format(err.code))
+            self.logger.info(
+                "GraphAPIError error_subcode: {}".format(err.error_subcode)
+            )
+            self.logger.info("GraphAPIError headers: {}".format(err.headers))
+            self.logger.info("GraphAPIError method: {}".format(err.method))
+            self.logger.info("GraphAPIError url: {}".format(err.url))
+
+
 class GraphAPI(object):
     """A client for the Facebook Graph API.
 
@@ -82,6 +129,8 @@ class GraphAPI(object):
         proxies=None,
         session=None,
         app_secret=None,
+        logger=None,  # expected to contain logging level's debug() and error()
+        verbosity=LoggingVerbosity.ON_EXCEPTION_ONLY,
     ):
         # The default version is only used if the version kwarg does not exist.
         default_version = VALID_API_VERSIONS[0]
@@ -91,6 +140,8 @@ class GraphAPI(object):
         self.proxies = proxies
         self.session = session or requests.Session()
         self.app_secret_hmac = None
+
+        self.logger = GraphAPILogger(logger, verbosity)
 
         if version:
             version_regex = re.compile(r"^\d\.\d{1,2}$")
@@ -284,18 +335,30 @@ class GraphAPI(object):
             _add_to_post_args_or_args("appsecret_proof", self.app_secret_hmac)
 
         try:
+            method = method or "GET"
+            url = FACEBOOK_GRAPH_URL + path
+            self.logger.log_request(method, url, args, post_args)
             response = self.session.request(
-                method or "GET",
-                FACEBOOK_GRAPH_URL + path,
+                method,
+                url,
                 timeout=self.timeout,
                 params=args,
                 data=post_args,
                 proxies=self.proxies,
                 files=files,
             )
+            self.logger.log_response(response)
+
         except requests.HTTPError as e:
             response = json.loads(e.read())
-            raise GraphAPIError(response)
+            err = GraphAPIError(
+                response,
+                headers=response.headers,
+                method=method,
+                url=response.url,
+            )
+            self.logger.log_error(err)
+            raise err
 
         headers = response.headers
         if "json" in headers["content-type"]:
@@ -319,7 +382,14 @@ class GraphAPI(object):
             raise GraphAPIError("Maintype was not text, image, or querystring")
 
         if result and isinstance(result, dict) and result.get("error"):
-            raise GraphAPIError(result)
+            err = GraphAPIError(
+                result,
+                headers=response.headers,
+                method=method,
+                url=response.url,
+            )
+            self.logger.log_error(err)
+            raise err
         return result
 
     def get_app_access_token(self, app_id, app_secret, offline=False):
@@ -412,10 +482,13 @@ class GraphAPI(object):
 
 
 class GraphAPIError(Exception):
-    def __init__(self, result):
+    def __init__(self, result, headers=None, method=None, url=None):
         self.result = result
         self.code = None
         self.error_subcode = None
+        self.headers = headers
+        self.method = method
+        self.url = url
 
         try:
             self.type = result["error_code"]
