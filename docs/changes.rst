@@ -2,8 +2,10 @@
 Changelog
 =========
 
-Version 3.2.0 (unreleased)
+Version 4.0.0 (unreleased)
 ==========================
+- Add support for Python 3.8.
+- Remove support for Python 2.7 and 3.4.
 - Add support for Graph API versions 3.2, 3.3, 4.0, 5.0, and 6.0.
 - Remove support for Graph API versions 2.8, 2.9, 2.10, and 2.11.
 - Change default Graph API version to 2.10.

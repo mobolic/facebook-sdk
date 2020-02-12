@@ -3,15 +3,14 @@ workflows:
   version: 2
   build:
     jobs:
-      - test-python-2.7
-      - test-python-3.4
       - test-python-3.5
       - test-python-3.6
       - test-python-3.7
+      - test-python-3.8
 jobs:
-  test-python-2.7:  &test-python-template
+  test-python-3.5:  &test-python-template
     docker:
-      - image: circleci/python:2.7-browsers
+      - image: circleci/python:3.5-browsers
     working_directory: ~/facebook-sdk
     steps:
       - checkout
@@ -19,26 +18,15 @@ jobs:
           name: install virtualenv and dependencies
           command: |
             mkdir -p ~/venv
-            if [ $(python -c "import platform; print(platform.python_version_tuple()[0])") == "2" ]; then
-              virtualenv ~/venv;
-            else
-              python -m venv ~/venv;
-            fi;
+            python -m venv ~/venv;
             . ~/venv/bin/activate
             pip install coverage pygments
             pip install -e .
       - run:
-          name: install mock if running Python 2
-          command: |
-            . ~/venv/bin/activate
-            if [ $(python -c "import platform; print(platform.python_version_tuple()[0])") == "2" ]; then
-              pip install mock
-            fi;
-      - run:
           name: run linting
           command: |
             . ~/venv/bin/activate
-            if [ $(python -c "import platform; print(platform.python_version()[:3])") == "3.7" ]; then
+            if [ $(python -c "import platform; print(platform.python_version()[:3])") == "3.8" ]; then
               pip install black doc8;
               black -l 79 --check examples;
               black -l 79 --check facebook;
@@ -65,14 +53,6 @@ jobs:
           name: upload test coverage reports to CodeClimate
           command: |
             ./cc-test-reporter sum-coverage -o - -p $CIRCLE_NODE_TOTAL coverage/codeclimate.*.json | ./cc-test-reporter upload-coverage --debug -i -
-  test-python-3.4:
-    <<: *test-python-template
-    docker:
-      - image: circleci/python:3.4-browsers
-  test-python-3.5:
-    <<: *test-python-template
-    docker:
-      - image: circleci/python:3.5-browsers
   test-python-3.6:
     <<: *test-python-template
     docker:
@@ -81,3 +61,7 @@ jobs:
     <<: *test-python-template
     docker:
       - image: circleci/python:3.7-browsers
+  test-python-3.8:
+    <<: *test-python-template
+    docker:
+      - image: circleci/python:3.8-browsers
