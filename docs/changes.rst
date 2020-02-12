@@ -4,7 +4,7 @@ Changelog
 
 Version 3.2.0 (unreleased)
 ==========================
-- Add support for Graph API versions 3.2, 3.3, 4.0, and 5.0.
+- Add support for Graph API versions 3.2, 3.3, 4.0, 5.0, and 6.0.
 - Remove support for Graph API versions 2.8, 2.9, 2.10, and 2.11.
 - Change default Graph API version to 2.10.
 - Add support for securing Graph API Calls with a proof based on the
