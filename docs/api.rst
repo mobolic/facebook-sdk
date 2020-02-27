@@ -328,7 +328,7 @@ Returns a Facebook login URL used to request an access token and permissions.
 
 **Parameters**
 
-* ``app_id`` - A ``string`` containing a Facebook appplication ID.
+* ``app_id`` - A ``string`` containing a Facebook application ID.
 * ``canvas_url`` - A ``string`` containing the URL where Facebook should
   redirect after successful authentication.
 * ``perms`` - An optional ``list`` of requested Facebook permissions.
