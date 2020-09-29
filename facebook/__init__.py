@@ -31,7 +31,11 @@ import base64
 import requests
 import json
 import re
-from urllib.parse import parse_qs, urlencode, urlparse
+try:
+    from urllib.parse import parse_qs, urlencode, urlparse
+except ImportError:
+    from urlparse import parse_qs, urlparse
+    from urllib import urlencode
 
 from . import version
 
