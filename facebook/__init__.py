@@ -476,7 +476,7 @@ def get_user_from_cookie(cookies, app_id, app_secret):
 
 
 def parse_signed_request(signed_request, app_secret):
-    """ Return dictionary with signed request data.
+    """Return dictionary with signed request data.
 
     We return a dictionary containing the information in the
     signed_request. This includes a user_id if the user has authorised
