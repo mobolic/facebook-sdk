@@ -343,6 +343,24 @@ class GraphAPI(object):
                 "{0}/oauth/access_token".format(self.version), args=args
             )["access_token"]
 
+    def create_test_user(self, app_id, app_access_token, **kwargs):
+        """Creates test user for the app."""
+        args = {'access_token': app_access_token, 'method': 'post'}
+        args.update(kwargs)
+        return self.request(app_id + "/accounts/test-users", args=args)
+
+    def get_test_users(self, app_id, app_access_token, **kwargs):
+        """Get all test users created for the app."""
+        args = {'access_token': app_access_token}
+        args.update(kwargs)
+        return self.request(app_id + "/accounts/test-users", args=args)
+
+    def edit_test_user(self, user_id, app_access_token, **kwargs):
+        """Changed given test user's name or password."""
+        args = {'access_token': app_access_token, 'method': 'post'}
+        args.update(kwargs)
+        return self.request(user_id, args=args)
+
     def get_access_token_from_code(
         self, code, redirect_uri, app_id, app_secret
     ):
