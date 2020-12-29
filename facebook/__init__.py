@@ -289,7 +289,7 @@ class GraphAPI(object):
                 FACEBOOK_GRAPH_URL + path,
                 timeout=self.timeout,
                 params=args,
-                data=post_args,
+                json=post_args,
                 proxies=self.proxies,
                 files=files,
             )
