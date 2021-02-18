@@ -10,16 +10,22 @@ FB_APP_NAME = ""
 FB_APP_SECRET = ""
 
 
+@app.context_processor
+def inject_facebook_vars():
+    return dict(app_id=FB_APP_ID,
+                name=FB_APP_NAME)
+
+
 @app.route("/")
 def index():
     # If a user was set in the get_current_user function before the request,
     # the user is logged in.
     if g.user:
         return render_template(
-            "index.html", app_id=FB_APP_ID, app_name=FB_APP_NAME, user=g.user
-        )
+            "index.html", user=g.user)
+
     # Otherwise, a user is not logged in.
-    return render_template("login.html", app_id=FB_APP_ID, name=FB_APP_NAME)
+    return render_template("login.html")
 
 
 @app.route("/logout")
@@ -55,8 +61,7 @@ def get_current_user():
 
     # Attempt to get the short term access token for the current user.
     result = get_user_from_cookie(
-        cookies=request.cookies, app_id=FB_APP_ID, app_secret=FB_APP_SECRET
-    )
+        cookies=request.cookies,app_secret=FB_APP_SECRET)
 
     # If there is no result, we assume the user is not logged in.
     if result:
