@@ -61,9 +61,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 profile["link"],
                 cookie["access_token"],
             )
-            user = self.db.get(
-                "SELECT * FROM users WHERE id = %s", profile["id"]
-            )
+            user = self.db.get("SELECT * FROM users WHERE id = %s", profile["id"])
         elif user.access_token != cookie["access_token"]:
             self.db.execute(
                 "UPDATE users SET access_token = %s WHERE id = %s",

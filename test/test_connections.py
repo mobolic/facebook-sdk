@@ -6,15 +6,11 @@ from . import FacebookTestCase
 
 class FacebookAllConnectionsMethodTestCase(FacebookTestCase):
     def test_function_with_zero_connections(self):
-        token = facebook.GraphAPI().get_app_access_token(
-            self.app_id, self.secret, True
-        )
+        token = facebook.GraphAPI().get_app_access_token(self.app_id, self.secret, True)
         graph = facebook.GraphAPI(token)
 
         self.create_test_users(self.app_id, graph, 1)
-        friends = graph.get_all_connections(
-            self.test_users[0]["id"], "friends"
-        )
+        friends = graph.get_all_connections(self.test_users[0]["id"], "friends")
 
         self.assertTrue(inspect.isgenerator(friends))
         self.assertTrue(len(list(friends)) == 0)

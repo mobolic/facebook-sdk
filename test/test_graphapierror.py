@@ -17,8 +17,7 @@ class FacebookTestCase(unittest.TestCase):
         """Verify that error subcode is set properly."""
         # Generate random string.
         error_subcode = "".join(
-            random.choice(string.ascii_letters + string.digits)
-            for _ in range(10)
+            random.choice(string.ascii_letters + string.digits) for _ in range(10)
         )
         result = {
             "error": {
