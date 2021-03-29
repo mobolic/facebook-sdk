@@ -299,7 +299,10 @@ class GraphAPI(object):
 
         headers = response.headers
         if "json" in headers["content-type"]:
-            result = response.json()
+            try:
+                result = response.json()
+            except json.JSONDecodeError:
+                result = response
         elif "image/" in headers["content-type"]:
             mimetype = headers["content-type"]
             result = {
