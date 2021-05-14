@@ -45,7 +45,7 @@ __version__ = version.__version__
 FACEBOOK_GRAPH_URL = "https://graph.facebook.com/"
 FACEBOOK_WWW_URL = "https://www.facebook.com/"
 FACEBOOK_OAUTH_DIALOG_PATH = "dialog/oauth?"
-VALID_API_VERSIONS = ["3.1", "3.2", "3.3", "4.0", "5.0", "6.0", "7.0", "8.0", "9.0"]
+VALID_API_VERSIONS = ["3.1", "3.2", "3.3", "4.0", "5.0", "6.0", "7.0", "8.0", "9.0", "10.0"]
 VALID_SEARCH_TYPES = ["place", "placetopic"]
 
 
@@ -97,7 +97,7 @@ class GraphAPI(object):
         self.app_secret_hmac = None
 
         if version:
-            version_regex = re.compile(r"^\d\.\d{1,2}$")
+            version_regex = re.compile(r"^\d{1,2}\.\d{1,2}$")
             match = version_regex.search(str(version))
             if match is not None:
                 if str(version) not in VALID_API_VERSIONS:
