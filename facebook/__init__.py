@@ -84,7 +84,7 @@ class GraphAPI(object):
         app_secret=None,
     ):
         # The default version is only used if the version kwarg does not exist.
-        default_version = VALID_API_VERSIONS[8]
+        default_version = VALID_API_VERSIONS[0]
 
         self.access_token = access_token
         self.timeout = timeout
