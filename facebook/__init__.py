@@ -41,7 +41,7 @@ __version__ = version.__version__
 FACEBOOK_GRAPH_URL = "https://graph.facebook.com/"
 FACEBOOK_WWW_URL = "https://www.facebook.com/"
 FACEBOOK_OAUTH_DIALOG_PATH = "dialog/oauth?"
-VALID_API_VERSIONS = ["3.1", "3.2", "3.3", "4.0", "5.0", "6.0", "7.0", "8.0"]
+VALID_API_VERSIONS = ["3.1", "3.2", "3.3", "4.0", "5.0", "6.0", "7.0", "8.0", "9.0"]
 VALID_SEARCH_TYPES = ["place", "placetopic"]
 
 
@@ -98,8 +98,7 @@ class GraphAPI(object):
             if match is not None:
                 if str(version) not in VALID_API_VERSIONS:
                     raise GraphAPIError(
-                        "Valid API versions are "
-                        + str(VALID_API_VERSIONS).strip("[]")
+                        "Valid API versions are " + str(VALID_API_VERSIONS).strip("[]")
                     )
                 else:
                     self.version = "v" + str(version)
@@ -141,9 +140,7 @@ class GraphAPI(object):
     def search(self, type, **args):
         """https://developers.facebook.com/docs/places/search"""
         if type not in VALID_SEARCH_TYPES:
-            raise GraphAPIError(
-                "Valid types are: %s" % ", ".join(VALID_SEARCH_TYPES)
-            )
+            raise GraphAPIError("Valid types are: %s" % ", ".join(VALID_SEARCH_TYPES))
 
         args["type"] = type
         return self.request(self.version + "/search/", args)
@@ -206,15 +203,11 @@ class GraphAPI(object):
 
     def delete_object(self, id):
         """Deletes the object with the given ID from the graph."""
-        return self.request(
-            "{0}/{1}".format(self.version, id), method="DELETE"
-        )
+        return self.request("{0}/{1}".format(self.version, id), method="DELETE")
 
     def delete_request(self, user_id, request_id):
         """Deletes the Request with the given ID for the given user."""
-        return self.request(
-            "{0}_{1}".format(request_id, user_id), method="DELETE"
-        )
+        return self.request("{0}_{1}".format(request_id, user_id), method="DELETE")
 
     def put_photo(self, image, album_path="me/photos", **kwargs):
         """
@@ -253,9 +246,7 @@ class GraphAPI(object):
         except Exception:
             raise GraphAPIError("API version number not available")
 
-    def request(
-        self, path, args=None, post_args=None, files=None, method=None
-    ):
+    def request(self, path, args=None, post_args=None, files=None, method=None):
         """Fetches the given path in the Graph API.
 
         We translate args to a valid query string. If post_args is
@@ -343,9 +334,7 @@ class GraphAPI(object):
                 "{0}/oauth/access_token".format(self.version), args=args
             )["access_token"]
 
-    def get_access_token_from_code(
-        self, code, redirect_uri, app_id, app_secret
-    ):
+    def get_access_token_from_code(self, code, redirect_uri, app_id, app_secret):
         """Get an access token from the "code" returned from an OAuth dialog.
 
         Returns a dict containing the user-specific access token and its
@@ -359,9 +348,7 @@ class GraphAPI(object):
             "client_secret": app_secret,
         }
 
-        return self.request(
-            "{0}/oauth/access_token".format(self.version), args
-        )
+        return self.request("{0}/oauth/access_token".format(self.version), args)
 
     def extend_access_token(self, app_id, app_secret):
         """
@@ -377,9 +364,7 @@ class GraphAPI(object):
             "fb_exchange_token": self.access_token,
         }
 
-        return self.request(
-            "{0}/oauth/access_token".format(self.version), args=args
-        )
+        return self.request("{0}/oauth/access_token".format(self.version), args=args)
 
     def debug_access_token(self, token, app_id, app_secret):
         """
@@ -491,9 +476,7 @@ def parse_signed_request(signed_request, app_secret):
         sig = base64.urlsafe_b64decode(
             encoded_sig + "=" * ((4 - len(encoded_sig) % 4) % 4)
         )
-        data = base64.urlsafe_b64decode(
-            payload + "=" * ((4 - len(payload) % 4) % 4)
-        )
+        data = base64.urlsafe_b64decode(payload + "=" * ((4 - len(payload) % 4) % 4))
     except IndexError:
         # Signed request was malformed.
         return False
@@ -513,9 +496,7 @@ def parse_signed_request(signed_request, app_secret):
     app_secret = app_secret.encode("ascii")
     payload = payload.encode("ascii")
 
-    expected_sig = hmac.new(
-        app_secret, msg=payload, digestmod=hashlib.sha256
-    ).digest()
+    expected_sig = hmac.new(app_secret, msg=payload, digestmod=hashlib.sha256).digest()
     if sig != expected_sig:
         return False
 

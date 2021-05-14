@@ -13,9 +13,7 @@ class FacebookUserPermissionsTestCase(FacebookTestCase):
     """
 
     def test_get_user_permissions_node(self):
-        token = facebook.GraphAPI().get_app_access_token(
-            self.app_id, self.secret, True
-        )
+        token = facebook.GraphAPI().get_app_access_token(self.app_id, self.secret, True)
         graph = facebook.GraphAPI(access_token=token)
         self.create_test_users(self.app_id, graph, 1)
         permissions = graph.get_permissions(self.test_users[0]["id"])
@@ -25,8 +23,6 @@ class FacebookUserPermissionsTestCase(FacebookTestCase):
         self.assertFalse("email" in permissions)
 
     def test_get_user_permissions_nonexistant_user(self):
-        token = facebook.GraphAPI().get_app_access_token(
-            self.app_id, self.secret, True
-        )
+        token = facebook.GraphAPI().get_app_access_token(self.app_id, self.secret, True)
         with self.assertRaises(facebook.GraphAPIError):
             facebook.GraphAPI(token).get_permissions(1)

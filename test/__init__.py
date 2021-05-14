@@ -40,9 +40,7 @@ class FacebookTestCase(unittest.TestCase):
 
     def tearDown(self):
         """Deletes the test users included in the test user list."""
-        token = facebook.GraphAPI().get_app_access_token(
-            self.app_id, self.secret, True
-        )
+        token = facebook.GraphAPI().get_app_access_token(self.app_id, self.secret, True)
         graph = facebook.GraphAPI(token)
 
         for user in self.test_users:
@@ -50,12 +48,7 @@ class FacebookTestCase(unittest.TestCase):
         del self.test_users[:]
 
     def assert_raises_multi_regex(
-        self,
-        expected_exception,
-        expected_regexp,
-        callable_obj=None,
-        *args,
-        **kwargs
+        self, expected_exception, expected_regexp, callable_obj=None, *args, **kwargs
     ):
         """
         Custom function to backport assertRaisesRegexp to all supported
@@ -71,9 +64,7 @@ class FacebookTestCase(unittest.TestCase):
     def create_test_users(self, app_id, graph, amount):
         """Function for creating test users."""
         for i in range(amount):
-            u = graph.request(
-                app_id + "/accounts/test-users", {}, {}, method="POST"
-            )
+            u = graph.request(app_id + "/accounts/test-users", {}, {}, method="POST")
             self.test_users.append(u)
 
     def create_friend_connections(self, user, friends):

@@ -14,9 +14,7 @@ class FacebookAccessTokenTestCase(FacebookTestCase):
         try:
             facebook.GraphAPI().extend_access_token(self.app_id, self.secret)
         except facebook.GraphAPIError as e:
-            self.assertEqual(
-                e.message, "fb_exchange_token parameter not specified"
-            )
+            self.assertEqual(e.message, "fb_exchange_token parameter not specified")
 
     def test_bogus_access_token(self):
         graph = facebook.GraphAPI(access_token="wrong_token")

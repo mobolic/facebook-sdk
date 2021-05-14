@@ -23,6 +23,4 @@ class FacebookSearchTestCase(FacebookTestCase):
     def test_invalid_search_type(self):
         """Verify that search method fails when an invalid type is passed."""
         search_args = {"type": "foo", "q": "bar"}
-        self.assertRaises(
-            facebook.GraphAPIError, self.graph.search, search_args
-        )
+        self.assertRaises(facebook.GraphAPIError, self.graph.search, search_args)
