@@ -93,7 +93,7 @@ class GraphAPI(object):
         self.app_secret_hmac = None
 
         if version:
-            version_regex = re.compile(r"^\d\.\d{1,2}$")
+            version_regex = re.compile(r"^\d{1,2}\.\d{1,2}$")
             match = version_regex.search(str(version))
             if match is not None:
                 if str(version) not in VALID_API_VERSIONS:
