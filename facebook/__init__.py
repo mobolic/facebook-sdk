@@ -41,7 +41,7 @@ __version__ = version.__version__
 FACEBOOK_GRAPH_URL = "https://graph.facebook.com/"
 FACEBOOK_WWW_URL = "https://www.facebook.com/"
 FACEBOOK_OAUTH_DIALOG_PATH = "dialog/oauth?"
-VALID_API_VERSIONS = ["3.1", "3.2", "3.3", "4.0", "5.0", "6.0", "7.0", "8.0"]
+DEFAULT_VERSION = "13.0"
 VALID_SEARCH_TYPES = ["place", "placetopic"]
 
 
@@ -83,9 +83,6 @@ class GraphAPI(object):
         session=None,
         app_secret=None,
     ):
-        # The default version is only used if the version kwarg does not exist.
-        default_version = VALID_API_VERSIONS[0]
-
         self.access_token = access_token
         self.timeout = timeout
         self.proxies = proxies
@@ -93,23 +90,18 @@ class GraphAPI(object):
         self.app_secret_hmac = None
 
         if version:
-            version_regex = re.compile(r"^\d\.\d{1,2}$")
+            version_regex = re.compile(r"^\d+\.\d{1,2}$")
             match = version_regex.search(str(version))
             if match is not None:
-                if str(version) not in VALID_API_VERSIONS:
-                    raise GraphAPIError(
-                        "Valid API versions are "
-                        + str(VALID_API_VERSIONS).strip("[]")
-                    )
-                else:
-                    self.version = "v" + str(version)
+                self.version = "v" + str(version)
             else:
                 raise GraphAPIError(
                     "Version number should be in the"
                     " following format: #.# (e.g. 2.0)."
                 )
         else:
-            self.version = "v" + default_version
+            # The default version is only used if the version kwarg does not exist.
+            self.version = "v" + DEFAULT_VERSION
 
         if app_secret and access_token:
             self.app_secret_hmac = hmac.new(
