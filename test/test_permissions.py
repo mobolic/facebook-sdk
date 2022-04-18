@@ -18,7 +18,12 @@ class FacebookUserPermissionsTestCase(FacebookTestCase):
         )
         graph = facebook.GraphAPI(access_token=token)
         self.create_test_users(self.app_id, graph, 1)
-        permissions = graph.get_permissions(self.test_users[0]["id"])
+        # どのバージョンからかは不明だが、ユーザーデータの中にはアプリのアクセストークンではなく、
+        # ユーザーのアクセストークンを使用する必要があることになっている。
+        # REF: https://developers.facebook.com/docs/facebook-login/guides/access-tokens#limitations
+        user_token = self.test_users[0]["access_token"]
+        user_graph = facebook.GraphAPI(access_token=user_token)
+        permissions = user_graph.get_permissions(self.test_users[0]["id"])
         self.assertIsNotNone(permissions)
         self.assertTrue("public_profile" in permissions)
         self.assertTrue("user_friends" in permissions)
