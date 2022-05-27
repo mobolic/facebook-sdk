@@ -45,7 +45,7 @@ __version__ = version.__version__
 FACEBOOK_GRAPH_URL = "https://graph.facebook.com/"
 FACEBOOK_WWW_URL = "https://www.facebook.com/"
 FACEBOOK_OAUTH_DIALOG_PATH = "dialog/oauth?"
-VALID_API_VERSIONS = ["6.0", "7.0", "8.0", "9.0", "10.0", "11.0", "12.0"]
+VALID_API_VERSIONS = ["6.0", "7.0", "8.0", "9.0", "10.0", "11.0", "12.0", "13.0", "14.0"]
 VALID_SEARCH_TYPES = ["place", "placetopic"]
 
 
