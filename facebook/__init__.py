@@ -41,7 +41,7 @@ __version__ = version.__version__
 FACEBOOK_GRAPH_URL = "https://graph.facebook.com/"
 FACEBOOK_WWW_URL = "https://www.facebook.com/"
 FACEBOOK_OAUTH_DIALOG_PATH = "dialog/oauth?"
-VALID_API_VERSIONS = ["3.1", "3.2", "3.3", "4.0", "5.0", "6.0", "7.0", "8.0"]
+VALID_API_VERSIONS = ["4.0", "5.0", "6.0", "7.0", "8.0", "9.0", "10.0", "11.0", "12.0", "13.0", "14.0", "15.0", "16.0"]
 VALID_SEARCH_TYPES = ["place", "placetopic"]
 
 
@@ -75,13 +75,13 @@ class GraphAPI(object):
     """
 
     def __init__(
-        self,
-        access_token=None,
-        timeout=None,
-        version=None,
-        proxies=None,
-        session=None,
-        app_secret=None,
+            self,
+            access_token=None,
+            timeout=None,
+            version=None,
+            proxies=None,
+            session=None,
+            app_secret=None,
     ):
         # The default version is only used if the version kwarg does not exist.
         default_version = VALID_API_VERSIONS[0]
@@ -93,7 +93,7 @@ class GraphAPI(object):
         self.app_secret_hmac = None
 
         if version:
-            version_regex = re.compile(r"^\d\.\d{1,2}$")
+            version_regex = re.compile(r"^\d{1,2}\.\d{1,2}$")
             match = version_regex.search(str(version))
             if match is not None:
                 if str(version) not in VALID_API_VERSIONS:
@@ -241,7 +241,7 @@ class GraphAPI(object):
                 params=args,
                 timeout=self.timeout,
                 proxies=self.proxies,
-            )
+                )
         except requests.HTTPError as e:
             response = json.loads(e.read())
             raise GraphAPIError(response)
@@ -254,7 +254,7 @@ class GraphAPI(object):
             raise GraphAPIError("API version number not available")
 
     def request(
-        self, path, args=None, post_args=None, files=None, method=None
+            self, path, args=None, post_args=None, files=None, method=None
     ):
         """Fetches the given path in the Graph API.
 
@@ -292,7 +292,7 @@ class GraphAPI(object):
                 data=post_args,
                 proxies=self.proxies,
                 files=files,
-            )
+                )
         except requests.HTTPError as e:
             response = json.loads(e.read())
             raise GraphAPIError(response)
@@ -344,7 +344,7 @@ class GraphAPI(object):
             )["access_token"]
 
     def get_access_token_from_code(
-        self, code, redirect_uri, app_id, app_secret
+            self, code, redirect_uri, app_id, app_secret
     ):
         """Get an access token from the "code" returned from an OAuth dialog.
 
@@ -476,7 +476,7 @@ def get_user_from_cookie(cookies, app_id, app_secret):
 
 
 def parse_signed_request(signed_request, app_secret):
-    """Return dictionary with signed request data.
+    """ Return dictionary with signed request data.
 
     We return a dictionary containing the information in the
     signed_request. This includes a user_id if the user has authorised
