@@ -69,9 +69,3 @@ Version 0.3.2 (2012-07-28)
  - Fixes bug with Unicode app secrets.
  - Add optional timeout support for faster API requests.
  - Random PEP8 compliance fixes.
-
-Version 0.3.1 (2012-05-16)
-==========================
-
- - Minor documentation updates.
- - Removes the develop branch in favor of named feature branches.
